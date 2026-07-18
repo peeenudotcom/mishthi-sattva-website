@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Products — Mishthi Sattva</title>
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; }
+  .ms-stack { }
+  .ms-why-grid { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 860px) {
+    .ms-stack { grid-template-columns: 1fr !important; }
+    .ms-nav { display: none !important; }
+    .ms-why-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 520px) {
+    .ms-why-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 680px) {
+    h1 { font-size: 42px !important; }
+    h2 { font-size: 32px !important; }
+    section { padding-top: 56px !important; padding-bottom: 56px !important; }
+  }
+
+  /* --- Ayur Kesh Vardaan Oil realism tweaks (driven by the panel below) --- */
+  :root{ --oil-frame-bg: var(--cream); --oil-filter: none; --oil-zoom: 1; --oil-shadow: 0; }
+  .ms-oil > div { width: 100%; }
+  .ms-oil div[style*="aspect-ratio"] { background: var(--oil-frame-bg) !important; position: relative; }
+  .ms-oil div[style*="aspect-ratio"] img { filter: var(--oil-filter); transform: scale(var(--oil-zoom)); transform-origin: 50% 64%; transition: filter .25s ease, transform .25s ease; }
+  .ms-oil div[style*="aspect-ratio"]::after { content: ""; position: absolute; left: 50%; bottom: 7%; width: 58%; height: 10%; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(58,34,14,var(--oil-shadow)), transparent 78%); pointer-events: none; z-index: 1; }
+  #oilTweakBtn{ position: fixed; bottom: 20px; left: 20px; z-index: 60; height: 48px; width: 48px; display: grid; place-items: center; border-radius: 999px; border: 1px solid var(--border); background: var(--card); color: var(--primary); box-shadow: var(--shadow-lg); cursor: pointer; }
+  #oilTweakPanel{ position: fixed; bottom: 78px; left: 20px; z-index: 60; width: 288px; max-width: calc(100vw - 40px); border-radius: 18px; border: 1px solid var(--border); background: color-mix(in oklab, var(--card) 96%, transparent); backdrop-filter: blur(10px); box-shadow: var(--shadow-xl); padding: 18px; display: none; font-family: var(--font-sans); }
+  #oilTweakPanel.open{ display: block; }
+  #oilTweakPanel h4{ margin: 0 0 2px; font-family: var(--font-display); font-size: 16px; color: var(--primary); }
+  #oilTweakPanel .sub{ margin: 0 0 14px; font-size: 12px; color: var(--muted-foreground); }
+  #oilTweakPanel .row{ margin-top: 14px; }
+  #oilTweakPanel label{ display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: color-mix(in oklab, var(--foreground) 72%, transparent); margin-bottom: 6px; }
+  #oilTweakPanel input[type=range]{ width: 100%; accent-color: var(--primary); }
+  #oilTweakPanel .seg{ display: flex; gap: 6px; }
+  #oilTweakPanel .seg button{ flex: 1; padding: 7px 4px; font-size: 11px; font-weight: 600; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: color-mix(in oklab, var(--foreground) 70%, transparent); cursor: pointer; }
+  #oilTweakPanel .seg button.on{ background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+  #oilTweakPanel .reset{ margin-top: 16px; width: 100%; padding: 8px; font-size: 12px; font-weight: 600; border-radius: 10px; border: 1px solid var(--border); background: transparent; color: var(--primary); cursor: pointer; }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <script type="text/babel" src="Sections.jsx"></script>
+  <script type="text/babel">
+    ReactDOM.createRoot(document.getElementById("root")).render(<window.MSWebsite.ProductsPage />);
+  </script>
+  <!-- Tweaks: Ayur Kesh Vardaan Oil realism -->
+  <button id="oilTweakBtn" aria-label="Photo tweaks" title="Hair-oil photo tweaks">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
+  </button>
+  <div id="oilTweakPanel" role="dialog" aria-label="Hair-oil photo tweaks">
+    <h4>Hair-Oil Photo</h4>
+    <p class="sub">Tune the Ayur Kesh Vardaan Oil shot so it reads as a real studio photograph.</p>
+    <div class="row"><label>Frame Tone</label><div class="seg" data-seg="frame"><button data-val="var(--cream)" class="on">Cream</button><button data-val="#ffffff">White</button><button data-val="#efe6d6">Linen</button></div></div>
+    <div class="row"><label>Photo Warmth <span id="warmVal">0</span></label><input id="oilWarm" type="range" min="0" max="60" value="0" /></div>
+    <div class="row"><label>Zoom <span id="zoomVal">100%</span></label><input id="oilZoom" type="range" min="100" max="130" value="100" /></div>
+    <div class="row"><label>Ground Shadow <span id="shadowVal">0</span></label><input id="oilShadow" type="range" min="0" max="45" value="0" /></div>
+    <button class="reset" id="oilReset">Reset to real photo</button>
+  </div>
+  <script>
+    (function(){
+      var root = document.documentElement, LS = "ms-oil-tweaks";
+      var def = { frame: "var(--cream)", warm: 0, zoom: 100, shadow: 0 };
+      var s = Object.assign({}, def);
+      try { s = Object.assign(s, JSON.parse(localStorage.getItem(LS) || "{}")); } catch(e){}
+      function filter(w){ return w <= 0 ? "none" : "sepia(" + (w*0.45).toFixed(1) + "%) saturate(" + (100 + w*0.7).toFixed(0) + "%) brightness(" + (100 + w*0.08).toFixed(0) + "%)"; }
+      function apply(){
+        root.style.setProperty("--oil-frame-bg", s.frame);
+        root.style.setProperty("--oil-filter", filter(s.warm));
+        root.style.setProperty("--oil-zoom", (s.zoom/100).toFixed(3));
+        root.style.setProperty("--oil-shadow", (s.shadow/100).toFixed(3));
+        document.getElementById("warmVal").textContent = s.warm;
+        document.getElementById("zoomVal").textContent = s.zoom + "%";
+        document.getElementById("shadowVal").textContent = s.shadow;
+        document.getElementById("oilWarm").value = s.warm;
+        document.getElementById("oilZoom").value = s.zoom;
+        document.getElementById("oilShadow").value = s.shadow;
+        document.querySelectorAll('[data-seg="frame"] button').forEach(function(b){ b.classList.toggle("on", b.dataset.val === s.frame); });
+        try { localStorage.setItem(LS, JSON.stringify(s)); } catch(e){}
+      }
+      document.getElementById("oilTweakBtn").addEventListener("click", function(){ document.getElementById("oilTweakPanel").classList.toggle("open"); });
+      document.querySelectorAll('[data-seg="frame"] button').forEach(function(b){ b.addEventListener("click", function(){ s.frame = b.dataset.val; apply(); }); });
+      document.getElementById("oilWarm").addEventListener("input", function(e){ s.warm = +e.target.value; apply(); });
+      document.getElementById("oilZoom").addEventListener("input", function(e){ s.zoom = +e.target.value; apply(); });
+      document.getElementById("oilShadow").addEventListener("input", function(e){ s.shadow = +e.target.value; apply(); });
+      document.getElementById("oilReset").addEventListener("click", function(){ s = Object.assign({}, def); apply(); });
+      apply();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+/* ============================================================
+   MISHTHI SATTVA — RADIUS, SHADOW & MOTION TOKENS
+   Soft rounded cards, warm diffuse shadows, gentle lifts.
+   ============================================================ */
+
+:root {
+  /* ---- Corner radii ---- */
+  --radius:      0.625rem;  /* 10px base                          */
+  --radius-sm:   0.375rem;  /* 6px  inputs, chips                 */
+  --radius-md:   0.5rem;
+  --radius-lg:   0.625rem;
+  --radius-xl:   1rem;      /* 16px cards                         */
+  --radius-2xl:  1.5rem;    /* 24px feature cards                 */
+  --radius-3xl:  2rem;      /* 32px hero / image frames           */
+  --radius-pill: 9999px;    /* buttons, tags, badges              */
+
+  /* ---- Shadows (warm, low-spread, soft) ---- */
+  --shadow-sm:  0 1px 2px oklch(0.24 0.05 158 / 0.06);
+  --shadow-md:  0 6px 18px -8px oklch(0.24 0.05 158 / 0.12);
+  --shadow-lg:  0 14px 36px -12px oklch(0.24 0.05 158 / 0.18);
+  --shadow-xl:  0 24px 60px -18px oklch(0.24 0.05 158 / 0.24);
+  --shadow-whatsapp: 0 10px 30px -10px color-mix(in oklab, var(--whatsapp) 50%, transparent);
+
+  /* ---- Motion ---- */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);  /* @kind other */
+  --ease-out:      cubic-bezier(0.16, 1, 0.3, 1);  /* @kind other */
+  --duration-fast:  0.15s;  /* @kind other */
+  --duration-base:  0.2s;   /* @kind other */
+  --duration-slow:  0.4s;   /* @kind other */
+
+  /* hover lift used on cards/products: translateY(-4px) + shadow-lg */
+  --lift: -4px;
+}

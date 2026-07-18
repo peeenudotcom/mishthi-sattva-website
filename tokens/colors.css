@@ -1,0 +1,53 @@
+/* ============================================================
+   MISHTHI SATTVA — COLOR TOKENS
+   Brand: Forest green + antique gold + warm cream.
+   All colors in oklch (matching the production website theme).
+   ============================================================ */
+
+:root {
+  /* ---- Brand palette (base) ---- */
+  --cream:        oklch(0.965 0.012 85);   /* #F8F5EE  page background      */
+  --cream-deep:   oklch(0.930 0.018 82);   /* #EFE9DC  muted / secondary    */
+  --forest:       oklch(0.340 0.060 158);  /* #114B35  primary brand green  */
+  --forest-deep:  oklch(0.240 0.050 158);  /* #0B3325  ink / deep panels    */
+  --gold:         oklch(0.720 0.120 82);   /* #C9A24D  antique gold accent  */
+  --gold-soft:    oklch(0.850 0.080 85);   /* #E3CD93  soft gold            */
+  --whatsapp:     #25D366;                  /* ordering channel green        */
+
+  /* ---- Neutral ink scale (warm, green-leaning) ---- */
+  --ink-900: oklch(0.220 0.030 158);
+  --ink-700: oklch(0.320 0.028 158);
+  --ink-500: oklch(0.420 0.030 158);
+  --ink-300: oklch(0.620 0.020 150);
+  --white:   oklch(0.990 0.008 85);
+
+  /* ============================================================
+     SEMANTIC ALIASES — reference these in components
+     ============================================================ */
+  --background:           var(--cream);
+  --foreground:           var(--ink-900);
+
+  --card:                 var(--white);
+  --card-foreground:      var(--ink-900);
+  --popover:              var(--white);
+  --popover-foreground:   var(--ink-900);
+
+  --primary:              var(--forest);
+  --primary-foreground:   var(--cream);
+  --secondary:            var(--cream-deep);
+  --secondary-foreground: var(--forest-deep);
+
+  --muted:                var(--cream-deep);
+  --muted-foreground:     var(--ink-500);
+
+  --accent:               var(--gold);
+  --accent-foreground:    var(--forest-deep);
+
+  --destructive:            oklch(0.55 0.20 27);
+  --destructive-foreground: oklch(0.985 0.003 248);
+  --success:                var(--whatsapp);
+
+  --border:  oklch(0.88 0.02 85);
+  --input:   oklch(0.88 0.02 85);
+  --ring:    var(--gold);
+}

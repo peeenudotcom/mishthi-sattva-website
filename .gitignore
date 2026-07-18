@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Editor / logs
+*.log
+.vscode/
+.idea/
+
+# Node (not used yet, but future-proof)
+node_modules/

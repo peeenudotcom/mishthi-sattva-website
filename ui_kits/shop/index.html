@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mishthi Sattva — Shop · Pure · Hygienic · Homemade</title>
+<link rel="stylesheet" href="../../styles.css" />
+<style>
+  body { margin: 0; }
+  @keyframes msfade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes msslide { from { transform: translateX(40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes mstoast { from { transform: translateY(14px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23114B35' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 34px !important; }
+
+  /* ---- responsive layout ---- */
+  .shop-hero { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 40px; padding: 56px 24px; }
+  .shop-checkout { grid-template-columns: 1.1fr 0.9fr; }
+  .shop-quick { grid-template-columns: 1fr 1fr; }
+
+  @media (max-width: 900px) {
+    .shop-quick { grid-template-columns: 1fr; }
+    .shop-quick-media { padding: 18px 18px 0 !important; }
+  }
+  @media (max-width: 860px) {
+    .shop-hero { grid-template-columns: 1fr; gap: 28px; padding: 40px 20px; }
+    .shop-checkout { grid-template-columns: 1fr; }
+    .shop-checkout > div:last-child { border-left: none !important; border-top: 1px solid var(--border); }
+  }
+  .shop-nav a:hover { color: var(--primary); }
+  @media (max-width: 980px) { .shop-nav { display: none !important; } }
+  @media (max-width: 760px) {
+    .shop-head { flex-wrap: wrap; justify-content: space-between; }
+    .shop-search { order: 3; flex-basis: 100%; max-width: none !important; }
+  }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="../../_ds_bundle.js"></script>
+  <script src="data.js"></script>
+  <script type="text/babel" src="ShopParts.jsx"></script>
+  <script type="text/babel" src="Shop.jsx"></script>
+  <script type="text/babel">
+    ReactDOM.createRoot(document.getElementById("root")).render(<window.MSShop.Shop />);
+  </script>
+</body>
+</html>

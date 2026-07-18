@@ -1,0 +1,45 @@
+/* ============================================================
+   MISHTHI SATTVA — TYPOGRAPHY TOKENS
+   ============================================================ */
+
+:root {
+  /* ---- Font families ---- */
+  --font-display: "Cormorant Garamond", "Cormorant", Georgia, serif;
+  --font-sans:    "Manrope", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-hindi:   "Tiro Devanagari Hindi", "Noto Serif Devanagari", serif;
+
+  /* ---- Type scale (fluid-friendly rem) ---- */
+  --text-xs:   0.75rem;   /* 12px  eyebrow / fine print           */
+  --text-sm:   0.875rem;  /* 14px  small UI text                  */
+  --text-base: 1rem;      /* 16px  body                           */
+  --text-lg:   1.125rem;  /* 18px  lead body                      */
+  --text-xl:   1.5rem;    /* 24px  card heading (display)         */
+  --text-2xl:  2rem;      /* 32px  section sub-head               */
+  --text-3xl:  2.75rem;   /* 44px  section heading                */
+  --text-4xl:  3.5rem;    /* 56px  page heading                   */
+  --text-5xl:  4.25rem;   /* 68px  hero                           */
+
+  /* ---- Weights ---- */
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+  --weight-display:  600;  /* headings sit at semibold Cormorant  */
+
+  /* ---- Line heights ---- */
+  --leading-tight:   1.05;  /* display headings                   */
+  --leading-snug:    1.2;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.7;   /* body paragraphs                    */
+
+  /* ---- Letter spacing ---- */
+  --tracking-display: -0.01em;  /* headings tighten slightly      */
+  --tracking-normal:  0;
+  --tracking-wide:    0.04em;
+  --tracking-eyebrow: 0.32em;   /* the gold "AYURVEDIC · SATVIC"  */
+
+  /* ---- Semantic roles ---- */
+  --text-body:      var(--text-base);
+  --text-heading:   var(--font-display);
+  --text-ui:        var(--font-sans);
+}
