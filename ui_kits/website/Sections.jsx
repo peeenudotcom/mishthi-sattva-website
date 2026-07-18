@@ -173,16 +173,21 @@ function MarqueeStrip() {
 /* ---------- about ---------- */
 function About() {
   return (
-    <section id="about" style={{ background: "var(--white)", padding: "96px 0", scrollMarginTop: 84 }}>
-      <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "start" }}>
+    <section id="about" style={{ background: "var(--white)", padding: "84px 0", scrollMarginTop: 84 }}>
+      <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "0.82fr 1.18fr", gap: 52, alignItems: "center" }}>
+        {/* TODO: swap for a real Cherry-in-the-kitchen / preparation photo when available */}
+        <div style={{ overflow: "hidden", borderRadius: 28, border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", aspectRatio: "4 / 5" }}>
+          <img src={`${ASSET}/hero-products.png`} alt="Preparing Ayurvedic food by hand in a home kitchen in Kotkapura" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        </div>
         <div>
           <GoldDivider>Our Story</GoldDivider>
-          <h2 style={{ marginTop: 20, fontSize: 64, fontWeight: 700, lineHeight: 1.04, letterSpacing: "-0.015em" }}>From our home kitchen, with care.</h2>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 20, fontSize: 18, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>
-          <p>Mishthi Sattva was founded with a simple mission — to provide pure, hygienic, homemade products made with natural ingredients and traditional wisdom.</p>
-          <p>Many products today contain refined oil, refined sugar and artificial preservatives. Mishthi Sattva offers healthier alternatives prepared with love, care and cleanliness in a home kitchen.</p>
-          <p style={{ fontFamily: "var(--font-display)", fontSize: 22, fontStyle: "italic", color: "var(--primary)" }}>Every product is crafted with a commitment to quality, purity and family wellness.</p>
+          <h2 style={{ marginTop: 18, fontSize: 50, fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.015em", textWrap: "balance" }}>It began in one home kitchen — with a mother's wish to feed her family better.</h2>
+          <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 18, fontSize: 18, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>
+            <p>Mishthi Sattva was born in Cherry Bansal's kitchen in Kotkapura — not as a business plan, but as a search for honest everyday food. What began as carefully prepared recipes for family and friends slowly grew into a collection of homemade foods, spices and wellness products for more families to trust.</p>
+            <p>Cherry wanted to prepare everyday foods using thoughtfully selected ingredients, familiar recipes and methods she would confidently choose for her own family.</p>
+            <p style={{ fontFamily: "var(--font-display)", fontSize: 22, fontStyle: "italic", color: "var(--primary)" }}>Every product is crafted with a commitment to quality, purity and family wellness.</p>
+          </div>
+          <p style={{ marginTop: 22, display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.14em", color: "var(--accent)" }}><Leaf size={14} /> Rooted in Kotkapura, Punjab</p>
         </div>
       </div>
     </section>
@@ -327,9 +332,12 @@ function Founder() {
         </div>
         <div>
           <GoldDivider>Meet Our Founder</GoldDivider>
-          <h2 style={{ marginTop: 20, fontSize: 64, fontWeight: 700, lineHeight: 1.04, letterSpacing: "-0.015em" }}>A mother's recipe, made for every family.</h2>
-          <p style={{ marginTop: 24, fontSize: 18, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>Cherry Bansal believes healthy living begins with pure ingredients and honest preparation. Every Mishthi Sattva product reflects her dedication to family wellness, hygiene and traditional values.</p>
+          <h2 style={{ marginTop: 20, fontSize: 46, fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.015em", textWrap: "balance" }}>Meet Cherry Bansal — the heart and hands behind Mishthi Sattva.</h2>
+          <p style={{ marginTop: 22, fontSize: 18, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>For Cherry, homemade is not simply a label. It means knowing what goes into every batch, preparing it with care, and serving customers with the same honesty she expects for her own family.</p>
+          <p style={{ marginTop: 16, fontSize: 18, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>She built Mishthi Sattva recipe by recipe — starting with food for her own home, then for friends and neighbours who kept asking for more. Every product still passes through her hands before it reaches yours.</p>
           <p className="ms-hindi" style={{ marginTop: 24, borderLeft: "2px solid var(--accent)", paddingLeft: 20, fontSize: 20, fontStyle: "italic", color: "var(--primary)" }}>"स्वाद ऐसा जो दिल जीत ले, और सेहत ऐसी जिस पर पूरा परिवार भरोसा करे।"</p>
+          {/* TODO: confirm this is Cherry's own wording and the exact translation */}
+          <p style={{ marginTop: 8, paddingLeft: 20, fontSize: 14, fontStyle: "italic", color: "var(--muted-foreground)" }}>"True taste wins the heart, and true health earns every family's trust."</p>
           <p style={{ marginTop: 12, fontSize: 14, color: "var(--muted-foreground)" }}>— Cherry Bansal, Founder</p>
         </div>
       </div>
@@ -621,6 +629,103 @@ function HomeOrdering() {
   );
 }
 
+/* ---------- about: journey timeline ---------- */
+function Journey() {
+  /* TODO: add real years/dates once confirmed with the founder */
+  const steps = [
+    { t: "The first recipe", d: "Made at home, for her own family." },
+    { t: "Shared with loved ones", d: "Friends and neighbours began asking for more." },
+    { t: "Mishthi Sattva was born", d: "A homemade wellness brand took shape." },
+    { t: "Growing with care", d: "More foods, spices and wellness products were added." },
+    { t: "Still made personally", d: "Small batches, careful preparation, direct relationships." },
+  ];
+  return (
+    <section style={{ background: "var(--background)", padding: "84px 0" }}>
+      <div className="ms-container">
+        <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
+          <GoldDivider align="center">Our Journey</GoldDivider>
+          <h2 style={{ marginTop: 20, fontSize: 48, fontWeight: 700, lineHeight: 1.12, letterSpacing: "-0.015em", textWrap: "balance" }}>From one kitchen to many homes.</h2>
+        </div>
+        <ol style={{ maxWidth: 640, margin: "48px auto 0", listStyle: "none", padding: 0 }}>
+          {steps.map((s, i) => (
+            <li key={s.t} style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: 20 }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <span style={{ display: "grid", placeItems: "center", height: 40, width: 40, flexShrink: 0, borderRadius: "var(--radius-pill)", background: "var(--primary)", color: "var(--primary-foreground)", fontWeight: 700, fontSize: 15 }}>{i + 1}</span>
+                {i < steps.length - 1 && <span style={{ flex: 1, width: 2, background: "color-mix(in oklab, var(--accent) 45%, transparent)", marginTop: 6 }} />}
+              </div>
+              <div style={{ paddingBottom: i < steps.length - 1 ? 28 : 0 }}>
+                <h3 style={{ fontSize: 22, color: "var(--primary)" }}>{s.t}</h3>
+                <p style={{ marginTop: 4, fontSize: 16, lineHeight: 1.6, color: "var(--muted-foreground)" }}>{s.d}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- about: what "Mishthi Sattva" means ---------- */
+function NameMeaning() {
+  return (
+    <section style={{ background: "var(--primary)", color: "var(--primary-foreground)", padding: "84px 0" }}>
+      <div className="ms-container" style={{ maxWidth: 820, marginInline: "auto", textAlign: "center" }}>
+        <GoldDivider align="center" onDark>The Name</GoldDivider>
+        <h2 style={{ marginTop: 20, fontSize: 48, fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.015em", color: "var(--cream)" }}>What "Mishthi Sattva" means.</h2>
+        {/* TODO: confirm this meaning with the founder before launch */}
+        <p style={{ marginTop: 22, fontSize: 19, lineHeight: 1.75, color: "color-mix(in oklab, var(--cream) 85%, transparent)" }}>
+          <b style={{ color: "var(--accent)" }}>Mishthi</b> speaks of sweetness and warmth. <b style={{ color: "var(--accent)" }}>Sattva</b> represents purity, balance and goodness. Together, the name carries our belief that nourishing food should bring both joy and wellbeing.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- about: what homemade means (brand philosophy) ---------- */
+function HomemadePhilosophy() {
+  const cards = [
+    { t: "Ingredients we recognise", d: "Carefully selected ingredients chosen for taste, freshness and suitability." },
+    { t: "Preparation we can stand behind", d: "Made in manageable batches, with personal attention at every stage." },
+    { t: "Food we'd serve our own family", d: "Every product is approached with the same care we expect in our own home." },
+  ];
+  return (
+    <section style={{ background: "var(--background)", padding: "84px 0" }}>
+      <div className="ms-container">
+        <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
+          <GoldDivider align="center">What Homemade Means</GoldDivider>
+          <h2 style={{ marginTop: 20, fontSize: 48, fontWeight: 700, lineHeight: 1.12, letterSpacing: "-0.015em", textWrap: "balance" }}>More than a label.</h2>
+        </div>
+        <div style={{ marginTop: 52, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 22 }}>
+          {cards.map((c, i) => (
+            <div key={c.t} style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "var(--radius-2xl)", padding: 32, boxShadow: "var(--shadow-sm)" }}>
+              <span style={{ fontFamily: "var(--font-display)", fontSize: 34, color: "color-mix(in oklab, var(--accent) 60%, transparent)" }}>{String(i + 1).padStart(2, "0")}</span>
+              <h3 style={{ marginTop: 10, fontSize: 23, lineHeight: 1.15, color: "var(--primary)" }}>{c.t}</h3>
+              <p style={{ marginTop: 10, fontSize: 15.5, lineHeight: 1.6, color: "var(--muted-foreground)" }}>{c.d}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- about: founder's promise + CTA ---------- */
+function FounderPromise() {
+  return (
+    <section style={{ background: "color-mix(in oklab, var(--secondary) 60%, var(--background))", padding: "88px 0" }}>
+      <div className="ms-container" style={{ maxWidth: 780, marginInline: "auto", textAlign: "center" }}>
+        <GoldDivider align="center">Cherry's Promise</GoldDivider>
+        <p style={{ marginTop: 24, fontFamily: "var(--font-display)", fontSize: 30, lineHeight: 1.35, fontStyle: "italic", color: "var(--primary)", textWrap: "balance" }}>"We will always tell you what goes into our products, prepare them with personal care, and recommend only what we'd confidently serve in our own home."</p>
+        <p style={{ marginTop: 16, fontSize: 13, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.16em", color: "var(--accent)" }}>— Cherry Bansal, Founder</p>
+        <div style={{ marginTop: 32, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 12 }}>
+          <Button variant="forest" as="a" href="../shop/index.html">Explore Our Products →</Button>
+          <WhatsAppButton message="Namaste Cherry! I read your story on the Mishthi Sattva website and would like to know more.">Talk to Cherry on WhatsApp</WhatsAppButton>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ---------- mobile sticky call + whatsapp bar ---------- */
 function MobileBar() {
   return (
@@ -669,12 +774,15 @@ function AboutPage() {
       <Header active="about" />
       <main>
         <About />
+        <Journey />
         <Founder />
-        <WhyUs />
-        <Testimonials />
+        <NameMeaning />
+        <HomemadePhilosophy />
+        <FounderPromise />
       </main>
       <Footer />
       <StickyWhatsApp />
+      <MobileBar />
     </div>
   );
 }
