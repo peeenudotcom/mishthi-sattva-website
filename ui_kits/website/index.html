@@ -9,6 +9,17 @@
   body { margin: 0; }
   .ms-stack { }
   .ms-why-grid { grid-template-columns: repeat(3, 1fr); }
+  /* balanced 3-column product grid → 2 → 1 */
+  .ms-prodgrid { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 900px) { .ms-prodgrid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .ms-prodgrid { grid-template-columns: 1fr; } }
+  /* mobile sticky call + whatsapp bar (hidden on desktop) */
+  .ms-mobilebar { display: none; }
+  @media (max-width: 680px) {
+    .ms-mobilebar { display: flex; }
+    .ms-fab { display: none !important; }   /* avoid overlap with the bar */
+    main { padding-bottom: 76px; }          /* room for the fixed bar */
+  }
   @media (max-width: 860px) {
     .ms-stack { grid-template-columns: 1fr !important; }
     .ms-nav { display: none !important; }

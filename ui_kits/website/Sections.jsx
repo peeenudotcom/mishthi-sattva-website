@@ -7,6 +7,11 @@ const { Button, Badge, Card, WhatsAppButton, GoldDivider, ProductCard, BenefitTi
 
 const ASSET = "../../assets";
 const PHONE = "8557942246";
+const WA = "918557942246"; // WhatsApp number (with country code)
+
+/* Editable promo badge shown on the hero image. TODO: confirm gift + minimum
+   order value with the owner, or set to null to hide the badge entirely. */
+const GIFT_BADGE = { title: "Complimentary wellness gift", sub: "on orders this month — ask us for details" };
 
 /* name -> product photo (from the brand's uploaded catalogue) */
 const PRODUCT_IMAGES = {
@@ -85,7 +90,7 @@ function Header({ active = "home" }) {
         <a href="index.html" style={{ display: "flex", alignItems: "center" }}>
           <img src={`${ASSET}/mishthi-logo-lockup.png`} alt="Mishthi Sattva — Ayurvedic, Satvik, Homemade" style={{ height: 74, width: "auto", objectFit: "contain" }} />
         </a>
-        <nav className="ms-nav" style={{ display: "flex", alignItems: "center", gap: 28 }}>
+        <nav className="ms-nav" style={{ display: "flex", alignItems: "center", gap: 34 }}>
           {nav.map((n) => {
             const on = n.id === active;
             return (
@@ -94,8 +99,8 @@ function Header({ active = "home" }) {
           })}
         </nav>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Button variant="outline" size="sm" as="a" href="../shop/index.html">Shop Products</Button>
-          <WhatsAppButton size="sm">Order on WhatsApp</WhatsAppButton>
+          <Button variant="outline" as="a" href="../shop/index.html">Shop</Button>
+          <WhatsAppButton>Order on WhatsApp</WhatsAppButton>
         </div>
       </div>
     </header>
@@ -139,8 +144,9 @@ function Hero() {
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <div style={{ display: "grid", placeItems: "center", height: 44, width: 44, borderRadius: "var(--radius-pill)", background: "color-mix(in oklab, var(--gold) 15%, transparent)", color: "var(--accent)" }}><Leaf size={22} /></div>
               <div>
-                <p style={{ fontSize: 14, fontWeight: 600, color: "var(--primary)" }}>Complimentary gift</p>
-                <p style={{ fontSize: 12, color: "var(--muted-foreground)" }}>on every order this month.</p>
+                {/* TODO: confirm the gift + minimum order value, or remove this badge. Edit GIFT_BADGE at top of file. */}
+                <p style={{ fontSize: 14, fontWeight: 600, color: "var(--primary)" }}>{GIFT_BADGE.title}</p>
+                <p style={{ fontSize: 12, color: "var(--muted-foreground)" }}>{GIFT_BADGE.sub}</p>
               </div>
             </div>
           </div>
@@ -152,7 +158,7 @@ function Hero() {
 
 /* ---------- marquee ---------- */
 function MarqueeStrip() {
-  const items = ["Pure · Hygienic · Homemade", "Made in Kotkapura, Punjab", "No Refined Oil", "No Refined Sugar", "No Preservatives", "Home Delivery"];
+  const items = ["Homemade in Small Batches", "Natural Ingredients", "Made in Kotkapura", "Home Delivery Available"];
   return (
     <div style={{ borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)", background: "var(--primary)", color: "var(--primary-foreground)" }}>
       <div className="ms-container" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: "8px 32px", padding: "12px 20px", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.22em" }}>
@@ -186,14 +192,14 @@ function About() {
 /* ---------- why us ---------- */
 function WhyUs() {
   return (
-    <section id="why" style={{ background: "var(--background)", padding: "96px 0", scrollMarginTop: 84 }}>
+    <section id="why" style={{ background: "var(--background)", padding: "78px 0", scrollMarginTop: 84 }}>
       <div className="ms-container">
         <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
           <GoldDivider align="center">Why Choose Us</GoldDivider>
-          <h2 style={{ marginTop: 20, fontSize: 56, fontWeight: 700, lineHeight: 1.16, letterSpacing: "-0.015em", textWrap: "balance" }}>A promise of purity<br />in every jar.</h2>
-          <p style={{ marginTop: 22, color: "var(--muted-foreground)", fontSize: 17, lineHeight: 1.6 }}>Every batch is held to the same six standards — no shortcuts, no compromises.</p>
+          <h2 style={{ marginTop: 20, fontSize: 52, fontWeight: 700, lineHeight: 1.14, letterSpacing: "-0.015em", textWrap: "balance" }}>Six standards we<br />never compromise on.</h2>
+          <p style={{ marginTop: 20, color: "var(--muted-foreground)", fontSize: 17, lineHeight: 1.6 }}>Every batch is held to the same standards — no shortcuts, no compromises.</p>
         </div>
-        <div className="ms-why-grid" style={{ marginTop: 64, display: "grid", gap: 18, alignItems: "stretch" }}>
+        <div className="ms-why-grid" style={{ marginTop: 48, display: "grid", gap: 18, alignItems: "stretch" }}>
           {BENEFITS.map((b) => <BenefitTile key={b.label} label={b.label} good={b.good} />)}
         </div>
       </div>
@@ -449,30 +455,60 @@ function Footer() {
   );
 }
 
-/* ---------- home: bestsellers grid ---------- */
+/* ---------- home: bestsellers grid (balanced 3 × 2) ---------- */
+/* NOTE: photos come from the design project and vary in lighting/treatment.
+   Uniform framing (4:3, cream backdrop, same corners) is applied here, but a
+   real single-shoot catalogue is still recommended for full consistency.
+   TODO: replace "Ask for price" with real ₹ prices once confirmed. */
+function HomeProductCard({ p }) {
+  const [h, setH] = React.useState(false);
+  const waMsg = `Hello Mishthi Sattva, I'm interested in ${p.name} (${p.size}). Please share the price and delivery details.`;
+  return (
+    <div onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
+      style={{ display: "flex", flexDirection: "column", background: "var(--card)", border: `1px solid ${h ? "var(--accent)" : "var(--border)"}`, borderRadius: "var(--radius-2xl)", overflow: "hidden", boxShadow: h ? "var(--shadow-lg)" : "var(--shadow-sm)", transform: h ? "translateY(-4px)" : "none", transition: "all .2s var(--ease-standard)" }}>
+      <div style={{ position: "relative", aspectRatio: "4 / 3", background: "var(--cream)", overflow: "hidden", borderBottom: "1px solid color-mix(in oklab, var(--accent) 20%, transparent)" }}>
+        <img src={`${ASSET}/${p.img}`} alt={p.name} loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        {p.badge && <span style={{ position: "absolute", top: 12, left: 12, background: "var(--forest-deep)", color: "var(--cream)", fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: "var(--radius-pill)" }}>{p.badge}</span>}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "20px 20px 22px" }}>
+        <h3 style={{ margin: 0, fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 23, lineHeight: 1.12, color: "var(--primary)" }}>{p.name}</h3>
+        <p style={{ margin: "8px 0 0", fontSize: 14.5, lineHeight: 1.5, color: "var(--muted-foreground)" }}>{p.benefit}</p>
+        <div style={{ marginTop: 14, display: "flex", alignItems: "baseline", gap: 10 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)" }}>{p.size}</span>
+          <span style={{ color: "var(--accent)" }}>·</span>
+          <span style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "var(--primary)" }}>{p.price || "Ask for price"}</span>
+        </div>
+        <div style={{ marginTop: "auto", paddingTop: 18, display: "flex", alignItems: "center", gap: 10 }}>
+          <a href="../shop/index.html" style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 14px", borderRadius: "var(--radius-pill)", border: "1px solid var(--primary)", color: "var(--primary)", fontWeight: 600, fontSize: 14 }}>View Details</a>
+          <a href={`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`} target="_blank" rel="noopener noreferrer" aria-label={`Order ${p.name} on WhatsApp`}
+            style={{ flexShrink: 0, display: "grid", placeItems: "center", height: 42, width: 42, borderRadius: "var(--radius-pill)", background: "var(--whatsapp)", color: "#fff" }}>
+            <svg viewBox="0 0 32 32" width={20} height={20} fill="currentColor"><path d="M19.11 17.36c-.27-.14-1.6-.79-1.85-.88-.25-.09-.43-.14-.61.14-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.14-1.14-.42-2.18-1.34-.81-.72-1.35-1.6-1.51-1.87-.16-.27-.02-.42.12-.55.12-.12.27-.32.41-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.48-.07-.14-.61-1.46-.83-2-.22-.53-.45-.46-.61-.47l-.52-.01c-.18 0-.48.07-.73.34-.25.27-.95.93-.95 2.27 0 1.34.98 2.63 1.11 2.81.14.18 1.92 2.93 4.65 4.11.65.28 1.16.45 1.56.58.65.21 1.25.18 1.72.11.52-.08 1.6-.65 1.83-1.28.23-.63.23-1.17.16-1.28-.07-.11-.25-.18-.52-.32zM16 4C9.37 4 4 9.37 4 16c0 2.11.55 4.09 1.52 5.81L4 28l6.36-1.49A11.92 11.92 0 0 0 16 28c6.63 0 12-5.37 12-12S22.63 4 16 4z" /></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function HomeProducts() {
   const picks = [
-    { name: "Shakti Laddu", benefit: "Dry fruits, gond & jaggery — no refined sugar.", img: "shakti-laddu.png" },
-    { name: "Sugar-Free Chyawanprash", benefit: "Amla, herbs & natural sweeteners.", img: "chyawanprash.jpg" },
-    { name: "Shinkaji Masala", benefit: "A robust homestyle Punjabi blend.", img: "shinkaji-masala-pack.png" },
-    { name: "Herbal Heart Sip", benefit: "A warming daily herbal infusion.", img: "herbal-heart-sip.png" },
-    { name: "Shahi Garam Masala", benefit: "Whole spices, roasted & stone-ground.", img: "shahi-garam-masala.png" },
-    { name: "Ayurvedic Hair Oil", benefit: "Cold-infused bhringraj & amla.", img: "ayurvedic-hair-oil.png" },
+    { name: "Shakti Laddu", benefit: "Dry fruits, gond & jaggery — no refined sugar.", img: "shakti-laddu.png", size: "250 g", badge: "Bestseller" },
+    { name: "Shinkaji Masala", benefit: "A robust homestyle Punjabi blend.", img: "shinkaji-masala-pack.png", size: "100 g" },
+    { name: "Herbal Heart Sip", benefit: "A warming daily herbal infusion.", img: "herbal-heart-sip.png", size: "200 g" },
+    { name: "Shahi Garam Masala", benefit: "Whole spices, roasted & stone-ground.", img: "shahi-garam-masala.png", size: "100 g", badge: "Bestseller" },
+    { name: "Ayurvedic Hair Oil", benefit: "Cold-infused bhringraj & amla.", img: "ayurvedic-hair-oil.png", size: "200 ml" },
+    { name: "Instant Ubtan Glow", benefit: "A brightening natural face pack.", img: "ubtan-glow-pack.png", size: "50 g", badge: "New" },
   ];
   return (
-    <section id="bestsellers" style={{ background: "var(--white)", padding: "96px 0", scrollMarginTop: 90 }}>
+    <section id="bestsellers" style={{ background: "var(--white)", padding: "80px 0", scrollMarginTop: 90 }}>
       <div className="ms-container">
         <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
           <GoldDivider align="center">Our Bestsellers</GoldDivider>
-          <h2 style={{ marginTop: 20, fontSize: 56, fontWeight: 700, lineHeight: 1.12, letterSpacing: "-0.015em", textWrap: "balance" }}>Made with purpose,<br />chosen for everyday wellness.</h2>
+          <h2 style={{ marginTop: 20, fontSize: 52, fontWeight: 700, lineHeight: 1.12, letterSpacing: "-0.015em", textWrap: "balance" }}>Made with purpose,<br />chosen for everyday wellness.</h2>
           <p style={{ marginTop: 16, color: "var(--muted-foreground)", fontSize: 17, lineHeight: 1.6 }}>A taste of the range — from laddus and masalas to wellness oils. Message us on WhatsApp for prices and the full catalogue.</p>
         </div>
-        <div style={{ marginTop: 56, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 20, alignItems: "stretch" }}>
-          {picks.map((p) => (
-            <div key={p.name} style={{ display: "flex" }}>
-              <ProductCard name={p.name} description={p.benefit} image={`${ASSET}/${p.img}`} href="../shop/index.html" cta="View Product" style={{ width: "100%" }} />
-            </div>
-          ))}
+        <div className="ms-prodgrid" style={{ marginTop: 52, display: "grid", gap: 22, alignItems: "stretch" }}>
+          {picks.map((p) => <HomeProductCard key={p.name} p={p} />)}
         </div>
         <div style={{ marginTop: 44, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 12 }}>
           <Button variant="forest" as="a" href="../shop/index.html">Shop All Products →</Button>
@@ -489,17 +525,17 @@ function Process() {
     { n: "01", t: "Ingredients selected", d: "Natural, seasonal ingredients chosen with care." },
     { n: "02", t: "Prepared in small batches", d: "Cooked fresh at home — never mass-produced." },
     { n: "03", t: "Hygienically packed", d: "Sealed clean to keep every batch fresh." },
-    { n: "04", t: "Delivered to your home", d: "Home delivery across Kotkapura & nearby areas." },
+    { n: "04", t: "Delivered fresh", d: "Home delivery in Kotkapura & nearby areas; other locations confirmed on WhatsApp." },
   ];
   return (
-    <section style={{ background: "var(--background)", padding: "96px 0" }}>
+    <section style={{ background: "var(--background)", padding: "80px 0" }}>
       <div className="ms-container">
         <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
           <GoldDivider align="center">How It's Made</GoldDivider>
-          <h2 style={{ marginTop: 20, fontSize: 52, fontWeight: 700, lineHeight: 1.12, letterSpacing: "-0.015em", textWrap: "balance" }}>Homemade, the honest way.</h2>
+          <h2 style={{ marginTop: 20, fontSize: 50, fontWeight: 700, lineHeight: 1.12, letterSpacing: "-0.015em", textWrap: "balance" }}>Homemade, the honest way.</h2>
           <p style={{ marginTop: 16, color: "var(--muted-foreground)", fontSize: 17 }}>From our kitchen to your family — every batch follows the same four steps.</p>
         </div>
-        <div style={{ marginTop: 56, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20 }}>
+        <div style={{ marginTop: 48, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20 }}>
           {steps.map((s) => (
             <div key={s.n} style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "var(--radius-2xl)", padding: 28, boxShadow: "var(--shadow-sm)" }}>
               <span style={{ display: "grid", placeItems: "center", height: 48, width: 48, borderRadius: "var(--radius-pill)", background: "color-mix(in oklab, var(--gold) 16%, transparent)", color: "var(--accent)" }}><Leaf size={24} /></span>
@@ -517,15 +553,16 @@ function Process() {
 /* ---------- home: founder teaser ---------- */
 function FounderTeaser() {
   return (
-    <section style={{ background: "color-mix(in oklab, var(--secondary) 60%, var(--background))", padding: "96px 0" }}>
+    <section style={{ background: "color-mix(in oklab, var(--secondary) 60%, var(--background))", padding: "84px 0" }}>
       <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "0.85fr 1.15fr", gap: 48, alignItems: "center" }}>
         <div style={{ overflow: "hidden", borderRadius: 28, border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", aspectRatio: "4 / 5" }}>
           <img src={`${ASSET}/founder.jpg`} alt="Cherry Bansal in her kitchen" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         </div>
         <div>
           <GoldDivider>From Cherry's Kitchen</GoldDivider>
-          <h2 style={{ marginTop: 18, fontSize: 52, fontWeight: 700, lineHeight: 1.08, letterSpacing: "-0.015em" }}>Made by a mother, for every family.</h2>
-          <p style={{ marginTop: 20, fontSize: 18, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>Cherry Bansal started Mishthi Sattva to bring pure, homemade Ayurvedic food to families who want honest ingredients — no refined oil, no refined sugar, no shortcuts. Every batch is still made by hand in her Kotkapura kitchen.</p>
+          <h2 style={{ marginTop: 18, fontSize: 52, fontWeight: 700, lineHeight: 1.08, letterSpacing: "-0.015em" }}>From my kitchen<br />to your family.</h2>
+          <p style={{ marginTop: 22, fontSize: 19, lineHeight: 1.7, fontStyle: "italic", color: "var(--primary)" }}>"I started Mishthi Sattva to prepare the kind of food I wanted for my own family — honest ingredients, careful preparation and no unnecessary shortcuts."</p>
+          <p style={{ marginTop: 16, fontSize: 17, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>Every batch is still made by hand in Cherry's Kotkapura kitchen — no refined oil, no refined sugar, no compromises.</p>
           <p className="ms-hindi" style={{ marginTop: 18, borderLeft: "2px solid var(--accent)", paddingLeft: 18, fontSize: 19, fontStyle: "italic", color: "var(--primary)" }}>"स्वाद ऐसा जो दिल जीत ले, और सेहत ऐसी जिस पर पूरा परिवार भरोसा करे।"</p>
           <div style={{ marginTop: 28 }}><Button variant="outline" as="a" href="about.html">Read Our Story →</Button></div>
         </div>
@@ -534,9 +571,69 @@ function FounderTeaser() {
   );
 }
 
+/* ---------- home: ordering made simple ---------- */
+function HomeOrdering() {
+  const steps = [
+    { n: "1", t: "Choose your product", d: "Browse the shop or this page." },
+    { n: "2", t: "Message us on WhatsApp", d: "Order buttons pre-fill your message." },
+    { n: "3", t: "Confirm quantity & payment", d: "We confirm price, stock & delivery." },
+    { n: "4", t: "Receive home delivery", d: "Delivered fresh to your door." },
+  ];
+  /* TODO: confirm exact delivery time, payment methods (COD?) and any minimum order. */
+  const info = [
+    ["🚚", "Delivery area", "Kotkapura & nearby; other cities via courier"],
+    ["⏱️", "Delivery time", "Usually 1–3 days locally"],
+    ["💳", "Payment", "Options confirmed on WhatsApp"],
+    ["🎁", "Custom orders", "Bulk & gift orders welcome"],
+  ];
+  return (
+    <section style={{ background: "var(--background)", padding: "80px 0" }}>
+      <div className="ms-container">
+        <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
+          <GoldDivider align="center">Ordering Made Simple</GoldDivider>
+          <h2 style={{ marginTop: 20, fontSize: 50, fontWeight: 700, lineHeight: 1.12, letterSpacing: "-0.015em", textWrap: "balance" }}>Four steps to your doorstep.</h2>
+        </div>
+        <div style={{ marginTop: 48, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20 }}>
+          {steps.map((s) => (
+            <div key={s.n} style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "var(--radius-2xl)", padding: 26, boxShadow: "var(--shadow-sm)" }}>
+              <span style={{ display: "grid", placeItems: "center", height: 44, width: 44, borderRadius: "var(--radius-pill)", background: "var(--primary)", color: "var(--primary-foreground)", fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 600 }}>{s.n}</span>
+              <h3 style={{ marginTop: 16, fontSize: 20, color: "var(--primary)" }}>{s.t}</h3>
+              <p style={{ marginTop: 8, fontSize: 14, lineHeight: 1.55, color: "var(--muted-foreground)" }}>{s.d}</p>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 24, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
+          {info.map(([icon, k, v]) => (
+            <div key={k} style={{ display: "flex", alignItems: "center", gap: 12, background: "color-mix(in oklab, var(--secondary) 55%, var(--card))", borderRadius: "var(--radius-xl)", padding: "14px 16px" }}>
+              <span style={{ fontSize: 20 }}>{icon}</span>
+              <div>
+                <p style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--accent)" }}>{k}</p>
+                <p style={{ fontSize: 13.5, color: "var(--foreground)" }}>{v}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 40, textAlign: "center" }}>
+          <WhatsAppButton message="Hello Mishthi Sattva, I'd like to place an order. Please help me get started.">Start Your Order</WhatsAppButton>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- mobile sticky call + whatsapp bar ---------- */
+function MobileBar() {
+  return (
+    <div className="ms-mobilebar" style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 60, gap: 10, padding: "10px 12px calc(10px + env(safe-area-inset-bottom))", background: "color-mix(in oklab, var(--card) 96%, transparent)", borderTop: "1px solid var(--border)", backdropFilter: "blur(8px)", boxShadow: "0 -6px 24px -12px oklch(0.24 0.05 158 / 0.25)" }}>
+      <a href={`tel:+91${PHONE}`} style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, height: 48, borderRadius: "var(--radius-pill)", border: "1px solid var(--primary)", color: "var(--primary)", fontWeight: 700, fontSize: 15 }}>📞 Call</a>
+      <a href={`https://wa.me/${WA}`} target="_blank" rel="noopener noreferrer" style={{ flex: 2, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, height: 48, borderRadius: "var(--radius-pill)", background: "var(--whatsapp)", color: "#fff", fontWeight: 700, fontSize: 15 }}>💬 Order on WhatsApp</a>
+    </div>
+  );
+}
+
 function StickyWhatsApp() {
   return (
-    <a href={`https://wa.me/918557942246`} target="_blank" rel="noopener noreferrer" aria-label="Order on WhatsApp"
+    <a className="ms-fab" href={`https://wa.me/918557942246`} target="_blank" rel="noopener noreferrer" aria-label="Order on WhatsApp"
        style={{ position: "fixed", bottom: 20, right: 20, zIndex: 50, display: "grid", placeItems: "center", height: 56, width: 56, borderRadius: "var(--radius-pill)", background: "var(--whatsapp)", color: "#fff", boxShadow: "var(--shadow-xl)", border: "4px solid color-mix(in oklab, var(--whatsapp) 25%, transparent)" }}>
       <svg viewBox="0 0 32 32" width={28} height={28} fill="currentColor"><path d="M19.11 17.36c-.27-.14-1.6-.79-1.85-.88-.25-.09-.43-.14-.61.14-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.14-1.14-.42-2.18-1.34-.81-.72-1.35-1.6-1.51-1.87-.16-.27-.02-.42.12-.55.12-.12.27-.32.41-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.48-.07-.14-.61-1.46-.83-2-.22-.53-.45-.46-.61-.47l-.52-.01c-.18 0-.48.07-.73.34-.25.27-.95.93-.95 2.27 0 1.34.98 2.63 1.11 2.81.14.18 1.92 2.93 4.65 4.11.65.28 1.16.45 1.56.58.65.21 1.25.18 1.72.11.52-.08 1.6-.65 1.83-1.28.23-.63.23-1.17.16-1.28-.07-.11-.25-.18-.52-.32zM16 4C9.37 4 4 9.37 4 16c0 2.11.55 4.09 1.52 5.81L4 28l6.36-1.49A11.92 11.92 0 0 0 16 28c6.63 0 12-5.37 12-12S22.63 4 16 4z" /></svg>
     </a>
@@ -555,10 +652,13 @@ function HomePage() {
         <Featured />
         <Process />
         <FounderTeaser />
+        <HomeOrdering />
+        <FAQ />
         <Testimonials />
       </main>
       <Footer />
       <StickyWhatsApp />
+      <MobileBar />
     </div>
   );
 }
