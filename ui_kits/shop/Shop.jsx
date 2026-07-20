@@ -99,7 +99,10 @@ function Hero({ onShopAll, onCategory }) {
         <div style={{ position: "relative", minWidth: 0 }}>
           <div aria-hidden="true" style={{ position: "absolute", inset: -20, borderRadius: 32, background: "linear-gradient(135deg, color-mix(in oklab, var(--gold) 22%, transparent), color-mix(in oklab, var(--forest) 12%, transparent))", filter: "blur(38px)" }} />
           <div style={{ position: "relative", overflow: "hidden", borderRadius: 32, border: "1px solid var(--border)", boxShadow: "var(--shadow-xl)" }}>
-            <img src="../../assets/hero-products.jpg" alt="Mishthi Sattva products" style={{ width: "100%", display: "block" }} />
+            {/* hero-products.jpg was byte-identical to founder.jpg, so the shop
+                hero was accidentally showing the founder portrait — use the
+                actual preparation/products scene instead */}
+            <img src="../../assets/hero-products.png" alt="Homemade Ayurvedic products being prepared by hand" style={{ width: "100%", display: "block" }} />
           </div>
         </div>
       </div>

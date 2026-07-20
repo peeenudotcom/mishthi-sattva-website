@@ -441,7 +441,8 @@ function Footer() {
           <ul style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 10, listStyle: "none", padding: 0 }}>
             <li style={link}>📞 <a href={`tel:+91${PHONE}`} style={{ color: "inherit" }}>+91 {PHONE}</a></li>
             <li style={link}>💬 <a href="https://wa.me/918557942246" style={{ color: "inherit" }}>Order on WhatsApp</a></li>
-            <li style={link}>📍 Kotkapura, Faridkot, Punjab</li>
+            {/* registered address per FSSAI certificate 22126010000026 */}
+            <li style={link}>📍 9/333, Kot Kapura, Faridkot,<br />Punjab 151204</li>
             <li style={link}>🚚 Home delivery in Kotkapura &amp; nearby</li>
             <li style={link}>🕐 Mon–Sat, 9am–7pm</li>
           </ul>
@@ -568,7 +569,7 @@ function FounderTeaser() {
     <section style={{ background: "color-mix(in oklab, var(--secondary) 60%, var(--background))", padding: "84px 0" }}>
       <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "0.85fr 1.15fr", gap: 48, alignItems: "center" }}>
         <div style={{ overflow: "hidden", borderRadius: 28, border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", aspectRatio: "4 / 5" }}>
-          <img src={`${ASSET}/founder.jpg`} alt="Cherry Bansal in her kitchen" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          <img src={`${ASSET}/founder-cherry.jpg`} alt="Cherry Bansal shaping laddus by hand in her Kotkapura kitchen" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 32%", display: "block" }} />
         </div>
         <div>
           <GoldDivider>From Cherry's Kitchen</GoldDivider>
