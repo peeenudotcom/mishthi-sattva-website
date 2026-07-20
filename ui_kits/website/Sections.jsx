@@ -29,7 +29,7 @@ const PRODUCT_IMAGES = {
   "Instant Ubtan Glow": `${ASSET}/ubtan-glow-pack.png`,
   "Vitamin C Serum": `${ASSET}/vitamin-c-serum-pack.png`,
   "Shinkaji Masala": `${ASSET}/shinkaji-masala-pack.png`,
-  "Thandai Premix": `${ASSET}/grid-thandai-premix.png`,
+  "Thandai Premix": `${ASSET}/thandai-premix.png`,
   "Ice Cream Premix": `${ASSET}/ice-cream-premix.png`,
   "Shahi Sip & Scoop": `${ASSET}/shahi-sip-scoop.png`,
   "Jaljeera Sattu": `${ASSET}/jaljeera-sattu.png`,
@@ -324,8 +324,10 @@ function Founder() {
     <section id="founder" style={{ background: "color-mix(in oklab, var(--secondary) 60%, var(--background))", padding: "96px 0", scrollMarginTop: 84 }}>
       <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "0.9fr 1.1fr", gap: 48, alignItems: "center" }}>
         <div style={{ position: "relative" }}>
-          <div style={{ overflow: "hidden", borderRadius: 32, border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)" }}>
-            <img src={`${ASSET}/founder.jpg`} alt="Cherry Bansal, Founder" style={{ width: "100%", display: "block" }} />
+          {/* portrait source (977x1610) — framed 4:5 and focused slightly high so
+              her face, hands and the laddu tray all stay in shot */}
+          <div style={{ overflow: "hidden", borderRadius: 32, border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", aspectRatio: "4 / 5", position: "relative" }}>
+            <img src={`${ASSET}/founder-cherry.jpg`} alt="Cherry Bansal shaping laddus by hand in her Kotkapura kitchen" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 32%", display: "block" }} />
           </div>
           <div style={{ position: "absolute", bottom: -20, right: -20, borderRadius: 18, border: "1px solid color-mix(in oklab, var(--gold) 40%, transparent)", background: "var(--card)", padding: "12px 20px", textAlign: "center", boxShadow: "var(--shadow-lg)" }}>
             <p style={{ fontFamily: "var(--font-display)", fontSize: 24, fontStyle: "italic", color: "var(--primary)" }}>Cherry Bansal</p>
@@ -452,8 +454,8 @@ function Footer() {
       </div>
       <div style={{ borderTop: "1px solid color-mix(in oklab, var(--cream) 12%, transparent)" }}>
         <div className="ms-container" style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 12, padding: "18px 20px", fontSize: 12, color: "color-mix(in oklab, var(--cream) 60%, transparent)" }}>
-          {/* TODO: add real FSSAI licence number */}
-          <p>© {new Date().getFullYear()} Mishthi Sattva. All rights reserved. · FSSAI: [add licence no.]</p>
+          {/* FSSAI registration 22126010000026 — valid to 16-01-2027, renew from ~20-07-2026 */}
+          <p>© {new Date().getFullYear()} Mishthi Sattva. All rights reserved. · FSSAI Reg. No. 22126010000026</p>
           <p style={{ display: "flex", gap: 16 }}>
             <a href="#" style={{ color: "inherit" }}>Privacy</a>
             <a href="#" style={{ color: "inherit" }}>Terms</a>
