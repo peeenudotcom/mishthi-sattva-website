@@ -243,9 +243,11 @@ function Products() {
                 </div>
                 <span style={{ flexShrink: 0, fontFamily: "var(--font-display)", fontSize: 30, color: "color-mix(in oklab, var(--accent) 60%, transparent)" }}>{String(PRODUCT_CATS.findIndex((p) => p.id === cat.id) + 1).padStart(2, "0")}</span>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 20, alignItems: "stretch" }}>
+              {/* fixed columns (see .ms-catgrid) so categories with only 2 items
+                  don't stretch their cards across the full width */}
+              <div className="ms-catgrid" style={{ display: "grid", gap: 20, alignItems: "stretch" }}>
                 {cat.items.map((item) => (
-                  <div key={item} className={(item === "Ayur Kesh Vardaan Oil" || item === "Ayur Kesh Vash Shampoo") ? "ms-oil" : undefined} style={{ display: "flex" }}>
+                  <div key={item} style={{ display: "flex" }}>
                     <ProductCard name={item} href="../shop/index.html" image={PRODUCT_IMAGES[item]} style={{ width: "100%" }} />
                   </div>
                 ))}
@@ -797,6 +799,7 @@ function ProductsPage() {
       </main>
       <Footer />
       <StickyWhatsApp />
+      <MobileBar />
     </div>
   );
 }
