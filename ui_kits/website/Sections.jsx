@@ -369,6 +369,14 @@ function FAQ() {
 
 /* ---------- contact ---------- */
 function Contact() {
+  /* The form previously had no state, so anything a customer typed was thrown
+     away and the button opened a blank WhatsApp chat. Now the fields are bound
+     and composed into the outgoing message. */
+  const [form, setForm] = React.useState({ name: "", phone: "", message: "" });
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const valid = form.name.trim() && form.message.trim();
+  const waText = `Namaste Mishthi Sattva!\n\nName: ${form.name}\nPhone: ${form.phone}\n\n${form.message}`;
+
   const rows = [
     { icon: "📞", label: "Call / WhatsApp", value: PHONE },
     { icon: "📍", label: "Location", value: "Kotkapura, Punjab" },
@@ -397,10 +405,11 @@ function Contact() {
           <h3 style={{ fontSize: 24, color: "var(--primary)" }}>Send us a message</h3>
           <p style={{ marginTop: 4, fontSize: 14, color: "var(--muted-foreground)" }}>We'll continue the conversation on WhatsApp.</p>
           <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 16 }}>
-            <Input label="Name" placeholder="Your name" />
-            <Input label="Phone" type="tel" placeholder="10-digit mobile" />
-            <Input label="Message" multiline rows={4} placeholder="What would you like to order or ask?" />
-            <WhatsAppButton fullWidth>Send via WhatsApp</WhatsAppButton>
+            <Input label="Name" placeholder="Your name" value={form.name} onChange={set("name")} />
+            <Input label="Phone" type="tel" placeholder="10-digit mobile" value={form.phone} onChange={set("phone")} />
+            <Input label="Message" multiline rows={4} placeholder="What would you like to order or ask?" value={form.message} onChange={set("message")} />
+            <WhatsAppButton fullWidth message={waText}>Send via WhatsApp</WhatsAppButton>
+            {!valid && <p style={{ fontSize: 12, color: "var(--muted-foreground)", textAlign: "center" }}>Add your name and a message — we'll open WhatsApp with it filled in.</p>}
           </div>
         </Card>
       </div>
