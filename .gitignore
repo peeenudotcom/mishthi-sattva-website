@@ -11,3 +11,6 @@
 
 # Node (not used yet, but future-proof)
 node_modules/
+
+# Build output
+dist/
