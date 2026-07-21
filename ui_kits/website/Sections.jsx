@@ -13,6 +13,14 @@ const WA = "918557942246"; // WhatsApp number (with country code)
    order value with the owner, or set to null to hide the badge entirely. */
 const GIFT_BADGE = { title: "Complimentary wellness gift", sub: "on orders this month — ask us for details" };
 
+/* Social profiles. WhatsApp is live; add the Instagram/Facebook profile URLs
+   here and those buttons appear automatically in the footer. */
+const SOCIAL = [
+  { label: "WhatsApp", href: "https://wa.me/918557942246" },
+  { label: "Instagram", href: null }, // TODO: add real profile URL
+  { label: "Facebook", href: null },  // TODO: add real profile URL
+];
+
 /* name -> product photo (from the brand's uploaded catalogue) */
 const PRODUCT_IMAGES = {
   "Shakti Laddu": `${ASSET}/shakti-laddu.png`,
@@ -120,7 +128,7 @@ function Hero() {
             <span style={{ fontStyle: "italic", color: "var(--accent)" }}>Pure Intentions.</span>
           </h1>
           <p style={{ marginTop: 22, maxWidth: 552, fontSize: 18, lineHeight: 1.6, color: "var(--muted-foreground)" }}>
-            Homemade Ayurvedic laddoos, wellness blends, traditional spices and handcrafted foods — prepared in small batches in Cherry Bansal's home kitchen in Kotkapura.
+            Homemade Ayurvedic laddoos, wellness blends, traditional spices and handcrafted foods — prepared in small batches in Kiran Bansal's home kitchen in Kotkapura.
           </p>
           <p className="ms-hindi" style={{ marginTop: 12, fontSize: 19, color: "color-mix(in oklab, var(--primary) 90%, transparent)" }}>घर की रसोई से… आपके परिवार की सेहत तक।</p>
           <div style={{ marginTop: 30, display: "flex", flexWrap: "wrap", gap: 12 }}>
@@ -175,7 +183,7 @@ function About() {
   return (
     <section id="about" style={{ background: "var(--white)", padding: "84px 0", scrollMarginTop: 84 }}>
       <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "0.82fr 1.18fr", gap: 52, alignItems: "center" }}>
-        {/* TODO: swap for a real Cherry-in-the-kitchen / preparation photo when available */}
+        {/* TODO: swap for a real Kiran-in-the-kitchen / preparation photo when available */}
         <div style={{ overflow: "hidden", borderRadius: 28, border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", aspectRatio: "4 / 5" }}>
           <img src={`${ASSET}/hero-products.png`} alt="Preparing Ayurvedic food by hand in a home kitchen in Kotkapura" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         </div>
@@ -183,8 +191,8 @@ function About() {
           <GoldDivider>Our Story</GoldDivider>
           <h2 style={{ marginTop: 18, fontSize: 50, fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.015em", textWrap: "balance" }}>It began in one home kitchen — with a mother's wish to feed her family better.</h2>
           <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 18, fontSize: 18, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>
-            <p>Mishthi Sattva was born in Cherry Bansal's kitchen in Kotkapura — not as a business plan, but as a search for honest everyday food. What began as carefully prepared recipes for family and friends slowly grew into a collection of homemade foods, spices and wellness products for more families to trust.</p>
-            <p>Cherry wanted to prepare everyday foods using thoughtfully selected ingredients, familiar recipes and methods she would confidently choose for her own family.</p>
+            <p>Mishthi Sattva was born in Kiran Bansal's kitchen in Kotkapura — not as a business plan, but as a search for honest everyday food. What began as carefully prepared recipes for family and friends slowly grew into a collection of homemade foods, spices and wellness products for more families to trust.</p>
+            <p>Kiran wanted to prepare everyday foods using thoughtfully selected ingredients, familiar recipes and methods she would confidently choose for her own family.</p>
             <p style={{ fontFamily: "var(--font-display)", fontSize: 22, fontStyle: "italic", color: "var(--primary)" }}>Every product is crafted with a commitment to quality, purity and family wellness.</p>
           </div>
           <p style={{ marginTop: 22, display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.14em", color: "var(--accent)" }}><Leaf size={14} /> Rooted in Kotkapura, Punjab</p>
@@ -327,22 +335,22 @@ function Founder() {
           {/* portrait source (977x1610) — framed 4:5 and focused slightly high so
               her face, hands and the laddu tray all stay in shot */}
           <div style={{ overflow: "hidden", borderRadius: 32, border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", aspectRatio: "4 / 5", position: "relative" }}>
-            <img src={`${ASSET}/founder-cherry.jpg`} alt="Cherry Bansal shaping laddus by hand in her Kotkapura kitchen" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 32%", display: "block" }} />
+            <img src={`${ASSET}/founder-kiran.jpg`} alt="Kiran Bansal shaping laddus by hand in her Kotkapura kitchen" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 32%", display: "block" }} />
           </div>
           <div style={{ position: "absolute", bottom: -20, right: -20, borderRadius: 18, border: "1px solid color-mix(in oklab, var(--gold) 40%, transparent)", background: "var(--card)", padding: "12px 20px", textAlign: "center", boxShadow: "var(--shadow-lg)" }}>
-            <p style={{ fontFamily: "var(--font-display)", fontSize: 24, fontStyle: "italic", color: "var(--primary)" }}>Cherry Bansal</p>
+            <p style={{ fontFamily: "var(--font-display)", fontSize: 24, fontStyle: "italic", color: "var(--primary)" }}>Kiran Bansal</p>
             <p style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.25em", color: "var(--accent)" }}>Founder · Kotkapura</p>
           </div>
         </div>
         <div>
           <GoldDivider>Meet Our Founder</GoldDivider>
-          <h2 style={{ marginTop: 20, fontSize: 46, fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.015em", textWrap: "balance" }}>Meet Cherry Bansal — the heart and hands behind Mishthi Sattva.</h2>
-          <p style={{ marginTop: 22, fontSize: 18, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>For Cherry, homemade is not simply a label. It means knowing what goes into every batch, preparing it with care, and serving customers with the same honesty she expects for her own family.</p>
+          <h2 style={{ marginTop: 20, fontSize: 46, fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.015em", textWrap: "balance" }}>Meet Kiran Bansal — the heart and hands behind Mishthi Sattva.</h2>
+          <p style={{ marginTop: 22, fontSize: 18, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>For Kiran, homemade is not simply a label. It means knowing what goes into every batch, preparing it with care, and serving customers with the same honesty she expects for her own family.</p>
           <p style={{ marginTop: 16, fontSize: 18, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>She built Mishthi Sattva recipe by recipe — starting with food for her own home, then for friends and neighbours who kept asking for more. Every product still passes through her hands before it reaches yours.</p>
           <p className="ms-hindi" style={{ marginTop: 24, borderLeft: "2px solid var(--accent)", paddingLeft: 20, fontSize: 20, fontStyle: "italic", color: "var(--primary)" }}>"स्वाद ऐसा जो दिल जीत ले, और सेहत ऐसी जिस पर पूरा परिवार भरोसा करे।"</p>
-          {/* TODO: confirm this is Cherry's own wording and the exact translation */}
+          {/* TODO: confirm this is Kiran's own wording and the exact translation */}
           <p style={{ marginTop: 8, paddingLeft: 20, fontSize: 14, fontStyle: "italic", color: "var(--muted-foreground)" }}>"True taste wins the heart, and true health earns every family's trust."</p>
-          <p style={{ marginTop: 12, fontSize: 14, color: "var(--muted-foreground)" }}>— Cherry Bansal, Founder</p>
+          <p style={{ marginTop: 12, fontSize: 14, color: "var(--muted-foreground)" }}>— Kiran Bansal, Founder</p>
         </div>
       </div>
     </section>
@@ -470,9 +478,13 @@ function Footer() {
             <li style={link}>🚚 Home delivery in Kotkapura &amp; nearby</li>
             <li style={link}>🕐 Mon–Sat, 9am–7pm</li>
           </ul>
+          {/* Only render links we actually have. Add the real profile URLs to
+              SOCIAL below and they'll appear; a dead href="#" is worse than
+              no button at all. */}
           <div style={{ marginTop: 16, display: "flex", gap: 10 }}>
-            {["Instagram", "Facebook"].map((s) => (
-              <a key={s} href="#" style={{ borderRadius: "var(--radius-pill)", border: "1px solid color-mix(in oklab, var(--cream) 20%, transparent)", padding: "7px 14px", fontSize: 12, fontWeight: 600 }}>{s}</a>
+            {SOCIAL.filter((s) => s.href).map((s) => (
+              <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
+                 style={{ borderRadius: "var(--radius-pill)", border: "1px solid color-mix(in oklab, var(--cream) 20%, transparent)", padding: "7px 14px", fontSize: 12, fontWeight: 600 }}>{s.label}</a>
             ))}
           </div>
         </div>
@@ -482,9 +494,9 @@ function Footer() {
           {/* FSSAI registration 22126010000026 — valid to 16-01-2027, renew from ~20-07-2026 */}
           <p>© {new Date().getFullYear()} Mishthi Sattva. All rights reserved. · FSSAI Reg. No. 22126010000026</p>
           <p style={{ display: "flex", gap: 16 }}>
-            <a href="#" style={{ color: "inherit" }}>Privacy</a>
-            <a href="#" style={{ color: "inherit" }}>Terms</a>
-            <a href="#" style={{ color: "inherit" }}>Shipping &amp; Returns</a>
+            <a href="privacy.html" style={{ color: "inherit" }}>Privacy</a>
+            <a href="terms.html" style={{ color: "inherit" }}>Terms</a>
+            <a href="shipping.html" style={{ color: "inherit" }}>Shipping &amp; Returns</a>
           </p>
         </div>
       </div>
@@ -593,13 +605,13 @@ function FounderTeaser() {
     <section style={{ background: "color-mix(in oklab, var(--secondary) 60%, var(--background))", padding: "84px 0" }}>
       <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "0.85fr 1.15fr", gap: 48, alignItems: "center" }}>
         <div style={{ overflow: "hidden", borderRadius: 28, border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", aspectRatio: "4 / 5" }}>
-          <img src={`${ASSET}/founder-cherry.jpg`} alt="Cherry Bansal shaping laddus by hand in her Kotkapura kitchen" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 32%", display: "block" }} />
+          <img src={`${ASSET}/founder-kiran.jpg`} alt="Kiran Bansal shaping laddus by hand in her Kotkapura kitchen" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 32%", display: "block" }} />
         </div>
         <div>
-          <GoldDivider>From Cherry's Kitchen</GoldDivider>
+          <GoldDivider>From Kiran's Kitchen</GoldDivider>
           <h2 style={{ marginTop: 18, fontSize: 52, fontWeight: 700, lineHeight: 1.08, letterSpacing: "-0.015em" }}>From my kitchen<br />to your family.</h2>
           <p style={{ marginTop: 22, fontSize: 19, lineHeight: 1.7, fontStyle: "italic", color: "var(--primary)" }}>"I started Mishthi Sattva to prepare the kind of food I wanted for my own family — honest ingredients, careful preparation and no unnecessary shortcuts."</p>
-          <p style={{ marginTop: 16, fontSize: 17, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>Every batch is still made by hand in Cherry's Kotkapura kitchen — no refined oil, no refined sugar, no compromises.</p>
+          <p style={{ marginTop: 16, fontSize: 17, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>Every batch is still made by hand in Kiran's Kotkapura kitchen — no refined oil, no refined sugar, no compromises.</p>
           <p className="ms-hindi" style={{ marginTop: 18, borderLeft: "2px solid var(--accent)", paddingLeft: 18, fontSize: 19, fontStyle: "italic", color: "var(--primary)" }}>"स्वाद ऐसा जो दिल जीत ले, और सेहत ऐसी जिस पर पूरा परिवार भरोसा करे।"</p>
           <div style={{ marginTop: 28 }}><Button variant="outline" as="a" href="about.html">Read Our Story →</Button></div>
         </div>
@@ -743,15 +755,128 @@ function FounderPromise() {
   return (
     <section style={{ background: "color-mix(in oklab, var(--secondary) 60%, var(--background))", padding: "88px 0" }}>
       <div className="ms-container" style={{ maxWidth: 780, marginInline: "auto", textAlign: "center" }}>
-        <GoldDivider align="center">Cherry's Promise</GoldDivider>
+        <GoldDivider align="center">Kiran's Promise</GoldDivider>
         <p style={{ marginTop: 24, fontFamily: "var(--font-display)", fontSize: 30, lineHeight: 1.35, fontStyle: "italic", color: "var(--primary)", textWrap: "balance" }}>"We will always tell you what goes into our products, prepare them with personal care, and recommend only what we'd confidently serve in our own home."</p>
-        <p style={{ marginTop: 16, fontSize: 13, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.16em", color: "var(--accent)" }}>— Cherry Bansal, Founder</p>
+        <p style={{ marginTop: 16, fontSize: 13, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.16em", color: "var(--accent)" }}>— Kiran Bansal, Founder</p>
         <div style={{ marginTop: 32, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 12 }}>
           <Button variant="forest" as="a" href="../shop/index.html">Explore Our Products →</Button>
-          <WhatsAppButton message="Namaste Cherry! I read your story on the Mishthi Sattva website and would like to know more.">Talk to Cherry on WhatsApp</WhatsAppButton>
+          <WhatsAppButton message="Namaste Kiran! I read your story on the Mishthi Sattva website and would like to know more.">Talk to Kiran on WhatsApp</WhatsAppButton>
         </div>
       </div>
     </section>
+  );
+}
+
+/* ---------- policy pages (privacy / terms / shipping) ----------
+   Business details are the real registered ones from the FSSAI certificate.
+   TODO: the owner should review these before launch — the returns window and
+   dispatch times in particular are business decisions, not legal boilerplate. */
+const BUSINESS = {
+  legal: "Mishthi Sattva (Prop. Kiran Bansal)",
+  address: "9/333, Kot Kapura, Faridkot, Punjab 151204",
+  fssai: "22126010000026",
+  phone: PHONE,
+};
+
+function PolicySection({ title, updated, blocks }) {
+  return (
+    <section style={{ background: "var(--white)", padding: "72px 0", minHeight: "60vh" }}>
+      <div className="ms-container" style={{ maxWidth: 820, marginInline: "auto" }}>
+        <GoldDivider>Legal</GoldDivider>
+        <h1 style={{ marginTop: 16, fontSize: 48, fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.015em" }}>{title}</h1>
+        <p className="muted" style={{ marginTop: 10, fontSize: 13, color: "var(--muted-foreground)" }}>Last updated: {updated}</p>
+        <div style={{ marginTop: 32, display: "flex", flexDirection: "column", gap: 26 }}>
+          {blocks.map((b) => (
+            <div key={b.h}>
+              <h2 style={{ fontSize: 22, color: "var(--primary)" }}>{b.h}</h2>
+              {b.p.map((para, i) => (
+                <p key={i} style={{ marginTop: 10, fontSize: 16, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>{para}</p>
+              ))}
+            </div>
+          ))}
+          <div style={{ marginTop: 10, padding: 22, borderRadius: "var(--radius-2xl)", background: "var(--background)", border: "1px solid var(--border)" }}>
+            <h2 style={{ fontSize: 20, color: "var(--primary)" }}>Contact us</h2>
+            <p style={{ marginTop: 10, fontSize: 15, lineHeight: 1.7, color: "var(--muted-foreground)" }}>
+              {BUSINESS.legal}<br />{BUSINESS.address}<br />
+              FSSAI Reg. No. {BUSINESS.fssai}<br />
+              WhatsApp / Phone: <a href={`tel:+91${BUSINESS.phone}`} style={{ color: "var(--primary)" }}>+91 {BUSINESS.phone}</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const POLICIES = {
+  privacy: {
+    title: "Privacy Policy",
+    updated: "21 July 2026",
+    blocks: [
+      { h: "What we collect", p: [
+        "When you place an order or send an enquiry we collect the details you give us: your name, phone number, delivery address and any note you add. We do not ask for payment card details on this website.",
+        "We do not use advertising trackers or sell your information to anyone.",
+      ]},
+      { h: "How we use it", p: [
+        "Only to process and deliver your order, to reply to your enquiry, and to keep a record of past orders. Because we take orders over WhatsApp, your message and phone number are also visible in that chat.",
+      ]},
+      { h: "Where it is stored", p: [
+        "Order and enquiry records are stored in our database (Supabase). Access is restricted to the business owner through a password-protected admin login; they are not publicly readable.",
+      ]},
+      { h: "Your choices", p: [
+        "You can ask us to delete your details at any time by messaging us on WhatsApp, and we will remove them from our records.",
+      ]},
+    ],
+  },
+  terms: {
+    title: "Terms & Conditions",
+    updated: "21 July 2026",
+    blocks: [
+      { h: "Placing an order", p: [
+        "Adding items on this website starts an order request; it is confirmed only once we have agreed the items, price, delivery and payment with you on WhatsApp. Until then no contract exists.",
+      ]},
+      { h: "Prices and availability", p: [
+        "Prices shown are in Indian Rupees and may change. Some items are marked \"Ask for price\" — we will quote those on WhatsApp. Products are made in small batches, so availability can vary.",
+      ]},
+      { h: "About our products", p: [
+        "Our products are foods, spices and personal-care items prepared in a home kitchen registered under FSSAI Reg. No. " + BUSINESS.fssai + ". They are not medicines. Nothing on this website is medical advice, and our products are not intended to diagnose, treat or cure any condition. If you are pregnant, have a medical condition or a known allergy, please check the ingredients with us before ordering.",
+      ]},
+      { h: "Ingredients and allergens", p: [
+        "Many products contain nuts, dairy, sesame or gluten and are prepared in a kitchen that handles these. If you have an allergy, ask us before ordering.",
+      ]},
+    ],
+  },
+  shipping: {
+    title: "Shipping & Returns",
+    updated: "21 July 2026",
+    blocks: [
+      { h: "Where we deliver", p: [
+        "We deliver to homes in Kotkapura and nearby areas. For other locations in India we send orders through trusted courier services — we will confirm availability and any charges on WhatsApp before dispatch.",
+      ]},
+      { h: "Dispatch and delivery time", p: [
+        "Because everything is made in small batches, orders are usually prepared and dispatched within a few days. Local deliveries typically arrive within 1–3 days. We will confirm the timing for your order on WhatsApp.",
+      ]},
+      { h: "Returns", p: [
+        "Food products are perishable and prepared to order, so for hygiene and safety reasons we cannot accept returns on opened or used items.",
+        "If your order arrives damaged, incorrect or spoiled, message us on WhatsApp within 48 hours with a photo and we will replace it or refund you.",
+      ]},
+      { h: "Cancellations", p: [
+        "You can cancel before your order has been prepared or dispatched — just message us on WhatsApp as soon as possible.",
+      ]},
+    ],
+  },
+};
+
+function PolicyPage({ which }) {
+  const p = POLICIES[which];
+  return (
+    <div style={{ minHeight: "100vh", background: "var(--background)", color: "var(--foreground)" }}>
+      <Header />
+      <main><PolicySection title={p.title} updated={p.updated} blocks={p.blocks} /></main>
+      <Footer />
+      <StickyWhatsApp />
+      <MobileBar />
+    </div>
   );
 }
 
@@ -868,4 +993,4 @@ function Website() {
   );
 }
 
-window.MSWebsite = { HomePage, AboutPage, ProductsPage, ContactPage, Website };
+window.MSWebsite = { HomePage, AboutPage, ProductsPage, ContactPage, PolicyPage, Website };

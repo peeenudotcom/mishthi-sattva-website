@@ -1,7 +1,7 @@
 # Mishthi Sattva — Website & Shop
 
 Marketing website and e-commerce storefront for **Mishthi Sattva**, a homemade
-Ayurvedic foods, spices and wellness brand by Cherry Bansal in Kotkapura, Punjab.
+Ayurvedic foods, spices and wellness brand by Kiran Bansal in Kotkapura, Punjab.
 Orders are taken over WhatsApp.
 
 Built from the **Mishthi Sattva Design System** (Claude Design). The pages compose

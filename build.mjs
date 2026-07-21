@@ -9,9 +9,10 @@
  *
  * Output: dist/  (Vercel serves this; see vercel.json for clean URLs)
  */
-import { build as esbuild, transform } from "esbuild";
+import { transform } from "esbuild";
 import { promises as fs } from "fs";
 import path from "path";
+import sharp from "sharp";
 
 const ROOT = path.dirname(new URL(import.meta.url).pathname);
 const OUT = path.join(ROOT, "dist");
@@ -22,6 +23,9 @@ const PAGES = [
   "ui_kits/website/about.html",
   "ui_kits/website/products.html",
   "ui_kits/website/contact.html",
+  "ui_kits/website/privacy.html",
+  "ui_kits/website/terms.html",
+  "ui_kits/website/shipping.html",
   "ui_kits/shop/index.html",
   "admin/index.html",
 ];
@@ -34,6 +38,52 @@ async function copyDir(src, dest) {
     if (entry.isDirectory()) await copyDir(s, d);
     else await fs.copyFile(s, d);
   }
+}
+
+/* Photos ship at up to 1254px but are displayed at ~300px in cards and ~600px
+   in heroes, so the originals are far larger than needed — ~89 MB in total.
+   Resize and recompress into dist, keeping the SAME filenames and formats:
+   image paths are also stored in the database, so renaming (e.g. to .webp)
+   would break those references. Originals stay untouched in the repo. */
+const MAX_EDGE = 900;
+
+async function optimiseImages(dir) {
+  let before = 0, after = 0, count = 0;
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    const p = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      const sub = await optimiseImages(p);
+      before += sub.before; after += sub.after; count += sub.count;
+      continue;
+    }
+    const ext = path.extname(entry.name).toLowerCase();
+    if (![".png", ".jpg", ".jpeg"].includes(ext)) continue;
+
+    const orig = (await fs.stat(p)).size;
+    try {
+      const img = sharp(p, { failOn: "none" });
+      const meta = await img.metadata();
+      let pipe = img;
+      if (Math.max(meta.width || 0, meta.height || 0) > MAX_EDGE) {
+        pipe = pipe.resize({ width: MAX_EDGE, height: MAX_EDGE, fit: "inside", withoutEnlargement: true });
+      }
+      pipe = ext === ".png"
+        ? pipe.png({ compressionLevel: 9, palette: true, quality: 82 })
+        : pipe.jpeg({ quality: 82, mozjpeg: true });
+
+      const buf = await pipe.toBuffer();
+      // only keep the optimised version if it actually helps
+      if (buf.length < orig) await fs.writeFile(p, buf);
+      after += Math.min(buf.length, orig);
+      before += orig;
+      count++;
+    } catch (e) {
+      console.warn("    skip", entry.name, e.message);
+      before += orig; after += orig;
+    }
+  }
+  return { before, after, count };
 }
 
 /** Compile a .jsx file to plain JS next to its output location. */
@@ -104,6 +154,14 @@ async function main() {
     await buildPage(page);
     console.log("  built ", page);
   }
+
+  process.stdout.write("\n  optimising images… ");
+  const img = await optimiseImages(path.join(OUT, "assets"));
+  const mb = (n) => (n / 1024 / 1024).toFixed(1);
+  console.log(
+    `${img.count} files: ${mb(img.before)} MB → ${mb(img.after)} MB ` +
+    `(${Math.round((1 - img.after / img.before) * 100)}% smaller)`
+  );
 
   console.log("\nBuild complete → dist/");
 }
