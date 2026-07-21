@@ -9,7 +9,10 @@ const { Button, Badge, GoldDivider, Input } = DS;
 const { MS_CATEGORIES } = window.MSShopData;
 const ASSET = "../../assets";
 
-const money = (n) => "₹" + n.toLocaleString("en-IN");
+/* Products whose price isn't confirmed yet store price = null. Never render a
+   guessed number — show "Ask for price" and let the customer ask on WhatsApp. */
+const money = (n) => (n == null || isNaN(n) ? "Ask for price" : "₹" + Number(n).toLocaleString("en-IN"));
+const hasPrice = (p) => p != null && !isNaN(p);
 const catName = (id) => (MS_CATEGORIES.find((c) => c.id === id) || {}).name || id;
 const catTint = (id) => (MS_CATEGORIES.find((c) => c.id === id) || {}).tint || "var(--forest)";
 
@@ -72,7 +75,7 @@ function TagPill({ tag }) {
 /* ---------------- product card ---------------- */
 function ProductCard({ product, onOpen, onAdd, onToggleWish, wished }) {
   const [h, setH] = React.useState(false);
-  const off = product.mrp > product.price ? Math.round((1 - product.price / product.mrp) * 100) : 0;
+  const off = hasPrice(product.price) && hasPrice(product.mrp) && product.mrp > product.price ? Math.round((1 - product.price / product.mrp) * 100) : 0;
   return (
     <div onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
       style={{ display: "flex", flexDirection: "column", background: "var(--card)", border: `1px solid ${h ? "var(--accent)" : "var(--border)"}`,
@@ -131,7 +134,7 @@ function QuickView({ product, onClose, onAdd, onToggleWish, wished }) {
   const [qty, setQty] = React.useState(1);
   React.useEffect(() => { setQty(1); }, [product && product.id]);
   if (!product) return null;
-  const off = product.mrp > product.price ? Math.round((1 - product.price / product.mrp) * 100) : 0;
+  const off = hasPrice(product.price) && hasPrice(product.mrp) && product.mrp > product.price ? Math.round((1 - product.price / product.mrp) * 100) : 0;
   return (
     <Overlay onClose={onClose} align="center">
       <div onClick={(e) => e.stopPropagation()} style={{ width: "min(880px, 94vw)", maxHeight: "90vh", overflow: "auto", background: "var(--card)", borderRadius: "var(--radius-3xl)", boxShadow: "var(--shadow-xl)", border: "1px solid var(--border)" }}>
@@ -158,7 +161,7 @@ function QuickView({ product, onClose, onAdd, onToggleWish, wished }) {
             <div style={{ marginTop: 24, display: "flex", alignItems: "center", gap: 12 }}>
               <Stepper value={qty} onChange={setQty} />
               <button onClick={() => { onAdd(product, qty); onClose(); }} style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "13px 18px", borderRadius: "var(--radius-pill)", border: "none", background: "var(--primary)", color: "var(--primary-foreground)", fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 15, cursor: "pointer" }}>
-                <I.bag s={19} /> Add {qty} · {money(product.price * qty)}
+                <I.bag s={19} /> Add {qty}{hasPrice(product.price) ? ` · ${money(product.price * qty)}` : ""}
               </button>
               <button onClick={() => onToggleWish(product.id)} aria-label="Wishlist" style={{ height: 48, width: 48, flexShrink: 0, display: "grid", placeItems: "center", borderRadius: "var(--radius-pill)", border: "1px solid var(--border)", background: "var(--card)", color: wished ? "var(--destructive)" : "var(--ink-500)", cursor: "pointer" }}>
                 <I.heart s={20} fill={wished ? "currentColor" : "none"} />

@@ -197,7 +197,7 @@ function CartDrawer({ items, onClose, onQty, onRemove, onCheckout, subtotal }) {
                       <button onClick={() => onRemove(it.id)} aria-label="Remove" style={{ display: "inline-flex", alignItems: "center", gap: 4, border: "none", background: "transparent", color: "var(--ink-300)", fontSize: 12, cursor: "pointer" }}><I.trash s={15} /></button>
                     </div>
                   </div>
-                  <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 17, color: "var(--primary)" }}>{money(it.price * it.qty)}</span>
+                  <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 17, color: "var(--primary)" }}>{it.price == null ? "Ask for price" : money(it.price * it.qty)}</span>
                 </div>
               ))}
             </div>
@@ -226,7 +226,7 @@ function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
   const valid = form.name.trim() && form.phone.trim().length >= 10 && form.address.trim();
 
   const placeOrder = () => {
-    const lines = items.map((it) => `• ${it.name} (${it.weight}) × ${it.qty} — ${money(it.price * it.qty)}`).join("\n");
+    const lines = items.map((it) => `• ${it.name} (${it.weight}) × ${it.qty} — ${it.price == null ? "Ask for price" : money(it.price * it.qty)}`).join("\n");
     const msg = `Namaste Mishthi Sattva! 🌿 I'd like to place an order:\n\n${lines}\n\nSubtotal: ${money(subtotal)}\nDelivery: ${ship === 0 ? "Free" : money(ship)}\nTotal: ${money(total)}\n\nName: ${form.name}\nPhone: ${form.phone}\nAddress: ${form.address}, ${form.city}${form.note ? `\nNote: ${form.note}` : ""}`;
     window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`, "_blank");
     setDone(true);
@@ -263,7 +263,7 @@ function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
                 {items.map((it) => (
                   <div key={it.id} style={{ display: "flex", justifyContent: "space-between", gap: 8, fontSize: 13.5 }}>
                     <span style={{ color: "var(--foreground)" }}>{it.name} <span style={{ color: "var(--muted-foreground)" }}>× {it.qty}</span></span>
-                    <span style={{ fontWeight: 600, color: "var(--primary)" }}>{money(it.price * it.qty)}</span>
+                    <span style={{ fontWeight: 600, color: "var(--primary)" }}>{it.price == null ? "Ask for price" : money(it.price * it.qty)}</span>
                   </div>
                 ))}
               </div>
@@ -274,6 +274,11 @@ function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
                   <span style={{ fontWeight: 700, color: "var(--primary)" }}>Total</span>
                   <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 26, color: "var(--primary)" }}>{money(total)}</span>
                 </div>
+                {items.some((i) => i.price == null) && (
+                  <p style={{ marginTop: 8, fontSize: 12, lineHeight: 1.5, color: "var(--accent)" }}>
+                    Some items are priced on request — we'll confirm those on WhatsApp, so the total above may change.
+                  </p>
+                )}
               </div>
               <button onClick={placeOrder} disabled={!valid} style={{ marginTop: 18, width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, padding: "15px", borderRadius: "var(--radius-pill)", border: "none", background: valid ? "var(--whatsapp)" : "var(--muted)", color: valid ? "#fff" : "var(--muted-foreground)", fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 15, cursor: valid ? "pointer" : "not-allowed", boxShadow: valid ? "var(--shadow-whatsapp)" : "none" }}>
                 <I.wa s={20} /> Place Order on WhatsApp
@@ -373,7 +378,9 @@ function Shop() {
   const removeItem = (id) => setCart((c) => c.filter((i) => i.id !== id));
   const toggleWish = (id) => setWish((w) => w.includes(id) ? w.filter((x) => x !== id) : [...w, id]);
 
-  const subtotal = cart.reduce((n, i) => n + i.price * i.qty, 0);
+  /* Items with an unconfirmed price contribute 0 here, so the subtotal only
+     covers priced items — the checkout notes this rather than implying free. */
+  const subtotal = cart.reduce((n, i) => n + (i.price || 0) * i.qty, 0);
   const count = cart.reduce((n, i) => n + i.qty, 0);
 
   const goCategory = (c) => { setCat(c); setSearch(""); setTimeout(() => gridRef.current && window.scrollTo({ top: gridRef.current.offsetTop - 80, behavior: "smooth" }), 0); };
