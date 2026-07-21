@@ -35,7 +35,13 @@
           throw new Error("Supabase " + r.status + ": " + t.slice(0, 200));
         });
       }
-      return r.status === 204 ? null : r.json();
+      /* A successful insert without `return=representation` replies 201 with an
+         EMPTY body, so calling r.json() directly throws "Unexpected end of JSON
+         input" and a saved order looks like a failure. Parse defensively. */
+      return r.text().then(function (t) {
+        if (!t) return null;
+        try { return JSON.parse(t); } catch (e) { return null; }
+      });
     });
   }
 

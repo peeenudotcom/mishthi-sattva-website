@@ -23,6 +23,41 @@ const SORTS = [
   { id: "new", name: "Newest" },
 ];
 
+/* ---------- database → shop shape ----------
+   The DB owns the commercial fields (name, price, stock, photo). Presentation
+   extras the schema doesn't carry (rating, review count, tags) are merged from
+   the local catalogue by slug, so cards keep their look. Unknown products still
+   render with safe defaults. */
+function mergeFromDb(rows) {
+  if (!rows || !rows.length) return null;
+  const local = {};
+  MS_PRODUCTS.forEach((p) => { local[p.id] = p; });
+  return rows
+    .filter((r) => r.in_stock !== false)
+    .map((r) => {
+      const base = local[r.slug] || {};
+      let photo = r.photo || base.photo;
+      // DB stores root-relative paths ("/assets/x.png"); the shop lives two
+      // levels down, so normalise to a relative path that works either way.
+      if (photo && photo.indexOf("/assets/") === 0) photo = ".." + "/.." + photo;
+      return {
+        id: r.slug,
+        name: r.name,
+        cat: r.category,
+        price: r.price == null ? null : Number(r.price),
+        mrp: r.mrp == null ? null : Number(r.mrp),
+        weight: r.weight || base.weight || "",
+        desc: r.short_desc || base.desc || "",
+        facts: (r.benefits && r.benefits.length ? r.benefits : base.facts) || [],
+        photo: photo,
+        badge: base.badge,
+        tags: base.tags || [],
+        rating: base.rating || 4.8,
+        reviews: base.reviews || 0,
+      };
+    });
+}
+
 /* ===================== HEADER ===================== */
 function Header({ count, wishCount, onCart, onSearch, search, onWish, onHome, onShopAll }) {
   return (
@@ -71,7 +106,7 @@ function IconBtn({ children, onClick, label, badge, highlight }) {
 }
 
 /* ===================== HERO ===================== */
-function Hero({ onShopAll, onCategory }) {
+function Hero({ onShopAll, onCategory, products }) {
   return (
     <section style={{ position: "relative", overflow: "hidden" }}>
       <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "radial-gradient(55% 60% at 82% 8%, color-mix(in oklab, var(--gold) 20%, transparent), transparent), radial-gradient(50% 60% at -5% 100%, color-mix(in oklab, var(--forest) 14%, transparent), transparent)" }} />
@@ -82,7 +117,7 @@ function Hero({ onShopAll, onCategory }) {
             The Homemade<br />Wellness Shop.<br /><span style={{ fontStyle: "italic", color: "var(--accent)" }}>Pure, by nature.</span>
           </h1>
           <p style={{ margin: "18px 0 0", maxWidth: 520, fontSize: 17, lineHeight: 1.6, color: "var(--muted-foreground)" }}>
-            {MS_PRODUCTS.length} small-batch products from our home kitchen in Kotkapura — laddus, sugar-free chyawanprash, masalas, hair care & skincare. No refined sugar, no preservatives.
+            {products.length} small-batch products from our home kitchen in Kotkapura — laddus, sugar-free chyawanprash, masalas, hair care & skincare. No refined sugar, no preservatives.
           </p>
           <div style={{ marginTop: 26, display: "flex", flexWrap: "wrap", gap: 12 }}>
             <Button variant="forest" size="lg" onClick={onShopAll}>Shop All Products →</Button>
@@ -111,17 +146,17 @@ function Hero({ onShopAll, onCategory }) {
 }
 
 /* ===================== CATEGORY RAIL ===================== */
-function CategoryRail({ active, onCategory }) {
+function CategoryRail({ active, onCategory, products }) {
   return (
     <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(148px, 1fr))", gap: 12 }}>
-        <CatChip label="All Products" on={active === "all"} onClick={() => onCategory("all")} tint="var(--forest)" />
-        {MS_CATEGORIES.map((c) => <CatChip key={c.id} label={c.name} on={active === c.id} onClick={() => onCategory(c.id)} tint={c.tint} count={MS_PRODUCTS.filter((p) => p.cat === c.id).length} />)}
+        <CatChip label="All Products" on={active === "all"} onClick={() => onCategory("all")} tint="var(--forest)" total={products.length} />
+        {MS_CATEGORIES.map((c) => <CatChip key={c.id} label={c.name} on={active === c.id} onClick={() => onCategory(c.id)} tint={c.tint} count={products.filter((p) => p.cat === c.id).length} />)}
       </div>
     </div>
   );
 }
-function CatChip({ label, on, onClick, tint, count }) {
+function CatChip({ label, on, onClick, tint, count, total }) {
   const [h, setH] = React.useState(false);
   return (
     <button onClick={onClick} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
@@ -130,7 +165,7 @@ function CatChip({ label, on, onClick, tint, count }) {
       <span style={{ height: 34, width: 34, display: "grid", placeItems: "center", borderRadius: "var(--radius-pill)", background: on ? "color-mix(in oklab, var(--cream) 20%, transparent)" : "color-mix(in oklab, "+tint+" 16%, transparent)", color: on ? "var(--cream)" : tint }}><I.leaf s={18} /></span>
       <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 15, lineHeight: 1.1 }}>{label}</span>
       {count != null && <span style={{ fontSize: 11, opacity: 0.7 }}>{count} items</span>}
-      {count == null && <span style={{ fontSize: 11, opacity: 0.7 }}>{MS_PRODUCTS.length} items</span>}
+      {count == null && total != null && <span style={{ fontSize: 11, opacity: 0.7 }}>{total} items</span>}
     </button>
   );
 }
@@ -228,6 +263,28 @@ function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
   const placeOrder = () => {
     const lines = items.map((it) => `• ${it.name} (${it.weight}) × ${it.qty} — ${it.price == null ? "Ask for price" : money(it.price * it.qty)}`).join("\n");
     const msg = `Namaste Mishthi Sattva! 🌿 I'd like to place an order:\n\n${lines}\n\nSubtotal: ${money(subtotal)}\nDelivery: ${ship === 0 ? "Free" : money(ship)}\nTotal: ${money(total)}\n\nName: ${form.name}\nPhone: ${form.phone}\nAddress: ${form.address}, ${form.city}${form.note ? `\nNote: ${form.note}` : ""}`;
+
+    /* Save a record of the order, then hand off to WhatsApp.
+       The WhatsApp handoff must NEVER be blocked by the database — losing a
+       real order because a save failed would be far worse than losing the
+       record. So this is fire-and-forget and failures are only logged. */
+    if (window.MSData && window.MSData.configured) {
+      window.MSData.createOrder({
+        customer_name: form.name,
+        phone: form.phone,
+        address: form.address,
+        city: form.city,
+        note: form.note || null,
+        items: items.map((it) => ({ id: it.id, name: it.name, qty: it.qty, price: it.price, weight: it.weight })),
+        subtotal: subtotal,
+        delivery_fee: ship,
+        total: total,
+        source: "website",
+      }).catch(function (err) {
+        console.warn("[order] could not be saved to the database:", err.message);
+      });
+    }
+
     window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`, "_blank");
     setDone(true);
   };
@@ -354,7 +411,22 @@ function Shop() {
   const [quick, setQuick] = React.useState(null);
   const [view, setView] = React.useState(null); // null | 'cart' | 'checkout' | 'wishlist'
   const [toasts, setToasts] = React.useState([]);
+  /* Start from the bundled catalogue so the shop renders instantly and still
+     works if the database is unreachable; swap in live data once it arrives. */
+  const [catalogue, setCatalogue] = React.useState(MS_PRODUCTS);
+  const [liveData, setLiveData] = React.useState(false);
   const gridRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (!window.MSData || !window.MSData.configured) return;
+    var cancelled = false;
+    window.MSData.getProducts().then(function (rows) {
+      if (cancelled) return;
+      var merged = mergeFromDb(rows);
+      if (merged && merged.length) { setCatalogue(merged); setLiveData(true); }
+    });
+    return function () { cancelled = true; };
+  }, []);
 
   React.useEffect(() => { localStorage.setItem(LS_CART, JSON.stringify(cart)); }, [cart]);
   React.useEffect(() => { localStorage.setItem(LS_WISH, JSON.stringify(wish)); }, [wish]);
@@ -386,8 +458,8 @@ function Shop() {
   const goCategory = (c) => { setCat(c); setSearch(""); setTimeout(() => gridRef.current && window.scrollTo({ top: gridRef.current.offsetTop - 80, behavior: "smooth" }), 0); };
   const shopAll = () => goCategory("all");
 
-  let list = MS_PRODUCTS.filter((p) => (cat === "all" || p.cat === cat) && (!search || (p.name + " " + p.desc + " " + catName(p.cat)).toLowerCase().includes(search.toLowerCase())));
-  const wishList = MS_PRODUCTS.filter((p) => wish.includes(p.id));
+  let list = catalogue.filter((p) => (cat === "all" || p.cat === cat) && (!search || (p.name + " " + p.desc + " " + catName(p.cat)).toLowerCase().includes(search.toLowerCase())));
+  const wishList = catalogue.filter((p) => wish.includes(p.id));
   list = [...list].sort((a, b) => {
     if (sort === "price-asc") return a.price - b.price;
     if (sort === "price-desc") return b.price - a.price;
@@ -401,8 +473,8 @@ function Shop() {
   return (
     <div style={{ minHeight: "100vh", background: "var(--background)", color: "var(--foreground)" }}>
       <Header count={count} wishCount={wish.length} search={search} onSearch={setSearch} onCart={() => setView("cart")} onWish={() => setView("wishlist")} onHome={shopAll} onShopAll={shopAll} />
-      <Hero onShopAll={shopAll} onCategory={goCategory} />
-      <section style={{ padding: "8px 0 4px" }}><CategoryRail active={cat} onCategory={goCategory} /></section>
+      <Hero onShopAll={shopAll} onCategory={goCategory} products={catalogue} />
+      <section style={{ padding: "8px 0 4px" }}><CategoryRail active={cat} onCategory={goCategory} products={catalogue} /></section>
       <section ref={gridRef} style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 24px 0" }}>
         <Toolbar count={list.length} sort={sort} onSort={setSort} title={title} />
         {list.length === 0 ? (

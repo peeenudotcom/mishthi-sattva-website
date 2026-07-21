@@ -377,6 +377,19 @@ function Contact() {
   const valid = form.name.trim() && form.message.trim();
   const waText = `Namaste Mishthi Sattva!\n\nName: ${form.name}\nPhone: ${form.phone}\n\n${form.message}`;
 
+  /* Save the enquiry as well as opening WhatsApp, so nothing is lost if the
+     chat is never sent. Never block the WhatsApp handoff on the database. */
+  const saveEnquiry = () => {
+    if (!valid || !window.MSData || !window.MSData.configured) return;
+    window.MSData.createEnquiry({
+      name: form.name,
+      phone: form.phone || null,
+      message: form.message,
+    }).catch(function (err) {
+      console.warn("[enquiry] could not be saved:", err.message);
+    });
+  };
+
   const rows = [
     { icon: "📞", label: "Call / WhatsApp", value: PHONE },
     { icon: "📍", label: "Location", value: "Kotkapura, Punjab" },
@@ -408,7 +421,9 @@ function Contact() {
             <Input label="Name" placeholder="Your name" value={form.name} onChange={set("name")} />
             <Input label="Phone" type="tel" placeholder="10-digit mobile" value={form.phone} onChange={set("phone")} />
             <Input label="Message" multiline rows={4} placeholder="What would you like to order or ask?" value={form.message} onChange={set("message")} />
-            <WhatsAppButton fullWidth message={waText}>Send via WhatsApp</WhatsAppButton>
+            <span onClick={saveEnquiry}>
+              <WhatsAppButton fullWidth message={waText}>Send via WhatsApp</WhatsAppButton>
+            </span>
             {!valid && <p style={{ fontSize: 12, color: "var(--muted-foreground)", textAlign: "center" }}>Add your name and a message — we'll open WhatsApp with it filled in.</p>}
           </div>
         </Card>
