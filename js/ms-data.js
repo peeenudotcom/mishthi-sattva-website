@@ -60,21 +60,18 @@
       return safe(rest("reviews?select=*&order=created_at.desc"), "reviews");
     },
 
-    /* ---- writes: these must surface errors, so no silent fallback ---- */
+    /* ---- writes: these must surface errors, so no silent fallback ----
+       NOTE: do NOT ask for `Prefer: return=representation` here. Returning the
+       inserted row needs SELECT permission, and anon deliberately has none on
+       orders/enquiries (they hold phone numbers and addresses). Requesting it
+       makes Postgres reject the whole insert with a 401. Fire-and-forget is
+       correct: a 201 means the row was written. */
     createOrder: function (order) {
-      return rest("orders", {
-        method: "POST",
-        headers: { Prefer: "return=representation" },
-        body: order,
-      });
+      return rest("orders", { method: "POST", body: order });
     },
 
     createEnquiry: function (enquiry) {
-      return rest("enquiries", {
-        method: "POST",
-        headers: { Prefer: "return=representation" },
-        body: enquiry,
-      });
+      return rest("enquiries", { method: "POST", body: enquiry });
     },
 
     /* ---- connectivity probe, used by the admin page ---- */
