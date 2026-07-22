@@ -117,9 +117,8 @@ function Header({ active = "home" }) {
     <header style={{ position: "sticky", top: 0, zIndex: 40, borderBottom: "1px solid color-mix(in oklab, var(--cream) 14%, transparent)", background: "color-mix(in oklab, var(--primary) 97%, transparent)", backdropFilter: "blur(8px)" }}>
       <div className="ms-container" style={{ display: "flex", height: 88, alignItems: "center", justifyContent: "space-between", gap: 16 }}>
         <a href="index.html" style={{ display: "flex", alignItems: "center" }}>
-          <span style={{ display: "inline-flex", background: "var(--cream)", borderRadius: 14, padding: "5px 8px", boxShadow: "var(--shadow-sm)" }}>
-            <img src={`${ASSET}/mishthi-logo-tag.png`} alt="Mishthi Sattva — Ayurvedic, Satvic, Homemade" style={{ height: 62, width: "auto", objectFit: "contain", display: "block" }} />
-          </span>
+          {/* white/transparent lockup — sits directly on the green bar, no chip */}
+          <img src={`${ASSET}/mishthi-logo-white.png`} alt="Mishthi Sattva — Ayurvedic, Satvic, Homemade" style={{ height: 66, width: "auto", objectFit: "contain", display: "block" }} />
         </a>
         <nav className="ms-nav" style={{ display: "flex", alignItems: "center", gap: 34 }}>
           {nav.map((n) => {
@@ -472,9 +471,7 @@ function Footer() {
     <footer style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}>
       <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1.2fr", gap: 40, padding: "72px 20px 48px" }}>
         <div>
-          <span style={{ display: "inline-flex", background: "var(--cream)", borderRadius: 16, padding: "8px 12px", boxShadow: "var(--shadow-md)" }}>
-            <img src={`${ASSET}/mishthi-logo-tag.png`} alt="Mishthi Sattva" style={{ height: 72, width: "auto", objectFit: "contain", display: "block" }} />
-          </span>
+          <img src={`${ASSET}/mishthi-logo-white.png`} alt="Mishthi Sattva" style={{ height: 88, width: "auto", objectFit: "contain", display: "block" }} />
           <p style={{ marginTop: 16, maxWidth: 300, fontSize: 14, lineHeight: 1.6, color: "color-mix(in oklab, var(--cream) 78%, transparent)" }}>Pure, hygienic, homemade Ayurvedic foods, spices and wellness — handmade in small batches in Kotkapura, Punjab.</p>
           <p className="ms-hindi" style={{ marginTop: 14, fontSize: 14, color: "color-mix(in oklab, var(--cream) 65%, transparent)" }}>घर की रसोई से… आपके परिवार की सेहत तक।</p>
         </div>
