@@ -18,16 +18,38 @@ const ROOT = path.dirname(new URL(import.meta.url).pathname);
 const OUT = path.join(ROOT, "dist");
 
 const STATIC = ["assets", "tokens", "js", "vendor", "styles.css", "_ds_bundle.js"];
+
+/* Pages are emitted at their real public paths rather than being rewritten
+   there by vercel.json. Serving /ui_kits/website/index.html at "/" broke every
+   relative reference on the page (e.g. <script src="Sections.js"> resolved to
+   /Sections.js), so React received an undefined component and nothing rendered.
+   Building to the final path keeps links and scripts resolving naturally. */
 const PAGES = [
-  "ui_kits/website/index.html",
-  "ui_kits/website/about.html",
-  "ui_kits/website/products.html",
-  "ui_kits/website/contact.html",
-  "ui_kits/website/privacy.html",
-  "ui_kits/website/terms.html",
-  "ui_kits/website/shipping.html",
-  "ui_kits/shop/index.html",
-  "admin/index.html",
+  { src: "ui_kits/website/index.html",    out: "index.html" },
+  { src: "ui_kits/website/about.html",    out: "story.html" },
+  { src: "ui_kits/website/products.html", out: "products.html" },
+  { src: "ui_kits/website/contact.html",  out: "contact.html" },
+  { src: "ui_kits/website/privacy.html",  out: "privacy.html" },
+  { src: "ui_kits/website/terms.html",    out: "terms.html" },
+  { src: "ui_kits/website/shipping.html", out: "shipping.html" },
+  { src: "ui_kits/shop/index.html",       out: "shop/index.html" },
+  { src: "admin/index.html",              out: "admin/index.html" },
+];
+
+/* Source-relative link -> public URL. */
+const LINK_MAP = [
+  [/(["'])\.\.\/website\/index\.html\1/g, '$1/$1'],
+  [/(["'])\.\.\/website\/about\.html\1/g, '$1/story$1'],
+  [/(["'])\.\.\/website\/products\.html\1/g, '$1/products$1'],
+  [/(["'])\.\.\/website\/contact\.html\1/g, '$1/contact$1'],
+  [/(["'])\.\.\/shop\/index\.html\1/g, '$1/shop$1'],
+  [/(["'])index\.html\1/g, '$1/$1'],
+  [/(["'])about\.html\1/g, '$1/story$1'],
+  [/(["'])products\.html\1/g, '$1/products$1'],
+  [/(["'])contact\.html\1/g, '$1/contact$1'],
+  [/(["'])privacy\.html\1/g, '$1/privacy$1'],
+  [/(["'])terms\.html\1/g, '$1/terms$1'],
+  [/(["'])shipping\.html\1/g, '$1/shipping$1'],
 ];
 
 async function copyDir(src, dest) {
@@ -86,54 +108,80 @@ async function optimiseImages(dir) {
   return { before, after, count };
 }
 
-/** Compile a .jsx file to plain JS next to its output location. */
-async function compileJsx(relPath) {
-  const code = await fs.readFile(path.join(ROOT, relPath), "utf8");
+/** Compile a .jsx file to plain JS, emitted under /app/ with an absolute URL. */
+async function compileJsx(srcDir, file) {
+  const code = await fs.readFile(path.join(ROOT, srcDir, file), "utf8");
   const out = await transform(code, { loader: "jsx", format: "iife", target: "es2018" });
-  const dest = path.join(OUT, relPath.replace(/\.jsx$/, ".js"));
+  /* Nav links are rendered by React, so they live in these compiled bundles
+     rather than in the HTML — the page-level link rewriting never sees them.
+     Apply the same map here, which lets the source keep relative paths (so the
+     local dev server still works) while the build emits clean public URLs. */
+  let js = out.code;
+  for (const [re, to] of LINK_MAP) js = js.replace(re, to);
+  const name = file.replace(/\.jsx$/, ".js");
+  const dest = path.join(OUT, "app", name);
   await fs.mkdir(path.dirname(dest), { recursive: true });
-  await fs.writeFile(dest, out.code);
-  return out.code.length;
+  await fs.writeFile(dest, js);
+  return "/app/" + name;
 }
 
-/** Rewrite a page: production React, no Babel, precompiled scripts. */
-async function buildPage(relPath) {
-  let html = await fs.readFile(path.join(ROOT, relPath), "utf8");
-  const depth = relPath.split("/").length - 1;
-  const up = depth ? "../".repeat(depth) : "./";
+/** Rewrite a page: production React, no Babel, precompiled scripts, absolute URLs. */
+async function buildPage({ src, out }) {
+  let html = await fs.readFile(path.join(ROOT, src), "utf8");
+  const srcDir = path.dirname(src);
 
-  // 1. React dev (CDN) -> vendored production, keeping the same relative depth
+  // 1. React dev (CDN) -> vendored production, referenced absolutely
   html = html.replace(
     /<script src="https:\/\/unpkg\.com\/react@[^"]+"[^>]*><\/script>/,
-    `<script src="${up}vendor/react.production.min.js"></script>`
+    `<script src="/vendor/react.production.min.js"></script>`
   );
   html = html.replace(
     /<script src="https:\/\/unpkg\.com\/react-dom@[^"]+"[^>]*><\/script>/,
-    `<script src="${up}vendor/react-dom.production.min.js"></script>`
+    `<script src="/vendor/react-dom.production.min.js"></script>`
   );
 
   // 2. Babel is compile-time now — remove the runtime compiler entirely
   html = html.replace(/\s*<script src="https:\/\/unpkg\.com\/@babel\/standalone@[^"]+"[^>]*><\/script>/, "");
 
-  // 3. External JSX -> precompiled JS
+  // 3. External JSX -> precompiled JS at an absolute /app/ URL
   const jsxRefs = [...html.matchAll(/<script type="text\/babel" src="([^"]+)"><\/script>/g)];
-  for (const [full, src] of jsxRefs) {
-    const jsxPath = path.join(path.dirname(relPath), src);
-    await compileJsx(jsxPath);
-    html = html.replace(full, `<script src="${src.replace(/\.jsx$/, ".js")}"></script>`);
+  for (const [full, ref] of jsxRefs) {
+    const url = await compileJsx(srcDir, ref);
+    html = html.replace(full, `<script src="${url}"></script>`);
   }
 
-  // 4. Inline text/babel blocks -> compiled inline scripts
+  // 4. Plain relative scripts that live beside the page (e.g. shop data.js)
+  html = html.replace(/<script src="(?!\/|https?:|\.\.\/)([^"]+\.js)"><\/script>/g, (m, f) => {
+    return `<script src="/app/${f}"></script>`;
+  });
+
+  // 5. Inline text/babel blocks -> compiled inline scripts
   const inline = [...html.matchAll(/<script type="text\/babel">([\s\S]*?)<\/script>/g)];
   for (const [full, body] of inline) {
-    const out = await transform(body, { loader: "jsx", target: "es2018" });
-    html = html.replace(full, `<script>${out.code.trim()}</script>`);
+    const c = await transform(body, { loader: "jsx", target: "es2018" });
+    html = html.replace(full, `<script>${c.code.trim()}</script>`);
   }
 
-  const dest = path.join(OUT, relPath);
+  // 6. ../../foo -> /foo, and ../foo -> /foo (pages now sit at the root)
+  html = html.replace(/(["'])\.\.\/\.\.\//g, "$1/").replace(/(["'])\.\.\//g, "$1/");
+
+  // 7. Internal page links -> clean public URLs
+  for (const [re, to] of LINK_MAP) html = html.replace(re, to);
+
+  const dest = path.join(OUT, out);
   await fs.mkdir(path.dirname(dest), { recursive: true });
   await fs.writeFile(dest, html);
-  return html.length;
+}
+
+/** Copy any plain .js that sits beside a page (shop's data.js) into /app/. */
+async function copySiblingScripts() {
+  const extras = [["ui_kits/shop", "data.js"]];
+  for (const [dir, file] of extras) {
+    const s = path.join(ROOT, dir, file);
+    if (!(await fs.stat(s).catch(() => null))) continue;
+    await fs.mkdir(path.join(OUT, "app"), { recursive: true });
+    await fs.copyFile(s, path.join(OUT, "app", file));
+  }
 }
 
 async function main() {
@@ -150,9 +198,10 @@ async function main() {
     console.log("  copied", item);
   }
 
+  await copySiblingScripts();
   for (const page of PAGES) {
     await buildPage(page);
-    console.log("  built ", page);
+    console.log("  built ", page.out);
   }
 
   process.stdout.write("\n  optimising images… ");
