@@ -9,6 +9,25 @@ const ASSET = "../../assets";
 const PHONE = "8557942246";
 const WA = "918557942246"; // WhatsApp number (with country code)
 
+/* Customer favourites, stored in localStorage under the SAME key the shop
+   wishlist uses, so a heart tapped on the home page shows up in the shop's
+   wishlist drawer and vice-versa. No login needed. */
+const FAV_KEY = "ms_shop_wish";
+function readFavs() { try { return JSON.parse(localStorage.getItem(FAV_KEY)) || []; } catch (e) { return []; } }
+function toggleFav(id) {
+  const f = readFavs();
+  const next = f.includes(id) ? f.filter((x) => x !== id) : [...f, id];
+  try { localStorage.setItem(FAV_KEY, JSON.stringify(next)); } catch (e) {}
+  return next.includes(id);
+}
+function HeartIcon({ filled, size = 20 }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 20s-7-4.6-9.3-9C1 7.7 2.6 4.5 5.8 4.5c2 0 3.3 1.2 4.2 2.6.9-1.4 2.2-2.6 4.2-2.6 3.2 0 4.8 3.2 3.1 6.5C19 15.4 12 20 12 20z" />
+    </svg>
+  );
+}
+
 /* Editable promo badge shown on the hero image. TODO: confirm gift + minimum
    order value with the owner, or set to null to hide the badge entirely. */
 const GIFT_BADGE = { title: "Complimentary wellness gift", sub: "on orders this month — ask us for details" };
@@ -59,9 +78,11 @@ const PRODUCT_CATS = [
 ];
 
 const BENEFITS = [
-  { label: "Made Without Refined Oil", good: true },
-  { label: "No Refined Sugar", good: true },
-  { label: "No Artificial Preservatives", good: true },
+  // "free-from" points get a cross (what's NOT in the product);
+  // the positive qualities get a tick.
+  { label: "No Refined Oil", good: false },
+  { label: "No Refined Sugar", good: false },
+  { label: "No Artificial Preservatives", good: false },
   { label: "Homemade in Small Batches", good: true },
   { label: "Natural Ingredients", good: true },
   { label: "Hygienically Prepared", good: true },
@@ -93,21 +114,23 @@ function Leaf({ size = 16 }) {
 function Header({ active = "home" }) {
   const nav = [{ label: "Home", href: "index.html", id: "home" }, { label: "Story", href: "about.html", id: "about" }, { label: "Products", href: "products.html", id: "products" }, { label: "Contact", href: "contact.html", id: "contact" }];
   return (
-    <header style={{ position: "sticky", top: 0, zIndex: 40, borderBottom: "1px solid color-mix(in oklab, var(--border) 70%, transparent)", background: "color-mix(in oklab, var(--background) 85%, transparent)", backdropFilter: "blur(8px)" }}>
+    <header style={{ position: "sticky", top: 0, zIndex: 40, borderBottom: "1px solid color-mix(in oklab, var(--cream) 14%, transparent)", background: "color-mix(in oklab, var(--primary) 97%, transparent)", backdropFilter: "blur(8px)" }}>
       <div className="ms-container" style={{ display: "flex", height: 88, alignItems: "center", justifyContent: "space-between", gap: 16 }}>
         <a href="index.html" style={{ display: "flex", alignItems: "center" }}>
-          <img src={`${ASSET}/mishthi-logo-tag.png`} alt="Mishthi Sattva — Ayurvedic, Satvic, Homemade" style={{ height: 76, width: "auto", objectFit: "contain" }} />
+          <span style={{ display: "inline-flex", background: "var(--cream)", borderRadius: 14, padding: "5px 8px", boxShadow: "var(--shadow-sm)" }}>
+            <img src={`${ASSET}/mishthi-logo-tag.png`} alt="Mishthi Sattva — Ayurvedic, Satvic, Homemade" style={{ height: 62, width: "auto", objectFit: "contain", display: "block" }} />
+          </span>
         </a>
         <nav className="ms-nav" style={{ display: "flex", alignItems: "center", gap: 34 }}>
           {nav.map((n) => {
             const on = n.id === active;
             return (
-              <a key={n.label} href={n.href} style={{ fontSize: 15, fontWeight: on ? 700 : 600, color: on ? "var(--primary)" : "color-mix(in oklab, var(--foreground) 82%, transparent)", borderBottom: on ? "2px solid var(--accent)" : "2px solid transparent", paddingBottom: 3 }}>{n.label}</a>
+              <a key={n.label} href={n.href} style={{ fontSize: 15, fontWeight: on ? 700 : 600, color: on ? "var(--cream)" : "color-mix(in oklab, var(--cream) 78%, transparent)", borderBottom: on ? "2px solid var(--accent)" : "2px solid transparent", paddingBottom: 3 }}>{n.label}</a>
             );
           })}
         </nav>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Button variant="outline" as="a" href="../shop/index.html">Shop</Button>
+          <a href="../shop/index.html" style={{ display: "inline-flex", alignItems: "center", padding: "0.68rem 1.4rem", borderRadius: "var(--radius-pill)", border: "1px solid color-mix(in oklab, var(--cream) 45%, transparent)", color: "var(--cream)", fontWeight: 600, fontSize: 15 }}>Shop</a>
           <WhatsAppButton>Order on WhatsApp</WhatsAppButton>
         </div>
       </div>
@@ -449,7 +472,9 @@ function Footer() {
     <footer style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}>
       <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1.2fr", gap: 40, padding: "72px 20px 48px" }}>
         <div>
-          <img src={`${ASSET}/mishthi-logo.png`} alt="Mishthi Sattva" style={{ height: 78, width: 78, objectFit: "contain" }} />
+          <span style={{ display: "inline-flex", background: "var(--cream)", borderRadius: 16, padding: "8px 12px", boxShadow: "var(--shadow-md)" }}>
+            <img src={`${ASSET}/mishthi-logo-tag.png`} alt="Mishthi Sattva" style={{ height: 72, width: "auto", objectFit: "contain", display: "block" }} />
+          </span>
           <p style={{ marginTop: 16, maxWidth: 300, fontSize: 14, lineHeight: 1.6, color: "color-mix(in oklab, var(--cream) 78%, transparent)" }}>Pure, hygienic, homemade Ayurvedic foods, spices and wellness — handmade in small batches in Kotkapura, Punjab.</p>
           <p className="ms-hindi" style={{ marginTop: 14, fontSize: 14, color: "color-mix(in oklab, var(--cream) 65%, transparent)" }}>घर की रसोई से… आपके परिवार की सेहत तक।</p>
         </div>
@@ -511,7 +536,9 @@ function Footer() {
    TODO: replace "Ask for price" with real ₹ prices once confirmed. */
 function HomeProductCard({ p }) {
   const [h, setH] = React.useState(false);
-  const waMsg = `Hello Mishthi Sattva, I'm interested in ${p.name} (${p.size}). Please share the price and delivery details.`;
+  const [faved, setFaved] = React.useState(false);
+  // read the saved state on mount (localStorage isn't available during SSR-style init)
+  React.useEffect(() => { setFaved(readFavs().includes(p.id)); }, [p.id]);
   return (
     <div onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
       style={{ display: "flex", flexDirection: "column", background: "var(--card)", border: `1px solid ${h ? "var(--accent)" : "var(--border)"}`, borderRadius: "var(--radius-2xl)", overflow: "hidden", boxShadow: h ? "var(--shadow-lg)" : "var(--shadow-sm)", transform: h ? "translateY(-4px)" : "none", transition: "all .2s var(--ease-standard)" }}>
@@ -529,10 +556,14 @@ function HomeProductCard({ p }) {
         </div>
         <div style={{ marginTop: "auto", paddingTop: 18, display: "flex", alignItems: "center", gap: 10 }}>
           <a href="../shop/index.html" style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 14px", borderRadius: "var(--radius-pill)", border: "1px solid var(--primary)", color: "var(--primary)", fontWeight: 600, fontSize: 14 }}>View Details</a>
-          <a href={`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`} target="_blank" rel="noopener noreferrer" aria-label={`Order ${p.name} on WhatsApp`}
-            style={{ flexShrink: 0, display: "grid", placeItems: "center", height: 42, width: 42, borderRadius: "var(--radius-pill)", background: "var(--whatsapp)", color: "#fff" }}>
-            <svg viewBox="0 0 32 32" width={20} height={20} fill="currentColor"><path d="M19.11 17.36c-.27-.14-1.6-.79-1.85-.88-.25-.09-.43-.14-.61.14-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.14-1.14-.42-2.18-1.34-.81-.72-1.35-1.6-1.51-1.87-.16-.27-.02-.42.12-.55.12-.12.27-.32.41-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.48-.07-.14-.61-1.46-.83-2-.22-.53-.45-.46-.61-.47l-.52-.01c-.18 0-.48.07-.73.34-.25.27-.95.93-.95 2.27 0 1.34.98 2.63 1.11 2.81.14.18 1.92 2.93 4.65 4.11.65.28 1.16.45 1.56.58.65.21 1.25.18 1.72.11.52-.08 1.6-.65 1.83-1.28.23-.63.23-1.17.16-1.28-.07-.11-.25-.18-.52-.32zM16 4C9.37 4 4 9.37 4 16c0 2.11.55 4.09 1.52 5.81L4 28l6.36-1.49A11.92 11.92 0 0 0 16 28c6.63 0 12-5.37 12-12S22.63 4 16 4z" /></svg>
-          </a>
+          <button type="button" onClick={() => setFaved(toggleFav(p.id))}
+            aria-label={faved ? `Remove ${p.name} from favourites` : `Add ${p.name} to favourites`} aria-pressed={faved}
+            style={{ flexShrink: 0, display: "grid", placeItems: "center", height: 42, width: 42, borderRadius: "var(--radius-pill)", cursor: "pointer", transition: "all .18s",
+              background: faved ? "color-mix(in oklab, var(--destructive) 12%, var(--card))" : "var(--card)",
+              border: `1px solid ${faved ? "var(--destructive)" : "var(--border)"}`,
+              color: faved ? "var(--destructive)" : "var(--ink-500)" }}>
+            <HeartIcon filled={faved} />
+          </button>
         </div>
       </div>
     </div>
@@ -540,13 +571,14 @@ function HomeProductCard({ p }) {
 }
 
 function HomeProducts() {
+  // ids match the shop catalogue slugs, so favourites sync with the shop wishlist
   const picks = [
-    { name: "Shakti Laddu", benefit: "Dry fruits, gond & jaggery — no refined sugar.", img: "shakti-laddu.png", size: "250 g", badge: "Bestseller" },
-    { name: "Shinkaji Masala", benefit: "A robust homestyle Punjabi blend.", img: "shinkaji-masala-pack.png", size: "100 g" },
-    { name: "Herbal Heart Sip", benefit: "A warming daily herbal infusion.", img: "herbal-heart-sip.png", size: "200 g" },
-    { name: "Shahi Garam Masala", benefit: "Whole spices, roasted & stone-ground.", img: "shahi-garam-masala.png", size: "100 g", badge: "Bestseller" },
-    { name: "Ayurvedic Hair Oil", benefit: "Cold-infused bhringraj & amla.", img: "ayurvedic-hair-oil.png", size: "200 ml" },
-    { name: "Instant Ubtan Glow", benefit: "A brightening natural face pack.", img: "ubtan-glow-pack.png", size: "50 g", badge: "New" },
+    { id: "shakti-laddu", name: "Shakti Laddu", benefit: "Dry fruits, gond & jaggery — no refined sugar.", img: "shakti-laddu.png", size: "250 g", badge: "Bestseller" },
+    { id: "shinkaji-masala", name: "Shinkaji Masala", benefit: "A robust homestyle Punjabi blend.", img: "shinkaji-masala-pack.png", size: "100 g" },
+    { id: "herbal-heart-sip", name: "Herbal Heart Sip", benefit: "A warming daily herbal infusion.", img: "herbal-heart-sip.png", size: "200 g" },
+    { id: "shahi-garam-masala", name: "Shahi Garam Masala", benefit: "Whole spices, roasted & stone-ground.", img: "shahi-garam-masala.png", size: "100 g", badge: "Bestseller" },
+    { id: "ayurvedic-hair-oil", name: "Ayurvedic Hair Oil", benefit: "Cold-infused bhringraj & amla.", img: "ayurvedic-hair-oil.png", size: "200 ml" },
+    { id: "urban-glow", name: "Instant Ubtan Glow", benefit: "A brightening natural face pack.", img: "ubtan-glow-pack.png", size: "50 g", badge: "New" },
   ];
   return (
     <section id="bestsellers" style={{ background: "var(--white)", padding: "80px 0", scrollMarginTop: 90 }}>
