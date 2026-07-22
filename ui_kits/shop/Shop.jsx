@@ -81,17 +81,17 @@ function Header({ count, wishCount, onCart, onSearch, search, onWish, onHome, on
     else if (e.key === "Escape") { setFocused(false); setActive(-1); }
   };
   return (
-    <header style={{ position: "sticky", top: 0, zIndex: 50, background: "color-mix(in oklab, var(--background) 88%, transparent)", backdropFilter: "blur(10px)", borderBottom: "1px solid var(--border)" }}>
+    <header style={{ position: "sticky", top: 0, zIndex: 50, background: "color-mix(in oklab, var(--primary) 97%, transparent)", backdropFilter: "blur(10px)", borderBottom: "1px solid color-mix(in oklab, var(--cream) 14%, transparent)" }}>
       <div style={{ background: "var(--forest-deep)", color: "var(--cream)", fontSize: 12, letterSpacing: "0.08em", textAlign: "center", padding: "7px 12px" }}>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><I.gift s={15} /> Free home delivery on orders over {money(FREE_SHIP)} · Complimentary gift this month</span>
       </div>
       <div className="shop-head" style={{ maxWidth: 1280, margin: "0 auto", padding: "12px 24px", display: "flex", alignItems: "center", gap: 20 }}>
         <a href="../website/index.html" title="Back to Mishthi Sattva home" style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
-          <img src="../../assets/mishthi-logo-tag.png" alt="Mishthi Sattva — Ayurvedic, Satvic, Homemade" style={{ height: 52, width: "auto", objectFit: "contain" }} />
+          <img src="../../assets/mishthi-logo-white.png" alt="Mishthi Sattva — Ayurvedic, Satvic, Homemade" style={{ height: 58, width: "auto", objectFit: "contain", display: "block" }} />
         </a>
         <nav className="shop-nav" style={{ display: "flex", alignItems: "center", gap: 22 }}>
-          {[["Home", "../website/index.html"], ["Story", "../website/about.html"], ["Products", "../website/products.html"], ["Contact", "../website/contact.html"]].map(([t, h]) => (
-            <a key={t} href={h} style={{ fontSize: 14, fontWeight: 600, color: "color-mix(in oklab, var(--foreground) 82%, transparent)" }}>{t}</a>
+          {[["Home", "../website/index.html"], ["Story", "../website/about.html"], ["Products", "../shop/index.html"], ["Contact", "../website/contact.html"]].map(([t, h]) => (
+            <a key={t} href={h} style={{ fontSize: 14, fontWeight: 600, color: "color-mix(in oklab, var(--cream) 82%, transparent)" }}>{t}</a>
           ))}
         </nav>
         <div className="shop-search" style={{ flex: 1, maxWidth: 460, marginInline: "auto", position: "relative", display: "flex", alignItems: "center" }}>

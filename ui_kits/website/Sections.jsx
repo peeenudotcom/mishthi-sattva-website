@@ -23,7 +23,7 @@ function toggleFav(id) {
 function HeartIcon({ filled, size = 20 }) {
   return (
     <svg viewBox="0 0 24 24" width={size} height={size} fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 20s-7-4.6-9.3-9C1 7.7 2.6 4.5 5.8 4.5c2 0 3.3 1.2 4.2 2.6.9-1.4 2.2-2.6 4.2-2.6 3.2 0 4.8 3.2 3.1 6.5C19 15.4 12 20 12 20z" />
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z" />
     </svg>
   );
 }
@@ -112,7 +112,7 @@ function Leaf({ size = 16 }) {
 
 /* ---------- header ---------- */
 function Header({ active = "home" }) {
-  const nav = [{ label: "Home", href: "index.html", id: "home" }, { label: "Story", href: "about.html", id: "about" }, { label: "Products", href: "products.html", id: "products" }, { label: "Contact", href: "contact.html", id: "contact" }, { label: "Account", href: "account.html", id: "account" }];
+  const nav = [{ label: "Home", href: "index.html", id: "home" }, { label: "Story", href: "about.html", id: "about" }, { label: "Products", href: "../shop/index.html", id: "products" }, { label: "Contact", href: "contact.html", id: "contact" }, { label: "Account", href: "account.html", id: "account" }];
   return (
     <header style={{ position: "sticky", top: 0, zIndex: 40, borderBottom: "1px solid color-mix(in oklab, var(--cream) 14%, transparent)", background: "color-mix(in oklab, var(--primary) 97%, transparent)", backdropFilter: "blur(8px)" }}>
       <div className="ms-container" style={{ display: "flex", height: 88, alignItems: "center", justifyContent: "space-between", gap: 16 }}>
@@ -486,7 +486,7 @@ function Footer() {
           <ul style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 9, listStyle: "none", padding: 0 }}>
             <li><a href="index.html" style={link}>Home</a></li>
             <li><a href="about.html" style={link}>Our Story</a></li>
-            <li><a href="products.html" style={link}>Products</a></li>
+            <li><a href="../shop/index.html" style={link}>Products</a></li>
             <li><a href="contact.html" style={link}>Contact</a></li>
           </ul>
         </div>
