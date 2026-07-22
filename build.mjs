@@ -10,12 +10,185 @@
  * Output: dist/  (Vercel serves this; see vercel.json for clean URLs)
  */
 import { transform } from "esbuild";
-import { promises as fs } from "fs";
+import { promises as fs, readFileSync } from "fs";
 import path from "path";
+import vm from "vm";
 import sharp from "sharp";
 
 const ROOT = path.dirname(new URL(import.meta.url).pathname);
 const OUT = path.join(ROOT, "dist");
+
+/* ============================ SEO ============================ */
+const SITE = "https://mishthi-sattva.vercel.app";
+const OG_IMAGE = SITE + "/assets/og-image.jpg";
+
+const BIZ = {
+  name: "Mishthi Sattva",
+  legalName: "Mishthi Sattva (Prop. Kiran Bansal)",
+  phone: "+918557942246",
+  street: "9/333, Kot Kapura",
+  locality: "Kotkapura",
+  region: "Punjab",
+  postal: "151204",
+  fssai: "22126010000026",
+  founder: "Kiran Bansal",
+};
+
+/* Per-page meta, keyed by output path. Description ~150 chars, keyword-aware
+   but readable; titles lead with the brand's real search terms. */
+const SEO = {
+  "index.html": {
+    path: "/",
+    title: "Mishthi Sattva — Homemade Ayurvedic Foods, Spices & Wellness in Kotkapura",
+    desc: "Pure, homemade Ayurvedic laddoos, spices, wellness blends and skincare — made in small batches in Kotkapura, Punjab. No refined sugar or preservatives. Order on WhatsApp.",
+    faq: true, product: true,
+  },
+  "story.html": {
+    path: "/story",
+    title: "Our Story — Made in Kiran Bansal's Kitchen | Mishthi Sattva",
+    desc: "The story of Mishthi Sattva — homemade Ayurvedic food born in Kiran Bansal's kitchen in Kotkapura, made with honest ingredients and small-batch care.",
+  },
+  "products.html": {
+    path: "/products",
+    title: "Products — Homemade Ayurvedic Foods, Spices & Wellness | Mishthi Sattva",
+    desc: "Browse Mishthi Sattva's range: Shakti Laddu, sugar-free Chyawanprash, homemade masalas, Ayurvedic hair oil and natural skincare. Home delivery in Kotkapura.",
+    product: true,
+  },
+  "contact.html": {
+    path: "/contact",
+    title: "Contact & Order on WhatsApp — Mishthi Sattva, Kotkapura",
+    desc: "Order Mishthi Sattva's homemade Ayurvedic products on WhatsApp. Home delivery across Kotkapura and nearby areas in Punjab. Call +91 8557942246.",
+    faq: true,
+  },
+  "shop/index.html": {
+    path: "/shop",
+    title: "Shop Homemade Ayurvedic Products — Mishthi Sattva",
+    desc: "Shop Mishthi Sattva's homemade Ayurvedic foods, spices and wellness products online. Small-batch, preservative-free. Checkout on WhatsApp with home delivery.",
+    product: true,
+  },
+  "privacy.html": { path: "/privacy", title: "Privacy Policy — Mishthi Sattva", desc: "How Mishthi Sattva collects and uses your details when you order or enquire.", noindexSoft: true },
+  "terms.html": { path: "/terms", title: "Terms & Conditions — Mishthi Sattva", desc: "Terms for ordering Mishthi Sattva's homemade food, spice and personal-care products.", noindexSoft: true },
+  "shipping.html": { path: "/shipping", title: "Shipping & Returns — Mishthi Sattva", desc: "Delivery areas, timing and returns for Mishthi Sattva orders in Kotkapura and across India.", noindexSoft: true },
+  "admin/index.html": { path: "/admin", noindex: true },
+};
+
+function loadCatalogue() {
+  const code = readFileSync(path.join(ROOT, "ui_kits/shop/data.js"), "utf8");
+  const ctx = { window: {} };
+  vm.createContext(ctx);
+  vm.runInContext(code, ctx);
+  return ctx.window.MSShopData.MS_PRODUCTS;
+}
+
+const CAT_NAME = { ayurvedic: "Ayurvedic & Health", spices: "Spices & Masala", hair: "Hair Care", beauty: "Beauty & Skincare", special: "Special Foods" };
+
+function ld(obj) {
+  return `<script type="application/ld+json">${JSON.stringify(obj)}</script>`;
+}
+
+function localBusinessLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Store",
+    "@id": SITE + "/#business",
+    name: BIZ.name,
+    legalName: BIZ.legalName,
+    image: OG_IMAGE,
+    url: SITE + "/",
+    telephone: BIZ.phone,
+    priceRange: "₹₹",
+    founder: { "@type": "Person", name: BIZ.founder },
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: BIZ.street,
+      addressLocality: BIZ.locality,
+      addressRegion: BIZ.region,
+      postalCode: BIZ.postal,
+      addressCountry: "IN",
+    },
+    areaServed: [
+      { "@type": "City", name: "Kotkapura" },
+      { "@type": "AdministrativeArea", name: "Faridkot" },
+      { "@type": "State", name: "Punjab" },
+    ],
+    openingHoursSpecification: [{
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      opens: "09:00", closes: "19:00",
+    }],
+    identifier: { "@type": "PropertyValue", name: "FSSAI Registration", value: BIZ.fssai },
+  };
+}
+
+function productsLd(catalogue) {
+  const items = catalogue.map((p, i) => {
+    const img = SITE + (p.photo || "").replace("../../", "/");
+    const prod = {
+      "@type": "Product",
+      name: p.name,
+      description: p.desc,
+      image: img,
+      category: CAT_NAME[p.cat] || p.cat,
+      brand: { "@type": "Brand", name: BIZ.name },
+    };
+    // Only advertise a price where one is confirmed; "Ask for price" items omit offers.
+    if (p.price != null) {
+      prod.offers = {
+        "@type": "Offer",
+        price: String(p.price),
+        priceCurrency: "INR",
+        availability: "https://schema.org/InStock",
+        url: SITE + "/shop",
+        seller: { "@id": SITE + "/#business" },
+      };
+    }
+    return { "@type": "ListItem", position: i + 1, item: prod };
+  });
+  return { "@context": "https://schema.org", "@type": "ItemList", itemListElement: items };
+}
+
+/* Mirrors the FAQ shown on the site. */
+const FAQ = [
+  ["How do I place an order?", "Tap any 'Order on WhatsApp' button and send us your list. We confirm availability, price and delivery on chat."],
+  ["Do you offer home delivery?", "Yes. Home delivery is available across Kotkapura and nearby areas; other cities ship via trusted couriers."],
+  ["Are your products really preservative-free?", "Yes — prepared fresh in our home kitchen with no refined oil, refined sugar or artificial preservatives."],
+  ["What is the shelf life?", "Typically 1–6 months when stored as instructed. Exact dates are printed on each pack."],
+];
+function faqLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQ.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
+  };
+}
+
+function headMeta(seo) {
+  const url = SITE + seo.path;
+  const robots = seo.noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large";
+  const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  const lines = [
+    `<meta name="description" content="${esc(seo.desc || "")}" />`,
+    `<meta name="robots" content="${robots}" />`,
+    `<link rel="canonical" href="${url}" />`,
+    `<meta name="theme-color" content="#114B35" />`,
+    `<link rel="icon" href="/assets/mishthi-logo.png" />`,
+    `<link rel="apple-touch-icon" href="/assets/mishthi-logo.png" />`,
+    `<meta property="og:type" content="website" />`,
+    `<meta property="og:site_name" content="Mishthi Sattva" />`,
+    `<meta property="og:title" content="${esc(seo.title || "")}" />`,
+    `<meta property="og:description" content="${esc(seo.desc || "")}" />`,
+    `<meta property="og:url" content="${url}" />`,
+    `<meta property="og:image" content="${OG_IMAGE}" />`,
+    `<meta property="og:image:width" content="1200" />`,
+    `<meta property="og:image:height" content="630" />`,
+    `<meta property="og:locale" content="en_IN" />`,
+    `<meta name="twitter:card" content="summary_large_image" />`,
+    `<meta name="twitter:title" content="${esc(seo.title || "")}" />`,
+    `<meta name="twitter:description" content="${esc(seo.desc || "")}" />`,
+    `<meta name="twitter:image" content="${OG_IMAGE}" />`,
+  ];
+  return lines.join("\n");
+}
 
 const STATIC = ["assets", "tokens", "js", "vendor", "styles.css", "_ds_bundle.js"];
 
@@ -168,9 +341,64 @@ async function buildPage({ src, out }) {
   // 7. Internal page links -> clean public URLs
   for (const [re, to] of LINK_MAP) html = html.replace(re, to);
 
+  // 8. SEO: real <title>, meta, Open Graph, and JSON-LD structured data.
+  //    Baked into the static HTML so crawlers get it without running React.
+  const seo = SEO[out];
+  if (seo) {
+    if (seo.title) html = html.replace(/<title>[\s\S]*?<\/title>/, `<title>${seo.title}</title>`);
+    const schemas = [];
+    if (!seo.noindex) {
+      schemas.push(ld(localBusinessLd()));
+      if (seo.faq) schemas.push(ld(faqLd()));
+      if (seo.product) schemas.push(ld(productsLd(CATALOGUE)));
+    }
+    const inject = "\n" + headMeta(seo) + "\n" + schemas.join("\n") + "\n";
+    html = html.replace("</head>", inject + "</head>");
+  }
+
   const dest = path.join(OUT, out);
   await fs.mkdir(path.dirname(dest), { recursive: true });
   await fs.writeFile(dest, html);
+}
+
+/* 1200×630 social share image: the hero photo, darkened, with a brand plate. */
+async function makeOgImage() {
+  const src = path.join(ROOT, "assets", "hero-products.png");
+  if (!(await fs.stat(src).catch(() => null))) return false;
+  const W = 1200, H = 630;
+  const overlay = Buffer.from(
+    `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
+       <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+         <stop offset="0%" stop-color="rgba(11,51,37,0)"/>
+         <stop offset="60%" stop-color="rgba(11,51,37,0.15)"/>
+         <stop offset="100%" stop-color="rgba(11,51,37,0.88)"/>
+       </linearGradient></defs>
+       <rect width="${W}" height="${H}" fill="url(#g)"/>
+       <text x="70" y="500" font-family="Georgia, serif" font-size="72" font-weight="700" fill="#F8F5EE">Mishthi Sattva</text>
+       <text x="72" y="548" font-family="Arial, sans-serif" font-size="26" letter-spacing="6" fill="#C9A24D">AYURVEDIC · SATVIC · HOMEMADE</text>
+       <text x="72" y="590" font-family="Arial, sans-serif" font-size="24" fill="#E3CD93">Homemade Ayurvedic foods &amp; wellness · Kotkapura, Punjab</text>
+     </svg>`
+  );
+  const buf = await sharp(src)
+    .resize(W, H, { fit: "cover", position: "attention" })
+    .composite([{ input: overlay }])
+    .jpeg({ quality: 86, mozjpeg: true })
+    .toBuffer();
+  await fs.writeFile(path.join(OUT, "assets", "og-image.jpg"), buf);
+  return true;
+}
+
+async function writeSitemapAndRobots() {
+  const pages = Object.values(SEO).filter((s) => !s.noindex).map((s) => s.path);
+  const today = "2026-07-21";
+  const urls = pages.map((p) =>
+    `  <url><loc>${SITE}${p}</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>${p === "/" ? "1.0" : "0.7"}</priority></url>`
+  ).join("\n");
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
+  await fs.writeFile(path.join(OUT, "sitemap.xml"), sitemap);
+
+  const robots = `User-agent: *\nAllow: /\nDisallow: /admin\n\nSitemap: ${SITE}/sitemap.xml\n`;
+  await fs.writeFile(path.join(OUT, "robots.txt"), robots);
 }
 
 /** Copy any plain .js that sits beside a page (shop's data.js) into /app/. */
@@ -184,7 +412,10 @@ async function copySiblingScripts() {
   }
 }
 
+let CATALOGUE = [];
+
 async function main() {
+  CATALOGUE = loadCatalogue();
   await fs.rm(OUT, { recursive: true, force: true });
   await fs.mkdir(OUT, { recursive: true });
 
@@ -211,6 +442,12 @@ async function main() {
     `${img.count} files: ${mb(img.before)} MB → ${mb(img.after)} MB ` +
     `(${Math.round((1 - img.after / img.before) * 100)}% smaller)`
   );
+
+  // OG image is generated AFTER optimiseImages so it isn't shrunk below 1200px.
+  const og = await makeOgImage();
+  console.log("  og-image:", og ? "created (1200×630)" : "skipped (no hero)");
+  await writeSitemapAndRobots();
+  console.log("  sitemap.xml + robots.txt written");
 
   console.log("\nBuild complete → dist/");
 }
