@@ -96,7 +96,7 @@ function Header({ active = "home" }) {
     <header style={{ position: "sticky", top: 0, zIndex: 40, borderBottom: "1px solid color-mix(in oklab, var(--border) 70%, transparent)", background: "color-mix(in oklab, var(--background) 85%, transparent)", backdropFilter: "blur(8px)" }}>
       <div className="ms-container" style={{ display: "flex", height: 88, alignItems: "center", justifyContent: "space-between", gap: 16 }}>
         <a href="index.html" style={{ display: "flex", alignItems: "center" }}>
-          <img src={`${ASSET}/mishthi-logo-lockup.png`} alt="Mishthi Sattva — Ayurvedic, Satvik, Homemade" style={{ height: 74, width: "auto", objectFit: "contain" }} />
+          <img src={`${ASSET}/mishthi-logo-tag.png`} alt="Mishthi Sattva — Ayurvedic, Satvic, Homemade" style={{ height: 76, width: "auto", objectFit: "contain" }} />
         </a>
         <nav className="ms-nav" style={{ display: "flex", alignItems: "center", gap: 34 }}>
           {nav.map((n) => {
