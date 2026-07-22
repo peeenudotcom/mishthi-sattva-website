@@ -141,8 +141,48 @@
         });
     },
 
+    /* Create a customer account. full_name/phone go into user metadata, which a
+       DB trigger copies into their profile row (see accounts.sql). If the
+       project requires email confirmation, no session comes back yet — the
+       caller shows a "check your email" message. */
+    signUp: function (email, password, fullName, phone) {
+      return fetch(AUTH + "signup", {
+        method: "POST",
+        headers: { apikey: KEY, "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, password: password, data: { full_name: fullName, phone: phone } }),
+      })
+        .then(function (r) {
+          return r.text().then(function (t) {
+            var d = t ? JSON.parse(t) : {};
+            if (!r.ok) throw new Error(d.error_description || d.msg || d.message || "Sign-up failed");
+            return d;
+          });
+        })
+        .then(function (d) {
+          // A confirmed/instant signup includes tokens; store them to log in.
+          if (d.access_token) localStorage.setItem(LS_SESSION, JSON.stringify(d));
+          return d; // { access_token?, user }
+        });
+    },
+
     signOut: function () {
       localStorage.removeItem(LS_SESSION);
+    },
+
+    /* ---- customer account ---- */
+    currentUser: function () {
+      var s = session();
+      return s && s.user ? s.user : null;
+    },
+    myProfile: function () {
+      var u = this.currentUser();
+      if (!u) return Promise.resolve(null);
+      return rest("profiles?select=*&id=eq." + u.id).then(function (rows) { return rows && rows[0]; }).catch(function () { return null; });
+    },
+    // The customer's own orders (RLS returns only rows where user_id = auth.uid()).
+    myOrders: function () {
+      if (!this.isSignedIn()) return Promise.resolve([]);
+      return rest("orders?select=*&order=created_at.desc").catch(function () { return []; });
     },
 
     /* ---- admin reads (RLS requires a signed-in user) ---- */

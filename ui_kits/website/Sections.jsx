@@ -112,7 +112,7 @@ function Leaf({ size = 16 }) {
 
 /* ---------- header ---------- */
 function Header({ active = "home" }) {
-  const nav = [{ label: "Home", href: "index.html", id: "home" }, { label: "Story", href: "about.html", id: "about" }, { label: "Products", href: "products.html", id: "products" }, { label: "Contact", href: "contact.html", id: "contact" }];
+  const nav = [{ label: "Home", href: "index.html", id: "home" }, { label: "Story", href: "about.html", id: "about" }, { label: "Products", href: "products.html", id: "products" }, { label: "Contact", href: "contact.html", id: "contact" }, { label: "Account", href: "account.html", id: "account" }];
   return (
     <header style={{ position: "sticky", top: 0, zIndex: 40, borderBottom: "1px solid color-mix(in oklab, var(--cream) 14%, transparent)", background: "color-mix(in oklab, var(--primary) 97%, transparent)", backdropFilter: "blur(8px)" }}>
       <div className="ms-container" style={{ display: "flex", height: 88, alignItems: "center", justifyContent: "space-between", gap: 16 }}>
@@ -552,7 +552,8 @@ function HomeProductCard({ p }) {
           <span style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "var(--primary)" }}>{p.price || "Ask for price"}</span>
         </div>
         <div style={{ marginTop: "auto", paddingTop: 18, display: "flex", alignItems: "center", gap: 10 }}>
-          <a href="../shop/index.html" style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 14px", borderRadius: "var(--radius-pill)", border: "1px solid var(--primary)", color: "var(--primary)", fontWeight: 600, fontSize: 14 }}>View Details</a>
+          {/* opens this product's detail (quick-view) in the shop, not just the listing */}
+          <a href={`../shop/index.html?p=${p.id}`} style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 14px", borderRadius: "var(--radius-pill)", border: "1px solid var(--primary)", color: "var(--primary)", fontWeight: 600, fontSize: 14 }}>View Details</a>
           <button type="button" onClick={() => setFaved(toggleFav(p.id))}
             aria-label={faved ? `Remove ${p.name} from favourites` : `Add ${p.name} to favourites`} aria-pressed={faved}
             style={{ flexShrink: 0, display: "grid", placeItems: "center", height: 42, width: 42, borderRadius: "var(--radius-pill)", cursor: "pointer", transition: "all .18s",
@@ -928,6 +929,147 @@ function StickyWhatsApp() {
   );
 }
 
+/* ---------- customer account: login / signup / order history + tracking ---------- */
+const ORDER_STEPS = ["new", "confirmed", "packed", "delivered"];
+const STEP_LABEL = { new: "Placed", confirmed: "Confirmed", packed: "Packed", delivered: "Delivered" };
+
+function OrderTracker({ status }) {
+  if (status === "cancelled") return <p style={{ marginTop: 12, fontSize: 13, fontWeight: 700, color: "var(--destructive)" }}>Cancelled</p>;
+  const idx = ORDER_STEPS.indexOf(status);
+  return (
+    <div style={{ display: "flex", alignItems: "flex-start", marginTop: 14 }}>
+      {ORDER_STEPS.map((s, i) => {
+        const done = i <= idx;
+        return (
+          <React.Fragment key={s}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, width: 66 }}>
+              <span style={{ height: 24, width: 24, borderRadius: "var(--radius-pill)", display: "grid", placeItems: "center", fontSize: 12, fontWeight: 700, background: done ? "var(--primary)" : "var(--secondary)", color: done ? "var(--primary-foreground)" : "var(--muted-foreground)" }}>{done ? "✓" : i + 1}</span>
+              <span style={{ fontSize: 11, textAlign: "center", color: done ? "var(--primary)" : "var(--muted-foreground)" }}>{STEP_LABEL[s]}</span>
+            </div>
+            {i < ORDER_STEPS.length - 1 && <div style={{ flex: 1, height: 2, marginTop: 11, background: i < idx ? "var(--primary)" : "var(--border)" }} />}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
+
+function Account() {
+  const D = window.MSData;
+  const configured = D && D.configured;
+  const [user, setUser] = React.useState(configured ? D.currentUser() : null);
+  const [mode, setMode] = React.useState("login");
+  const [form, setForm] = React.useState({ name: "", phone: "", email: "", password: "" });
+  const [busy, setBusy] = React.useState(false);
+  const [msg, setMsg] = React.useState("");
+  const [orders, setOrders] = React.useState(null);
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  React.useEffect(() => { if (user && configured) D.myOrders().then(setOrders); }, [user]);
+
+  if (!configured) {
+    return (
+      <section style={{ padding: "96px 0", minHeight: "60vh" }}>
+        <div className="ms-container" style={{ maxWidth: 520, marginInline: "auto", textAlign: "center" }}>
+          <GoldDivider align="center">Account</GoldDivider>
+          <h1 style={{ marginTop: 16, fontSize: 40, fontWeight: 700 }}>Accounts are being set up</h1>
+          <p style={{ marginTop: 12, color: "var(--muted-foreground)" }}>Customer login isn't connected yet — please order on WhatsApp in the meantime.</p>
+          <div style={{ marginTop: 24 }}><WhatsAppButton>Order on WhatsApp</WhatsAppButton></div>
+        </div>
+      </section>
+    );
+  }
+
+  const submit = (e) => {
+    e.preventDefault(); setBusy(true); setMsg("");
+    const p = mode === "signup"
+      ? D.signUp(form.email.trim(), form.password, form.name.trim(), form.phone.trim())
+      : D.signIn(form.email.trim(), form.password);
+    p.then(() => {
+      setBusy(false);
+      if (D.isSignedIn()) setUser(D.currentUser());
+      else { setMode("login"); setMsg("Account created. Check your email to confirm, then sign in."); }
+    }).catch((ex) => { setBusy(false); setMsg(ex.message); });
+  };
+
+  if (!user) {
+    return (
+      <section style={{ padding: "72px 0", minHeight: "70vh" }}>
+        <div className="ms-container" style={{ maxWidth: 460, marginInline: "auto" }}>
+          <div style={{ textAlign: "center" }}><GoldDivider align="center">My Account</GoldDivider></div>
+          <div style={{ marginTop: 20, display: "flex", gap: 8, justifyContent: "center" }}>
+            {[["login", "Sign in"], ["signup", "Create account"]].map(([m, lbl]) => (
+              <button key={m} onClick={() => { setMode(m); setMsg(""); }} style={{ padding: "8px 18px", borderRadius: "var(--radius-pill)", border: `1px solid ${mode === m ? "var(--primary)" : "var(--border)"}`, background: mode === m ? "var(--primary)" : "var(--card)", color: mode === m ? "var(--primary-foreground)" : "var(--primary)", fontWeight: 600, cursor: "pointer" }}>{lbl}</button>
+            ))}
+          </div>
+          <form onSubmit={submit} style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 14, background: "var(--card)", border: "1px solid var(--border)", borderRadius: "var(--radius-2xl)", padding: 26 }}>
+            {mode === "signup" && <Input label="Full name" value={form.name} onChange={set("name")} placeholder="Your name" />}
+            {mode === "signup" && <Input label="Phone" type="tel" value={form.phone} onChange={set("phone")} placeholder="10-digit mobile" />}
+            <Input label="Email" type="email" value={form.email} onChange={set("email")} placeholder="you@example.com" />
+            <Input label="Password" type="password" value={form.password} onChange={set("password")} placeholder="At least 6 characters" />
+            {msg && <p style={{ fontSize: 13, color: "var(--destructive)" }}>{msg}</p>}
+            <Button variant="forest" type="submit" fullWidth>{busy ? "Please wait…" : (mode === "signup" ? "Create account" : "Sign in")}</Button>
+          </form>
+          <p style={{ marginTop: 16, textAlign: "center", fontSize: 13, color: "var(--muted-foreground)" }}>Your account keeps your order history and lets you track deliveries.</p>
+        </div>
+      </section>
+    );
+  }
+
+  const firstName = user.user_metadata && user.user_metadata.full_name ? ", " + user.user_metadata.full_name.split(" ")[0] : "";
+  return (
+    <section style={{ padding: "72px 0", minHeight: "70vh" }}>
+      <div className="ms-container" style={{ maxWidth: 820, marginInline: "auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 16, flexWrap: "wrap" }}>
+          <div>
+            <GoldDivider>My Account</GoldDivider>
+            <h1 style={{ marginTop: 12, fontSize: 40, fontWeight: 700 }}>Namaste{firstName}.</h1>
+            <p style={{ marginTop: 6, color: "var(--muted-foreground)" }}>{user.email}</p>
+          </div>
+          <Button variant="outline" onClick={() => { D.signOut(); setUser(null); setOrders(null); }}>Sign out</Button>
+        </div>
+        <h2 style={{ marginTop: 40, fontSize: 26, color: "var(--primary)" }}>Your orders</h2>
+        {orders === null && <p style={{ color: "var(--muted-foreground)" }}>Loading your orders…</p>}
+        {orders && orders.length === 0 && (
+          <div style={{ marginTop: 16, padding: 28, borderRadius: "var(--radius-2xl)", border: "1px solid var(--border)", background: "var(--card)", textAlign: "center" }}>
+            <p style={{ color: "var(--muted-foreground)" }}>No orders yet. Orders you place while signed in appear here with live delivery tracking.</p>
+            <div style={{ marginTop: 16 }}><Button variant="forest" as="a" href="../shop/index.html">Start shopping →</Button></div>
+          </div>
+        )}
+        {orders && orders.length > 0 && (
+          <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 16 }}>
+            {orders.map((o) => (
+              <div key={o.id} style={{ padding: 22, borderRadius: "var(--radius-2xl)", border: "1px solid var(--border)", background: "var(--card)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                  <div>
+                    <p style={{ fontWeight: 700, color: "var(--primary)" }}>Order #{o.order_no}</p>
+                    <p style={{ fontSize: 13, color: "var(--muted-foreground)" }}>{new Date(o.created_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}</p>
+                  </div>
+                  <p style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--primary)" }}>₹{Number(o.total).toLocaleString("en-IN")}</p>
+                </div>
+                <p style={{ marginTop: 8, fontSize: 13.5, color: "var(--muted-foreground)" }}>{(o.items || []).map((i) => `${i.name} ×${i.qty}`).join(", ") || "—"}</p>
+                <OrderTracker status={o.status} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function AccountPage() {
+  return (
+    <div style={{ minHeight: "100vh", background: "var(--background)", color: "var(--foreground)" }}>
+      <Header active="account" />
+      <main><Account /></main>
+      <Footer />
+      <StickyWhatsApp />
+      <MobileBar />
+    </div>
+  );
+}
+
 function HomePage() {
   return (
     <div style={{ minHeight: "100vh", background: "var(--background)", color: "var(--foreground)" }}>
@@ -1022,4 +1164,4 @@ function Website() {
   );
 }
 
-window.MSWebsite = { HomePage, AboutPage, ProductsPage, ContactPage, PolicyPage, Website };
+window.MSWebsite = { HomePage, AboutPage, ProductsPage, ContactPage, PolicyPage, AccountPage, Website };

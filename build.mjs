@@ -69,6 +69,7 @@ const SEO = {
   "privacy.html": { path: "/privacy", title: "Privacy Policy — Mishthi Sattva", desc: "How Mishthi Sattva collects and uses your details when you order or enquire.", noindexSoft: true },
   "terms.html": { path: "/terms", title: "Terms & Conditions — Mishthi Sattva", desc: "Terms for ordering Mishthi Sattva's homemade food, spice and personal-care products.", noindexSoft: true },
   "shipping.html": { path: "/shipping", title: "Shipping & Returns — Mishthi Sattva", desc: "Delivery areas, timing and returns for Mishthi Sattva orders in Kotkapura and across India.", noindexSoft: true },
+  "account.html": { path: "/account", title: "My Account — Mishthi Sattva", desc: "Sign in to Mishthi Sattva to see your order history and track deliveries.", noindex: true },
   "admin/index.html": { path: "/admin", noindex: true },
 };
 
@@ -202,6 +203,7 @@ const PAGES = [
   { src: "ui_kits/website/about.html",    out: "story.html" },
   { src: "ui_kits/website/products.html", out: "products.html" },
   { src: "ui_kits/website/contact.html",  out: "contact.html" },
+  { src: "ui_kits/website/account.html",  out: "account.html" },
   { src: "ui_kits/website/privacy.html",  out: "privacy.html" },
   { src: "ui_kits/website/terms.html",    out: "terms.html" },
   { src: "ui_kits/website/shipping.html", out: "shipping.html" },
@@ -215,11 +217,14 @@ const LINK_MAP = [
   [/(["'])\.\.\/website\/about\.html\1/g, '$1/story$1'],
   [/(["'])\.\.\/website\/products\.html\1/g, '$1/products$1'],
   [/(["'])\.\.\/website\/contact\.html\1/g, '$1/contact$1'],
-  [/(["'])\.\.\/shop\/index\.html\1/g, '$1/shop$1'],
+  // broad (no quote anchor) so it also catches the template-literal deep-link
+  // `../shop/index.html?p=${id}` used by the home "View Details" buttons
+  [/\.\.\/shop\/index\.html/g, "/shop"],
   [/(["'])index\.html\1/g, '$1/$1'],
   [/(["'])about\.html\1/g, '$1/story$1'],
   [/(["'])products\.html\1/g, '$1/products$1'],
-  [/(["'])contact\.html\1/g, '$1/contact$1'],
+  [/(["\'])contact\.html\1/g, '$1/contact$1'],
+  [/(["\'])account\.html\1/g, '$1/account$1'],
   [/(["'])privacy\.html\1/g, '$1/privacy$1'],
   [/(["'])terms\.html\1/g, '$1/terms$1'],
   [/(["'])shipping\.html\1/g, '$1/shipping$1'],

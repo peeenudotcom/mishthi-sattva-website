@@ -59,7 +59,27 @@ function mergeFromDb(rows) {
 }
 
 /* ===================== HEADER ===================== */
-function Header({ count, wishCount, onCart, onSearch, search, onWish, onHome, onShopAll }) {
+function Header({ count, wishCount, onCart, onSearch, search, onWish, onHome, onShopAll, products, onPick }) {
+  const [focused, setFocused] = React.useState(false);
+  const [active, setActive] = React.useState(-1);
+  // typeahead suggestions: match the query against name / category / benefits
+  const q = search.trim().toLowerCase();
+  const suggestions = q
+    ? (products || []).filter((p) => {
+        const hay = (p.name + " " + catName(p.cat) + " " + (p.facts || []).join(" ")).toLowerCase();
+        return hay.includes(q);
+      }).slice(0, 6)
+    : [];
+  const showList = focused && q.length >= 1 && suggestions.length > 0;
+
+  const choose = (p) => { setFocused(false); setActive(-1); if (onPick) onPick(p); };
+  const onKey = (e) => {
+    if (!showList) return;
+    if (e.key === "ArrowDown") { e.preventDefault(); setActive((a) => Math.min(a + 1, suggestions.length - 1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setActive((a) => Math.max(a - 1, -1)); }
+    else if (e.key === "Enter" && active >= 0) { e.preventDefault(); choose(suggestions[active]); }
+    else if (e.key === "Escape") { setFocused(false); setActive(-1); }
+  };
   return (
     <header style={{ position: "sticky", top: 0, zIndex: 50, background: "color-mix(in oklab, var(--background) 88%, transparent)", backdropFilter: "blur(10px)", borderBottom: "1px solid var(--border)" }}>
       <div style={{ background: "var(--forest-deep)", color: "var(--cream)", fontSize: 12, letterSpacing: "0.08em", textAlign: "center", padding: "7px 12px" }}>
@@ -75,11 +95,31 @@ function Header({ count, wishCount, onCart, onSearch, search, onWish, onHome, on
           ))}
         </nav>
         <div className="shop-search" style={{ flex: 1, maxWidth: 460, marginInline: "auto", position: "relative", display: "flex", alignItems: "center" }}>
-          <span style={{ position: "absolute", left: 16, color: "var(--ink-300)" }}><I.search s={18} /></span>
-          <input value={search} onChange={(e) => onSearch(e.target.value)} placeholder="Search laddus, masala, hair oil…"
-            style={{ width: "100%", padding: "11px 16px 11px 44px", borderRadius: "var(--radius-pill)", border: "1px solid var(--border)", background: "var(--card)", fontFamily: "var(--font-sans)", fontSize: 14, color: "var(--foreground)", outline: "none" }}
-            onFocus={(e) => { e.target.style.borderColor = "var(--accent)"; e.target.style.boxShadow = "0 0 0 3px color-mix(in oklab, var(--accent) 25%, transparent)"; }}
-            onBlur={(e) => { e.target.style.borderColor = "var(--border)"; e.target.style.boxShadow = "none"; }} />
+          <span style={{ position: "absolute", left: 16, color: "var(--ink-300)", zIndex: 1 }}><I.search s={18} /></span>
+          <input value={search} onChange={(e) => { onSearch(e.target.value); setActive(-1); }} placeholder="Search laddus, masala, hair oil…"
+            role="combobox" aria-expanded={showList} aria-autocomplete="list"
+            onKeyDown={onKey}
+            style={{ width: "100%", padding: "11px 16px 11px 44px", borderRadius: showList ? "16px 16px 0 0" : "var(--radius-pill)", border: "1px solid var(--border)", background: "var(--card)", fontFamily: "var(--font-sans)", fontSize: 14, color: "var(--foreground)", outline: "none" }}
+            onFocus={(e) => { setFocused(true); e.target.style.borderColor = "var(--accent)"; e.target.style.boxShadow = "0 0 0 3px color-mix(in oklab, var(--accent) 25%, transparent)"; }}
+            onBlur={(e) => { setTimeout(() => setFocused(false), 150); e.target.style.borderColor = "var(--border)"; e.target.style.boxShadow = "none"; }} />
+          {showList && (
+            <ul role="listbox" style={{ position: "absolute", top: "100%", left: 0, right: 0, margin: 0, padding: "6px", listStyle: "none", background: "var(--card)", border: "1px solid var(--accent)", borderTop: "none", borderRadius: "0 0 16px 16px", boxShadow: "var(--shadow-lg)", zIndex: 60, maxHeight: 360, overflow: "auto" }}>
+              {suggestions.map((p, i) => (
+                <li key={p.id} role="option" aria-selected={i === active}
+                  onMouseDown={(e) => { e.preventDefault(); choose(p); }}
+                  onMouseEnter={() => setActive(i)}
+                  style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 10px", borderRadius: 10, cursor: "pointer", background: i === active ? "color-mix(in oklab, var(--secondary) 60%, transparent)" : "transparent" }}>
+                  <span style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 8, overflow: "hidden", background: "var(--cream)", display: "grid", placeItems: "center" }}>
+                    {p.photo ? <img src={p.photo} alt="" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} /> : <I.leaf s={18} />}
+                  </span>
+                  <span style={{ minWidth: 0 }}>
+                    <span style={{ display: "block", fontWeight: 600, fontSize: 14, color: "var(--primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</span>
+                    <span style={{ display: "block", fontSize: 12, color: "var(--muted-foreground)" }}>{catName(p.cat)}{p.price != null ? " · " + money(p.price) : ""}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <IconBtn onClick={onWish} label="Wishlist" badge={wishCount}><I.heart s={20} /></IconBtn>
@@ -424,6 +464,16 @@ function Shop() {
     return function () { cancelled = true; };
   }, []);
 
+  /* Deep-link: /shop?p=<id> (from the home "View Details" buttons) opens that
+     product's detail view directly, instead of dumping the visitor on the grid.
+     Runs whenever the catalogue changes so it works with both local and DB data. */
+  React.useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get("p");
+    if (!id) return;
+    const found = catalogue.find((x) => x.id === id);
+    if (found) setQuick(found);
+  }, [catalogue]);
+
   React.useEffect(() => { localStorage.setItem(LS_CART, JSON.stringify(cart)); }, [cart]);
   React.useEffect(() => { localStorage.setItem(LS_WISH, JSON.stringify(wish)); }, [wish]);
 
@@ -468,7 +518,8 @@ function Shop() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--background)", color: "var(--foreground)" }}>
-      <Header count={count} wishCount={wish.length} search={search} onSearch={setSearch} onCart={() => setView("cart")} onWish={() => setView("wishlist")} onHome={shopAll} onShopAll={shopAll} />
+      <Header count={count} wishCount={wish.length} search={search} onSearch={setSearch} onCart={() => setView("cart")} onWish={() => setView("wishlist")} onHome={shopAll} onShopAll={shopAll}
+        products={catalogue} onPick={(p) => { setQuick(p); setSearch(""); }} />
       <Hero onShopAll={shopAll} onCategory={goCategory} products={catalogue} />
       <section style={{ padding: "8px 0 4px" }}><CategoryRail active={cat} onCategory={goCategory} products={catalogue} /></section>
       <section ref={gridRef} style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 24px 0" }}>
