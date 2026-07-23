@@ -530,7 +530,7 @@ function Footer() {
    Uniform framing (4:3, cream backdrop, same corners) is applied here, but a
    real single-shoot catalogue is still recommended for full consistency.
    TODO: replace "Ask for price" with real ₹ prices once confirmed. */
-function HomeProductCard({ p }) {
+function HomeProductCard({ p, onView }) {
   const [h, setH] = React.useState(false);
   const [faved, setFaved] = React.useState(false);
   // read the saved state on mount (localStorage isn't available during SSR-style init)
@@ -551,8 +551,8 @@ function HomeProductCard({ p }) {
           <span style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "var(--primary)" }}>{p.price || "Ask for price"}</span>
         </div>
         <div style={{ marginTop: "auto", paddingTop: 18, display: "flex", alignItems: "center", gap: 10 }}>
-          {/* opens this product's detail (quick-view) in the shop, not just the listing */}
-          <a href={`../shop/index.html?p=${p.id}`} style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 14px", borderRadius: "var(--radius-pill)", border: "1px solid var(--primary)", color: "var(--primary)", fontWeight: 600, fontSize: 14 }}>View Details</a>
+          {/* opens this product's details in a popup on THIS page — no navigation to the shop */}
+          <button type="button" onClick={() => onView && onView(p)} style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 14px", borderRadius: "var(--radius-pill)", border: "1px solid var(--primary)", background: "var(--card)", color: "var(--primary)", fontFamily: "inherit", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>View Details</button>
           <button type="button" onClick={() => setFaved(toggleFav(p.id))}
             aria-label={faved ? `Remove ${p.name} from favourites` : `Add ${p.name} to favourites`} aria-pressed={faved}
             style={{ flexShrink: 0, display: "grid", placeItems: "center", height: 42, width: 42, borderRadius: "var(--radius-pill)", cursor: "pointer", transition: "all .18s",
@@ -567,7 +567,46 @@ function HomeProductCard({ p }) {
   );
 }
 
+/* In-place product popup for the home bestsellers. Shows the product's details
+   right on the home page so "View Details" never navigates away to the shop. */
+function ProductModal({ p, onClose }) {
+  React.useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
+  }, [onClose]);
+  const waMsg = `Namaste Mishthi Sattva! I'd like to know more about ${p.name}${p.size ? " (" + p.size + ")" : ""}.`;
+  return (
+    <div onClick={onClose} role="dialog" aria-modal="true" aria-label={p.name}
+      style={{ position: "fixed", inset: 0, zIndex: 120, background: "color-mix(in oklab, var(--forest-deep) 55%, transparent)", backdropFilter: "blur(4px)", display: "grid", placeItems: "center", padding: 20 }}>
+      <div onClick={(e) => e.stopPropagation()}
+        style={{ width: "min(440px, 96vw)", maxHeight: "92vh", overflow: "auto", background: "var(--white)", borderRadius: "var(--radius-3xl)", boxShadow: "var(--shadow-xl)", border: "1px solid var(--border)" }}>
+        <div style={{ position: "relative", aspectRatio: "4 / 3", background: "var(--cream)", overflow: "hidden", borderTopLeftRadius: "var(--radius-3xl)", borderTopRightRadius: "var(--radius-3xl)" }}>
+          <img src={`${ASSET}/${p.img}`} alt={p.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          {p.badge && <span style={{ position: "absolute", top: 14, left: 14, background: "var(--forest-deep)", color: "var(--cream)", fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: "var(--radius-pill)" }}>{p.badge}</span>}
+          <button onClick={onClose} aria-label="Close" style={{ position: "absolute", top: 12, right: 12, height: 36, width: 36, display: "grid", placeItems: "center", borderRadius: "var(--radius-pill)", border: "none", background: "color-mix(in oklab, var(--forest-deep) 55%, transparent)", color: "var(--cream)", cursor: "pointer", fontSize: 20, lineHeight: 1 }}>×</button>
+        </div>
+        <div style={{ padding: "26px 26px 28px" }}>
+          <h3 style={{ margin: 0, fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 28, lineHeight: 1.1, color: "var(--primary)" }}>{p.name}</h3>
+          <p style={{ margin: "12px 0 0", fontSize: 15.5, lineHeight: 1.6, color: "var(--muted-foreground)" }}>{p.benefit}</p>
+          <div style={{ marginTop: 16, display: "flex", alignItems: "baseline", gap: 10 }}>
+            <span style={{ fontSize: 14, fontWeight: 600, color: "var(--foreground)" }}>{p.size}</span>
+            <span style={{ color: "var(--accent)" }}>·</span>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--primary)" }}>{p.price || "Ask for price"}</span>
+          </div>
+          <div style={{ marginTop: 22 }}>
+            <WhatsAppButton fullWidth message={waMsg}>Order on WhatsApp</WhatsAppButton>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function HomeProducts() {
+  const [view, setView] = React.useState(null);
   // ids match the shop catalogue slugs, so favourites sync with the shop wishlist
   const picks = [
     { id: "shakti-laddu", name: "Shakti Laddu", benefit: "Dry fruits, gond & jaggery — no refined sugar.", img: "shakti-laddu.png", size: "250 g", badge: "Bestseller" },
@@ -586,13 +625,14 @@ function HomeProducts() {
           <p style={{ marginTop: 16, color: "var(--muted-foreground)", fontSize: 17, lineHeight: 1.6 }}>A taste of the range — from laddus and masalas to wellness oils. Message us on WhatsApp for prices and the full catalogue.</p>
         </div>
         <div className="ms-prodgrid" style={{ marginTop: 52, display: "grid", gap: 22, alignItems: "stretch" }}>
-          {picks.map((p) => <HomeProductCard key={p.name} p={p} />)}
+          {picks.map((p) => <HomeProductCard key={p.name} p={p} onView={setView} />)}
         </div>
         <div style={{ marginTop: 44, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 12 }}>
           <Button variant="forest" as="a" href="../shop/index.html">Shop All Products →</Button>
           <WhatsAppButton message="Hello Mishthi Sattva, please share your full product catalogue and prices.">Get the Catalogue</WhatsAppButton>
         </div>
       </div>
+      {view && <ProductModal p={view} onClose={() => setView(null)} />}
     </section>
   );
 }
