@@ -169,6 +169,40 @@
       localStorage.removeItem(LS_SESSION);
     },
 
+    /* ---- Google sign-in (OAuth) ----
+       Kick off Google's OAuth via Supabase. We use the implicit flow (no PKCE),
+       so Supabase redirects back to `redirect_to` with the tokens in the URL
+       fragment; handleOAuthReturn() below captures them. redirect_to uses the
+       live origin, so it works on the vercel URL now and a custom domain later
+       (just add that origin to Supabase's Redirect URLs allow-list). */
+    signInWithGoogle: function () {
+      if (!AUTH) return;
+      var redirect = window.location.origin + "/account";
+      window.location.href = AUTH + "authorize?provider=google&redirect_to=" + encodeURIComponent(redirect);
+    },
+    /* Call once on page load. If we just came back from Google, store the session
+       and return true so the UI can flip to the signed-in view. */
+    handleOAuthReturn: function () {
+      var hash = window.location.hash || "";
+      if (hash.indexOf("access_token=") === -1) return Promise.resolve(false);
+      var p = new URLSearchParams(hash.replace(/^#/, ""));
+      var access_token = p.get("access_token");
+      var refresh_token = p.get("refresh_token");
+      var expires_in = parseInt(p.get("expires_in") || "3600", 10);
+      if (!access_token) return Promise.resolve(false);
+      return fetch(AUTH + "user", { headers: { apikey: KEY, Authorization: "Bearer " + access_token } })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (user) {
+          if (!user) return false;
+          var sess = { access_token: access_token, refresh_token: refresh_token, expires_in: expires_in,
+            expires_at: Math.floor(Date.now() / 1000) + expires_in, token_type: p.get("token_type") || "bearer", user: user };
+          localStorage.setItem(LS_SESSION, JSON.stringify(sess));
+          try { history.replaceState(null, "", window.location.pathname + window.location.search); } catch (e) {}
+          return true;
+        })
+        .catch(function () { return false; });
+    },
+
     /* ---- customer account ---- */
     currentUser: function () {
       var s = session();

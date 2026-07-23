@@ -446,11 +446,14 @@ function Footer() {
       <div style={{ borderTop: "1px solid color-mix(in oklab, var(--cream) 12%, transparent)" }}>
         <div className="ms-container" style={{ maxWidth: 1280, margin: "0 auto", display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 12, padding: "18px 24px", fontSize: 12, color: "color-mix(in oklab, var(--cream) 60%, transparent)" }}>
           <p>© {new Date().getFullYear()} Mishthi Sattva. All rights reserved. · FSSAI Reg. No. 22126010000026</p>
-          <p style={{ display: "flex", gap: 16 }}>
-            <a href="../website/privacy.html" style={{ color: "inherit" }}>Privacy</a>
-            <a href="../website/terms.html" style={{ color: "inherit" }}>Terms</a>
-            <a href="../website/shipping.html" style={{ color: "inherit" }}>Shipping &amp; Returns</a>
-          </p>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+            <p style={{ display: "flex", gap: 16 }}>
+              <a href="../website/privacy.html" style={{ color: "inherit" }}>Privacy</a>
+              <a href="../website/terms.html" style={{ color: "inherit" }}>Terms</a>
+              <a href="../website/shipping.html" style={{ color: "inherit" }}>Shipping &amp; Returns</a>
+            </p>
+            <p style={{ margin: 0 }}>Crafted by <span style={{ color: "var(--accent)", fontWeight: 600 }}>TARAhut AI Labs</span></p>
+          </div>
         </div>
       </div>
     </footer>
