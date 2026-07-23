@@ -88,7 +88,7 @@ function Header({ count, wishCount, onCart, onSearch, search, onWish, onHome, on
           <img src="../../assets/mishthi-logo-white.png" alt="Mishthi Sattva — Ayurvedic, Satvic, Homemade" style={{ height: 66, width: "auto", objectFit: "contain", display: "block" }} />
         </a>
         <nav className="shop-nav" style={{ display: "flex", alignItems: "center", gap: 30 }}>
-          {[["Home", "../website/index.html"], ["Story", "../website/about.html"], ["Products", "../shop/index.html"], ["Contact", "../website/contact.html"], ["Account", "../website/account.html"]].map(([t, h]) => {
+          {[["Home", "../website/index.html"], ["Story", "../website/about.html"], ["Products", "../shop/index.html"], ["Contact", "../website/contact.html"]].map(([t, h]) => {
             const on = t === "Products";
             return <a key={t} href={h} style={{ fontSize: 15, fontWeight: on ? 700 : 600, color: on ? "var(--cream)" : "color-mix(in oklab, var(--cream) 78%, transparent)", borderBottom: on ? "2px solid var(--accent)" : "2px solid transparent", paddingBottom: 3 }}>{t}</a>;
           })}
@@ -121,6 +121,10 @@ function Header({ count, wishCount, onCart, onSearch, search, onWish, onHome, on
               </ul>
             )}
           </div>
+          <a href="../website/account.html" aria-label="My account" title="My account"
+             style={{ height: 44, width: 44, display: "grid", placeItems: "center", borderRadius: "var(--radius-pill)", border: "1px solid var(--border)", background: "var(--card)", color: "var(--primary)" }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" /></svg>
+          </a>
           <IconBtn onClick={onWish} label="Wishlist" badge={wishCount}><I.heart s={20} /></IconBtn>
           <IconBtn onClick={onCart} label="Cart" badge={count} highlight><I.bag s={21} /></IconBtn>
         </div>

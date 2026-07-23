@@ -9,3 +9,13 @@
 @import "./tokens/spacing.css";
 @import "./tokens/radius.css";
 @import "./tokens/base.css";
+
+/* Mobile sticky Call + WhatsApp bar — hidden on desktop, shown under 680px.
+   Defined here (shared) so EVERY page behaves the same; some page <style> blocks
+   (account/contact/policy) were missing this rule, leaking the bar onto desktop. */
+.ms-mobilebar { display: none; }
+@media (max-width: 680px) {
+  .ms-mobilebar { display: flex; }
+  .ms-fab { display: none !important; }
+  main { padding-bottom: 76px; }
+}

@@ -122,7 +122,9 @@ function Leaf({ size = 16 }) {
 
 /* ---------- header ---------- */
 function Header({ active = "home" }) {
-  const nav = [{ label: "Home", href: "index.html", id: "home" }, { label: "Story", href: "about.html", id: "about" }, { label: "Products", href: "../shop/index.html", id: "products" }, { label: "Contact", href: "contact.html", id: "contact" }, { label: "Account", href: "account.html", id: "account" }];
+  // Account is intentionally NOT in this content nav — it's a separate, demarcated
+  // button on the right (below) so it reads as the sign-in / account area.
+  const nav = [{ label: "Home", href: "index.html", id: "home" }, { label: "Story", href: "about.html", id: "about" }, { label: "Products", href: "../shop/index.html", id: "products" }, { label: "Contact", href: "contact.html", id: "contact" }];
   return (
     <header style={{ position: "sticky", top: 0, zIndex: 40, borderBottom: "1px solid color-mix(in oklab, var(--cream) 12%, transparent)", background: "var(--primary)", boxShadow: "0 8px 24px -12px color-mix(in oklab, var(--forest-deep) 60%, transparent)" }}>
       <div className="ms-container" style={{ display: "flex", height: 88, alignItems: "center", justifyContent: "space-between", gap: 16 }}>
@@ -139,6 +141,15 @@ function Header({ active = "home" }) {
           })}
         </nav>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <a href="account.html" title="My account" aria-label="My account" aria-current={active === "account" ? "page" : undefined}
+             style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "0.55rem 0.95rem", borderRadius: "var(--radius-pill)", fontWeight: 600, fontSize: 15,
+               color: active === "account" ? "var(--forest-deep)" : "var(--cream)",
+               background: active === "account" ? "var(--cream)" : "transparent",
+               border: "1px solid color-mix(in oklab, var(--cream) 35%, transparent)" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" /></svg>
+            Account
+          </a>
+          <span aria-hidden="true" style={{ width: 1, height: 26, background: "color-mix(in oklab, var(--cream) 22%, transparent)" }} />
           <a href="../shop/index.html" style={{ display: "inline-flex", alignItems: "center", padding: "0.68rem 1.4rem", borderRadius: "var(--radius-pill)", border: "1px solid color-mix(in oklab, var(--cream) 45%, transparent)", color: "var(--cream)", fontWeight: 600, fontSize: 15 }}>Shop</a>
           <WhatsAppButton>Order on WhatsApp</WhatsAppButton>
         </div>
