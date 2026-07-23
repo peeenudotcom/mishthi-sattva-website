@@ -124,7 +124,7 @@ function Leaf({ size = 16 }) {
 function Header({ active = "home" }) {
   const nav = [{ label: "Home", href: "index.html", id: "home" }, { label: "Story", href: "about.html", id: "about" }, { label: "Products", href: "../shop/index.html", id: "products" }, { label: "Contact", href: "contact.html", id: "contact" }, { label: "Account", href: "account.html", id: "account" }];
   return (
-    <header style={{ position: "sticky", top: 0, zIndex: 40, borderBottom: "1px solid color-mix(in oklab, var(--cream) 14%, transparent)", background: "color-mix(in oklab, var(--primary) 97%, transparent)", backdropFilter: "blur(8px)" }}>
+    <header style={{ position: "sticky", top: 0, zIndex: 40, borderBottom: "1px solid color-mix(in oklab, var(--cream) 12%, transparent)", background: "var(--primary)", boxShadow: "0 8px 24px -12px color-mix(in oklab, var(--forest-deep) 60%, transparent)" }}>
       <div className="ms-container" style={{ display: "flex", height: 88, alignItems: "center", justifyContent: "space-between", gap: 16 }}>
         <a href="index.html" style={{ display: "flex", alignItems: "center" }}>
           {/* white/transparent lockup — sits directly on the green bar, no chip */}

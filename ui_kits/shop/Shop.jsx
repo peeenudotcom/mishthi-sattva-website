@@ -81,7 +81,7 @@ function Header({ count, wishCount, onCart, onSearch, search, onWish, onHome, on
     else if (e.key === "Escape") { setFocused(false); setActive(-1); }
   };
   return (
-    <header style={{ position: "sticky", top: 0, zIndex: 50, background: "color-mix(in oklab, var(--primary) 97%, transparent)", backdropFilter: "blur(10px)", borderBottom: "1px solid color-mix(in oklab, var(--cream) 14%, transparent)" }}>
+    <header style={{ position: "sticky", top: 0, zIndex: 50, background: "var(--primary)", borderBottom: "1px solid color-mix(in oklab, var(--cream) 12%, transparent)", boxShadow: "0 8px 24px -12px color-mix(in oklab, var(--forest-deep) 60%, transparent)" }}>
       {/* Single-tier bar matching the website header: logo left, nav centre, actions right. */}
       <div className="shop-head" style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", minHeight: 88, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20 }}>
         <a href="../website/index.html" title="Back to Mishthi Sattva home" style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
