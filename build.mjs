@@ -217,6 +217,7 @@ const LINK_MAP = [
   [/(["'])\.\.\/website\/about\.html\1/g, '$1/story$1'],
   [/(["'])\.\.\/website\/products\.html\1/g, '$1/products$1'],
   [/(["'])\.\.\/website\/contact\.html\1/g, '$1/contact$1'],
+  [/(["'])\.\.\/website\/account\.html\1/g, '$1/account$1'],
   [/(["'])\.\.\/website\/privacy\.html\1/g, '$1/privacy$1'],
   [/(["'])\.\.\/website\/terms\.html\1/g, '$1/terms$1'],
   [/(["'])\.\.\/website\/shipping\.html\1/g, '$1/shipping$1'],
