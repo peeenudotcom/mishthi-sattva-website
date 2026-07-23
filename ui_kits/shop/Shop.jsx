@@ -484,7 +484,9 @@ function Shop() {
      product's detail view directly, instead of dumping the visitor on the grid.
      Runs whenever the catalogue changes so it works with both local and DB data. */
   React.useEffect(() => {
-    const id = new URLSearchParams(window.location.search).get("p");
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("cart")) setView("cart");   // e.g. home "View cart" after add-to-cart
+    const id = params.get("p");
     if (!id) return;
     const found = catalogue.find((x) => x.id === id);
     if (found) setQuick(found);

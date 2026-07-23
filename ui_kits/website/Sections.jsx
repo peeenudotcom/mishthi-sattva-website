@@ -20,6 +20,16 @@ function toggleFav(id) {
   try { localStorage.setItem(FAV_KEY, JSON.stringify(next)); } catch (e) {}
   return next.includes(id);
 }
+/* Shares the shop's cart (same localStorage key + item shape), so items added
+   from the home bestsellers show up in the shop cart / checkout. */
+const CART_KEY = "ms_shop_cart";
+function addToShopCart(item, qty) {
+  let cart; try { cart = JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch (e) { cart = []; }
+  const ex = cart.find((i) => i.id === item.id);
+  if (ex) ex.qty += qty; else cart.push({ ...item, qty: qty });
+  try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch (e) {}
+  return cart.reduce((n, i) => n + i.qty, 0);
+}
 function HeartIcon({ filled, size = 20 }) {
   return (
     <svg viewBox="0 0 24 24" width={size} height={size} fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -570,6 +580,8 @@ function HomeProductCard({ p, onView }) {
 /* In-place product popup for the home bestsellers. Shows the product's details
    right on the home page so "View Details" never navigates away to the shop. */
 function ProductModal({ p, onClose }) {
+  const [qty, setQty] = React.useState(1);
+  const [added, setAdded] = React.useState(false);
   React.useEffect(() => {
     const onKey = (e) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", onKey);
@@ -577,7 +589,12 @@ function ProductModal({ p, onClose }) {
     document.body.style.overflow = "hidden";
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
   }, [onClose]);
-  const waMsg = `Namaste Mishthi Sattva! I'd like to know more about ${p.name}${p.size ? " (" + p.size + ")" : ""}.`;
+  const waMsg = `Namaste Mishthi Sattva! I'd like to order ${qty} × ${p.name}${p.size ? " (" + p.size + ")" : ""}.`;
+  const add = () => {
+    addToShopCart({ id: p.id, name: p.name, price: null, weight: p.size, cat: p.cat || null, photo: `${ASSET}/${p.img}`, mrp: null }, qty);
+    setAdded(true);
+  };
+  const stepBtn = { height: 38, width: 38, display: "grid", placeItems: "center", borderRadius: "var(--radius-pill)", border: "1px solid var(--border)", background: "var(--card)", color: "var(--primary)", cursor: "pointer", fontSize: 18, lineHeight: 1 };
   return (
     <div onClick={onClose} role="dialog" aria-modal="true" aria-label={p.name}
       style={{ position: "fixed", inset: 0, zIndex: 120, background: "color-mix(in oklab, var(--forest-deep) 55%, transparent)", backdropFilter: "blur(4px)", display: "grid", placeItems: "center", padding: 20 }}>
@@ -590,15 +607,37 @@ function ProductModal({ p, onClose }) {
         </div>
         <div style={{ padding: "26px 26px 28px" }}>
           <h3 style={{ margin: 0, fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 28, lineHeight: 1.1, color: "var(--primary)" }}>{p.name}</h3>
-          <p style={{ margin: "12px 0 0", fontSize: 15.5, lineHeight: 1.6, color: "var(--muted-foreground)" }}>{p.benefit}</p>
+          <p style={{ margin: "12px 0 0", fontSize: 15.5, lineHeight: 1.6, color: "var(--muted-foreground)" }}>{p.desc || p.benefit}</p>
           <div style={{ marginTop: 16, display: "flex", alignItems: "baseline", gap: 10 }}>
             <span style={{ fontSize: 14, fontWeight: 600, color: "var(--foreground)" }}>{p.size}</span>
             <span style={{ color: "var(--accent)" }}>·</span>
             <span style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--primary)" }}>{p.price || "Ask for price"}</span>
           </div>
-          <div style={{ marginTop: 22 }}>
-            <WhatsAppButton fullWidth message={waMsg}>Order on WhatsApp</WhatsAppButton>
-          </div>
+          {added ? (
+            <div style={{ marginTop: 22 }}>
+              <p style={{ margin: "0 0 14px", display: "flex", alignItems: "center", gap: 8, fontWeight: 600, color: "var(--primary)" }}>
+                <span style={{ display: "grid", placeItems: "center", height: 24, width: 24, borderRadius: "var(--radius-pill)", background: "var(--success, #2e7d32)", color: "#fff", fontSize: 15 }}>✓</span>
+                Added {qty} to your cart
+              </p>
+              <Button variant="forest" as="a" href="../shop/index.html?cart=1" fullWidth>View cart &amp; checkout →</Button>
+              <button type="button" onClick={onClose} style={{ marginTop: 10, width: "100%", background: "transparent", border: "none", color: "var(--muted-foreground)", fontFamily: "inherit", fontSize: 14, cursor: "pointer" }}>Keep browsing</button>
+            </div>
+          ) : (
+            <div style={{ marginTop: 20 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)" }}>Quantity</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <button type="button" aria-label="Decrease quantity" onClick={() => setQty((q) => Math.max(1, q - 1))} style={stepBtn}>−</button>
+                  <span style={{ minWidth: 24, textAlign: "center", fontWeight: 600, fontSize: 16, color: "var(--primary)" }}>{qty}</span>
+                  <button type="button" aria-label="Increase quantity" onClick={() => setQty((q) => q + 1)} style={stepBtn}>+</button>
+                </div>
+              </div>
+              <Button variant="forest" onClick={add} fullWidth>Add to Cart</Button>
+              <div style={{ marginTop: 10 }}>
+                <WhatsAppButton fullWidth message={waMsg}>Order on WhatsApp</WhatsAppButton>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -609,12 +648,12 @@ function HomeProducts() {
   const [view, setView] = React.useState(null);
   // ids match the shop catalogue slugs, so favourites sync with the shop wishlist
   const picks = [
-    { id: "shakti-laddu", name: "Shakti Laddu", benefit: "Dry fruits, gond & jaggery — no refined sugar.", img: "shakti-laddu.png", size: "250 g", badge: "Bestseller" },
-    { id: "shinkaji-masala", name: "Shinkaji Masala", benefit: "A robust homestyle Punjabi blend.", img: "shinkaji-masala-pack.png", size: "100 g" },
-    { id: "herbal-heart-sip", name: "Herbal Heart Sip", benefit: "A warming daily herbal infusion.", img: "herbal-heart-sip.png", size: "200 g" },
-    { id: "shahi-garam-masala", name: "Shahi Garam Masala", benefit: "Whole spices, roasted & stone-ground.", img: "shahi-garam-masala.png", size: "100 g", badge: "Bestseller" },
-    { id: "ayurvedic-hair-oil", name: "Ayurvedic Hair Oil", benefit: "Cold-infused bhringraj & amla.", img: "ayurvedic-hair-oil.png", size: "200 ml" },
-    { id: "urban-glow", name: "Instant Ubtan Glow", benefit: "A brightening natural face pack.", img: "ubtan-glow-pack.png", size: "50 g", badge: "New" },
+    { id: "shakti-laddu", name: "Shakti Laddu", benefit: "Dry fruits, gond & jaggery — no refined sugar.", desc: "Energy-rich laddus made with dry fruits, edible gum (gond) and jaggery — a traditional strength tonic with no refined sugar.", img: "shakti-laddu.png", size: "250 g", badge: "Bestseller" },
+    { id: "shinkaji-masala", name: "Shinkaji Masala", benefit: "A robust homestyle Punjabi blend.", desc: "A robust, homestyle Punjabi masala for everyday sabzis and gravies — freshly ground in small batches.", img: "shinkaji-masala-pack.png", size: "100 g" },
+    { id: "herbal-heart-sip", name: "Herbal Heart Sip", benefit: "A warming daily herbal infusion.", desc: "A warming herbal infusion of traditional herbs — one soothing spoon in hot water, any time of day.", img: "herbal-heart-sip.png", size: "200 g" },
+    { id: "shahi-garam-masala", name: "Shahi Garam Masala", benefit: "Whole spices, roasted & stone-ground.", desc: "A royal garam masala of whole spices, roasted and stone-ground for deep, aromatic flavour.", img: "shahi-garam-masala.png", size: "100 g", badge: "Bestseller" },
+    { id: "ayurvedic-hair-oil", name: "Ayurvedic Hair Oil", benefit: "Cold-infused bhringraj & amla.", desc: "Cold-infused with bhringraj, amla and curry leaf to nourish the scalp and strengthen hair from root to tip.", img: "ayurvedic-hair-oil.png", size: "200 ml" },
+    { id: "urban-glow", name: "Instant Ubtan Glow", benefit: "A brightening natural face pack.", desc: "A brightening face pack for an instant, natural radiance — a classic ubtan, ready in minutes.", img: "ubtan-glow-pack.png", size: "50 g", badge: "New" },
   ];
   return (
     <section id="bestsellers" style={{ background: "var(--white)", padding: "80px 0", scrollMarginTop: 90 }}>
