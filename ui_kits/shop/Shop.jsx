@@ -166,7 +166,7 @@ function Hero({ onShopAll, onCategory, products }) {
             ))}
           </div>
         </div>
-        <div style={{ position: "relative", minWidth: 0 }}>
+        <div style={{ position: "relative", minWidth: 0, width: "100%", maxWidth: 400, marginInline: "auto" }}>
           <div aria-hidden="true" style={{ position: "absolute", inset: -20, borderRadius: 32, background: "linear-gradient(135deg, color-mix(in oklab, var(--gold) 22%, transparent), color-mix(in oklab, var(--forest) 12%, transparent))", filter: "blur(38px)" }} />
           <div style={{ position: "relative", overflow: "hidden", borderRadius: 32, border: "1px solid var(--border)", boxShadow: "var(--shadow-xl)" }}>
             <img src="../../assets/shop-hero-packing.png" alt="Kiran Bansal packing a Mishthi Sattva gift box of homemade laddus and wellness products" style={{ width: "100%", display: "block" }} />
