@@ -404,33 +404,52 @@ function Toasts({ toasts }) {
 
 /* ===================== FOOTER ===================== */
 function Footer() {
+  // Mirrors the website footer (ui_kits/website/Sections.jsx) so every page shares
+  // one footer. Paths are relative to /shop: ../website/* for pages, ../../assets for images.
+  const link = { fontSize: 14, color: "color-mix(in oklab, var(--cream) 80%, transparent)" };
+  const heading = { fontFamily: "var(--font-display)", fontSize: 13, textTransform: "uppercase", letterSpacing: "0.22em", color: "var(--accent)" };
   return (
     <footer style={{ marginTop: 80, background: "var(--primary)", color: "var(--primary-foreground)" }}>
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "56px 24px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 36 }}>
+      <div className="ms-container ms-stack" style={{ maxWidth: 1280, margin: "0 auto", display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1.2fr", gap: 40, padding: "72px 24px 48px" }}>
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <img src="../../assets/mishthi-logo.png" alt="Mishthi Sattva" style={{ height: 52, width: 52, objectFit: "contain", borderRadius: 8 }} />
-            <div><p style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 19 }}>MISHTHI SATTVA</p><p style={{ fontSize: 9, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.26em", color: "var(--accent)" }}>Pure · Hygienic · Homemade</p></div>
-          </div>
-          <p className="ms-hindi" style={{ marginTop: 16, maxWidth: 300, fontSize: 14, color: "color-mix(in oklab, var(--cream) 72%, transparent)" }}>घर की रसोई से… आपके परिवार की सेहत तक।</p>
+          <img src="../../assets/mishthi-logo-white.png" alt="Mishthi Sattva" style={{ height: 88, width: "auto", objectFit: "contain", display: "block" }} />
+          <p style={{ marginTop: 16, maxWidth: 300, fontSize: 14, lineHeight: 1.6, color: "color-mix(in oklab, var(--cream) 78%, transparent)" }}>Pure, hygienic, homemade Ayurvedic foods, spices and wellness — handmade in small batches in Kotkapura, Punjab.</p>
+          <p className="ms-hindi" style={{ marginTop: 14, fontSize: 14, color: "color-mix(in oklab, var(--cream) 65%, transparent)" }}>घर की रसोई से… आपके परिवार की सेहत तक।</p>
         </div>
         <div>
-          <p style={{ fontSize: 13, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.2em", color: "var(--accent)", marginBottom: 14 }}>Shop</p>
-          <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 9, fontSize: 14, color: "color-mix(in oklab, var(--cream) 82%, transparent)" }}>
-            {MS_CATEGORIES.map((c) => <li key={c.id}>{c.name}</li>)}
+          <p style={heading}>Shop</p>
+          <ul style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 9, listStyle: "none", padding: 0 }}>
+            {MS_CATEGORIES.map((c) => <li key={c.id} style={link}>{c.name}</li>)}
           </ul>
         </div>
         <div>
-          <p style={{ fontSize: 13, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.2em", color: "var(--accent)", marginBottom: 14 }}>Contact</p>
-          <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 9, fontSize: 14, color: "color-mix(in oklab, var(--cream) 82%, transparent)" }}>
-            <li>📞 8557942246</li><li>📍 Kotkapura, Punjab</li><li>🚚 Home delivery available</li>
+          <p style={heading}>Company</p>
+          <ul style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 9, listStyle: "none", padding: 0 }}>
+            <li><a href="../website/index.html" style={link}>Home</a></li>
+            <li><a href="../website/about.html" style={link}>Our Story</a></li>
+            <li><a href="../shop/index.html" style={link}>Products</a></li>
+            <li><a href="../website/contact.html" style={link}>Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <p style={heading}>Get in Touch</p>
+          <ul style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 10, listStyle: "none", padding: 0 }}>
+            <li style={link}>📞 <a href={"tel:+91" + PHONE.replace(/^91/, "")} style={{ color: "inherit" }}>+91 {PHONE.replace(/^91/, "")}</a></li>
+            <li style={link}>💬 <a href={"https://wa.me/" + PHONE} style={{ color: "inherit" }}>Order on WhatsApp</a></li>
+            <li style={link}>📍 9/333, Kot Kapura, Faridkot,<br />Punjab 151204</li>
+            <li style={link}>🚚 Home delivery in Kotkapura &amp; nearby</li>
+            <li style={link}>🕐 Mon–Sat, 9am–7pm</li>
           </ul>
         </div>
       </div>
       <div style={{ borderTop: "1px solid color-mix(in oklab, var(--cream) 12%, transparent)" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "18px 24px", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, fontSize: 12, color: "color-mix(in oklab, var(--cream) 60%, transparent)" }}>
-          <span>© {new Date().getFullYear()} Mishthi Sattva. All rights reserved.</span>
-          <span>Crafted with love in Kotkapura, Punjab.</span>
+        <div className="ms-container" style={{ maxWidth: 1280, margin: "0 auto", display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 12, padding: "18px 24px", fontSize: 12, color: "color-mix(in oklab, var(--cream) 60%, transparent)" }}>
+          <p>© {new Date().getFullYear()} Mishthi Sattva. All rights reserved. · FSSAI Reg. No. 22126010000026</p>
+          <p style={{ display: "flex", gap: 16 }}>
+            <a href="../website/privacy.html" style={{ color: "inherit" }}>Privacy</a>
+            <a href="../website/terms.html" style={{ color: "inherit" }}>Terms</a>
+            <a href="../website/shipping.html" style={{ color: "inherit" }}>Shipping &amp; Returns</a>
+          </p>
         </div>
       </div>
     </footer>

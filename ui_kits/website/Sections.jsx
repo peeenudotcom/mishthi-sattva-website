@@ -168,7 +168,7 @@ function Hero() {
         <div style={{ position: "relative" }}>
           <div aria-hidden="true" style={{ position: "absolute", inset: -24, zIndex: -1, borderRadius: 32, background: "linear-gradient(135deg, color-mix(in oklab, var(--gold) 20%, transparent), color-mix(in oklab, var(--forest) 10%, transparent))", filter: "blur(40px)" }} />
           <div style={{ overflow: "hidden", borderRadius: 32, aspectRatio: "5 / 6", border: "1px solid var(--border)", boxShadow: "var(--shadow-xl)" }}>
-            <img src={`${ASSET}/hero-products.png`} alt="Mishthi Sattva products" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            <img src={`${ASSET}/hero-kiran-kitchen.png`} alt="Kiran Bansal preparing Ayurvedic food by hand in her Kotkapura home kitchen" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
           </div>
           <div style={{ position: "absolute", bottom: -22, left: 28, width: 280, borderRadius: 18, border: "1px solid var(--border)", background: "color-mix(in oklab, var(--card) 95%, transparent)", padding: 16, boxShadow: "var(--shadow-lg)", backdropFilter: "blur(8px)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -205,9 +205,8 @@ function About() {
   return (
     <section id="about" style={{ background: "var(--white)", padding: "84px 0", scrollMarginTop: 84 }}>
       <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "0.82fr 1.18fr", gap: 52, alignItems: "center" }}>
-        {/* TODO: swap for a real Kiran-in-the-kitchen / preparation photo when available */}
         <div style={{ overflow: "hidden", borderRadius: 28, border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", aspectRatio: "4 / 5" }}>
-          <img src={`${ASSET}/hero-products.png`} alt="Preparing Ayurvedic food by hand in a home kitchen in Kotkapura" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          <img src={`${ASSET}/story-serving.png`} alt="Kiran Bansal serving homemade laddus and herbal tea to her family" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", display: "block" }} />
         </div>
         <div>
           <GoldDivider>Our Story</GoldDivider>
@@ -357,7 +356,7 @@ function Founder() {
           {/* portrait source (977x1610) — framed 4:5 and focused slightly high so
               her face, hands and the laddu tray all stay in shot */}
           <div style={{ overflow: "hidden", borderRadius: 32, border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", aspectRatio: "4 / 5", position: "relative" }}>
-            <img src={`${ASSET}/founder-kiran.jpg`} alt="Kiran Bansal shaping laddus by hand in her Kotkapura kitchen" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 32%", display: "block" }} />
+            <img src={`${ASSET}/meet-kiran-garden.png`} alt="Kiran Bansal selecting fresh Ayurvedic ingredients in her garden in Kotkapura" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 18%", display: "block" }} />
           </div>
           <div style={{ position: "absolute", bottom: -20, right: -20, borderRadius: 18, border: "1px solid color-mix(in oklab, var(--gold) 40%, transparent)", background: "var(--card)", padding: "12px 20px", textAlign: "center", boxShadow: "var(--shadow-lg)" }}>
             <p style={{ fontFamily: "var(--font-display)", fontSize: 24, fontStyle: "italic", color: "var(--primary)" }}>Kiran Bansal</p>
