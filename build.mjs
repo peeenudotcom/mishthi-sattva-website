@@ -217,6 +217,11 @@ const LINK_MAP = [
   [/(["'])\.\.\/website\/about\.html\1/g, '$1/story$1'],
   [/(["'])\.\.\/website\/products\.html\1/g, '$1/products$1'],
   [/(["'])\.\.\/website\/contact\.html\1/g, '$1/contact$1'],
+  [/(["'])\.\.\/website\/privacy\.html\1/g, '$1/privacy$1'],
+  [/(["'])\.\.\/website\/terms\.html\1/g, '$1/terms$1'],
+  [/(["'])\.\.\/website\/shipping\.html\1/g, '$1/shipping$1'],
+  // admin "View site" link (raw dev path → site root in production)
+  [/(["'])\.\.\/ui_kits\/website\/index\.html\1/g, '$1/$1'],
   // broad (no quote anchor) so it also catches the template-literal deep-link
   // `../shop/index.html?p=${id}` used by the home "View Details" buttons
   [/\.\.\/shop\/index\.html/g, "/shop"],
