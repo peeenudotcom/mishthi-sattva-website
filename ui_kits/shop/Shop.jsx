@@ -408,8 +408,8 @@ function Footer() {
     <footer style={{ marginTop: 80, background: "var(--primary)", color: "var(--primary-foreground)" }}>
       <div className="ms-container ms-stack" style={{ maxWidth: 1280, margin: "0 auto", display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1.2fr", gap: 40, padding: "72px 24px 48px" }}>
         <div>
-          {/* green brand hang-tag (the original logo) — sits as a branded card on the green footer */}
-          <img src="../../assets/mishthi-logo-tag.png" alt="Mishthi Sattva — Ayurvedic, Satvic, Homemade" style={{ height: 92, width: "auto", objectFit: "contain", display: "block", borderRadius: 14 }} />
+          {/* transparent brand lockup (background removed) — logo sits directly on the green footer */}
+          <img src="../../assets/mishthi-logo-white.png" alt="Mishthi Sattva — Ayurvedic, Satvic, Homemade" style={{ height: 96, width: "auto", objectFit: "contain", display: "block" }} />
           <p style={{ marginTop: 16, maxWidth: 300, fontSize: 14, lineHeight: 1.6, color: "color-mix(in oklab, var(--cream) 78%, transparent)" }}>Pure, hygienic, homemade Ayurvedic foods, spices and wellness — handmade in small batches in Kotkapura, Punjab.</p>
           <p className="ms-hindi" style={{ marginTop: 14, fontSize: 14, color: "color-mix(in oklab, var(--cream) 65%, transparent)" }}>घर की रसोई से… आपके परिवार की सेहत तक।</p>
         </div>
