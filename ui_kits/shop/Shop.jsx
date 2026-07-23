@@ -82,46 +82,45 @@ function Header({ count, wishCount, onCart, onSearch, search, onWish, onHome, on
   };
   return (
     <header style={{ position: "sticky", top: 0, zIndex: 50, background: "color-mix(in oklab, var(--primary) 97%, transparent)", backdropFilter: "blur(10px)", borderBottom: "1px solid color-mix(in oklab, var(--cream) 14%, transparent)" }}>
-      <div style={{ background: "var(--forest-deep)", color: "var(--cream)", fontSize: 12, letterSpacing: "0.08em", textAlign: "center", padding: "7px 12px" }}>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}><I.gift s={15} /> Free home delivery on orders over {money(FREE_SHIP)} · Complimentary gift this month</span>
-      </div>
-      <div className="shop-head" style={{ maxWidth: 1280, margin: "0 auto", padding: "12px 24px", display: "flex", alignItems: "center", gap: 20 }}>
+      {/* Single-tier bar matching the website header: logo left, nav centre, actions right. */}
+      <div className="shop-head" style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", minHeight: 88, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20 }}>
         <a href="../website/index.html" title="Back to Mishthi Sattva home" style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
-          <img src="../../assets/mishthi-logo-white.png" alt="Mishthi Sattva — Ayurvedic, Satvic, Homemade" style={{ height: 58, width: "auto", objectFit: "contain", display: "block" }} />
+          <img src="../../assets/mishthi-logo-white.png" alt="Mishthi Sattva — Ayurvedic, Satvic, Homemade" style={{ height: 66, width: "auto", objectFit: "contain", display: "block" }} />
         </a>
-        <nav className="shop-nav" style={{ display: "flex", alignItems: "center", gap: 22 }}>
-          {[["Home", "../website/index.html"], ["Story", "../website/about.html"], ["Products", "../shop/index.html"], ["Contact", "../website/contact.html"]].map(([t, h]) => (
-            <a key={t} href={h} style={{ fontSize: 14, fontWeight: 600, color: "color-mix(in oklab, var(--cream) 82%, transparent)" }}>{t}</a>
-          ))}
+        <nav className="shop-nav" style={{ display: "flex", alignItems: "center", gap: 30 }}>
+          {[["Home", "../website/index.html"], ["Story", "../website/about.html"], ["Products", "../shop/index.html"], ["Contact", "../website/contact.html"], ["Account", "../website/account.html"]].map(([t, h]) => {
+            const on = t === "Products";
+            return <a key={t} href={h} style={{ fontSize: 15, fontWeight: on ? 700 : 600, color: on ? "var(--cream)" : "color-mix(in oklab, var(--cream) 78%, transparent)", borderBottom: on ? "2px solid var(--accent)" : "2px solid transparent", paddingBottom: 3 }}>{t}</a>;
+          })}
         </nav>
-        <div className="shop-search" style={{ flex: 1, maxWidth: 460, marginInline: "auto", position: "relative", display: "flex", alignItems: "center" }}>
-          <span style={{ position: "absolute", left: 16, color: "var(--ink-300)", zIndex: 1 }}><I.search s={18} /></span>
-          <input value={search} onChange={(e) => { onSearch(e.target.value); setActive(-1); }} placeholder="Search laddus, masala, hair oil…"
-            role="combobox" aria-expanded={showList} aria-autocomplete="list"
-            onKeyDown={onKey}
-            style={{ width: "100%", padding: "11px 16px 11px 44px", borderRadius: showList ? "16px 16px 0 0" : "var(--radius-pill)", border: "1px solid var(--border)", background: "var(--card)", fontFamily: "var(--font-sans)", fontSize: 14, color: "var(--foreground)", outline: "none" }}
-            onFocus={(e) => { setFocused(true); e.target.style.borderColor = "var(--accent)"; e.target.style.boxShadow = "0 0 0 3px color-mix(in oklab, var(--accent) 25%, transparent)"; }}
-            onBlur={(e) => { setTimeout(() => setFocused(false), 150); e.target.style.borderColor = "var(--border)"; e.target.style.boxShadow = "none"; }} />
-          {showList && (
-            <ul role="listbox" style={{ position: "absolute", top: "100%", left: 0, right: 0, margin: 0, padding: "6px", listStyle: "none", background: "var(--card)", border: "1px solid var(--accent)", borderTop: "none", borderRadius: "0 0 16px 16px", boxShadow: "var(--shadow-lg)", zIndex: 60, maxHeight: 360, overflow: "auto" }}>
-              {suggestions.map((p, i) => (
-                <li key={p.id} role="option" aria-selected={i === active}
-                  onMouseDown={(e) => { e.preventDefault(); choose(p); }}
-                  onMouseEnter={() => setActive(i)}
-                  style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 10px", borderRadius: 10, cursor: "pointer", background: i === active ? "color-mix(in oklab, var(--secondary) 60%, transparent)" : "transparent" }}>
-                  <span style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 8, overflow: "hidden", background: "var(--cream)", display: "grid", placeItems: "center" }}>
-                    {p.photo ? <img src={p.photo} alt="" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} /> : <I.leaf s={18} />}
-                  </span>
-                  <span style={{ minWidth: 0 }}>
-                    <span style={{ display: "block", fontWeight: 600, fontSize: 14, color: "var(--primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</span>
-                    <span style={{ display: "block", fontSize: 12, color: "var(--muted-foreground)" }}>{catName(p.cat)}{p.price != null ? " · " + money(p.price) : ""}</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div className="shop-search" style={{ width: 230, position: "relative", display: "flex", alignItems: "center" }}>
+            <span style={{ position: "absolute", left: 14, color: "var(--ink-300)", zIndex: 1, display: "inline-flex" }}><I.search s={17} /></span>
+            <input value={search} onChange={(e) => { onSearch(e.target.value); setActive(-1); }} placeholder="Search products…"
+              role="combobox" aria-expanded={showList} aria-autocomplete="list"
+              onKeyDown={onKey}
+              style={{ width: "100%", padding: "10px 14px 10px 40px", borderRadius: showList ? "16px 16px 0 0" : "var(--radius-pill)", border: "1px solid var(--border)", background: "var(--card)", fontFamily: "var(--font-sans)", fontSize: 14, color: "var(--foreground)", outline: "none" }}
+              onFocus={(e) => { setFocused(true); e.target.style.borderColor = "var(--accent)"; e.target.style.boxShadow = "0 0 0 3px color-mix(in oklab, var(--accent) 25%, transparent)"; }}
+              onBlur={(e) => { setTimeout(() => setFocused(false), 150); e.target.style.borderColor = "var(--border)"; e.target.style.boxShadow = "none"; }} />
+            {showList && (
+              <ul role="listbox" style={{ position: "absolute", top: "100%", left: 0, right: 0, margin: 0, padding: "6px", listStyle: "none", background: "var(--card)", border: "1px solid var(--accent)", borderTop: "none", borderRadius: "0 0 16px 16px", boxShadow: "var(--shadow-lg)", zIndex: 60, maxHeight: 360, overflow: "auto" }}>
+                {suggestions.map((p, i) => (
+                  <li key={p.id} role="option" aria-selected={i === active}
+                    onMouseDown={(e) => { e.preventDefault(); choose(p); }}
+                    onMouseEnter={() => setActive(i)}
+                    style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 10px", borderRadius: 10, cursor: "pointer", background: i === active ? "color-mix(in oklab, var(--secondary) 60%, transparent)" : "transparent" }}>
+                    <span style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 8, overflow: "hidden", background: "var(--cream)", display: "grid", placeItems: "center" }}>
+                      {p.photo ? <img src={p.photo} alt="" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} /> : <I.leaf s={18} />}
+                    </span>
+                    <span style={{ minWidth: 0 }}>
+                      <span style={{ display: "block", fontWeight: 600, fontSize: 14, color: "var(--primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</span>
+                      <span style={{ display: "block", fontSize: 12, color: "var(--muted-foreground)" }}>{catName(p.cat)}{p.price != null ? " · " + money(p.price) : ""}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
           <IconBtn onClick={onWish} label="Wishlist" badge={wishCount}><I.heart s={20} /></IconBtn>
           <IconBtn onClick={onCart} label="Cart" badge={count} highlight><I.bag s={21} /></IconBtn>
         </div>
@@ -170,10 +169,7 @@ function Hero({ onShopAll, onCategory, products }) {
         <div style={{ position: "relative", minWidth: 0 }}>
           <div aria-hidden="true" style={{ position: "absolute", inset: -20, borderRadius: 32, background: "linear-gradient(135deg, color-mix(in oklab, var(--gold) 22%, transparent), color-mix(in oklab, var(--forest) 12%, transparent))", filter: "blur(38px)" }} />
           <div style={{ position: "relative", overflow: "hidden", borderRadius: 32, border: "1px solid var(--border)", boxShadow: "var(--shadow-xl)" }}>
-            {/* hero-products.jpg was byte-identical to founder.jpg, so the shop
-                hero was accidentally showing the founder portrait — use the
-                actual preparation/products scene instead */}
-            <img src="../../assets/hero-products.png" alt="Homemade Ayurvedic products being prepared by hand" style={{ width: "100%", display: "block" }} />
+            <img src="../../assets/shop-hero-packing.png" alt="Kiran Bansal packing a Mishthi Sattva gift box of homemade laddus and wellness products" style={{ width: "100%", display: "block" }} />
           </div>
         </div>
       </div>
@@ -412,7 +408,8 @@ function Footer() {
     <footer style={{ marginTop: 80, background: "var(--primary)", color: "var(--primary-foreground)" }}>
       <div className="ms-container ms-stack" style={{ maxWidth: 1280, margin: "0 auto", display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1.2fr", gap: 40, padding: "72px 24px 48px" }}>
         <div>
-          <img src="../../assets/mishthi-logo-white.png" alt="Mishthi Sattva" style={{ height: 88, width: "auto", objectFit: "contain", display: "block" }} />
+          {/* green brand hang-tag (the original logo) — sits as a branded card on the green footer */}
+          <img src="../../assets/mishthi-logo-tag.png" alt="Mishthi Sattva — Ayurvedic, Satvic, Homemade" style={{ height: 92, width: "auto", objectFit: "contain", display: "block", borderRadius: 14 }} />
           <p style={{ marginTop: 16, maxWidth: 300, fontSize: 14, lineHeight: 1.6, color: "color-mix(in oklab, var(--cream) 78%, transparent)" }}>Pure, hygienic, homemade Ayurvedic foods, spices and wellness — handmade in small batches in Kotkapura, Punjab.</p>
           <p className="ms-hindi" style={{ marginTop: 14, fontSize: 14, color: "color-mix(in oklab, var(--cream) 65%, transparent)" }}>घर की रसोई से… आपके परिवार की सेहत तक।</p>
         </div>
