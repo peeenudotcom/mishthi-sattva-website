@@ -356,7 +356,7 @@ function Founder() {
           {/* portrait source (977x1610) — framed 4:5 and focused slightly high so
               her face, hands and the laddu tray all stay in shot */}
           <div style={{ overflow: "hidden", borderRadius: 32, border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", aspectRatio: "4 / 5", position: "relative" }}>
-            <img src={`${ASSET}/meet-kiran-garden.png`} alt="Kiran Bansal selecting fresh Ayurvedic ingredients in her garden in Kotkapura" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 18%", display: "block" }} />
+            <img src={`${ASSET}/meet-kiran-garden.png`} alt="Kiran Bansal selecting fresh Ayurvedic ingredients in her garden in Kotkapura" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 8%", display: "block" }} />
           </div>
           <div style={{ position: "absolute", bottom: -20, right: -20, borderRadius: 18, border: "1px solid color-mix(in oklab, var(--gold) 40%, transparent)", background: "var(--card)", padding: "12px 20px", textAlign: "center", boxShadow: "var(--shadow-lg)" }}>
             <p style={{ fontFamily: "var(--font-display)", fontSize: 24, fontStyle: "italic", color: "var(--primary)" }}>Kiran Bansal</p>
