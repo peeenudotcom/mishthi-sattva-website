@@ -152,7 +152,7 @@ function Hero() {
   return (
     <section id="top" style={{ position: "relative", overflow: "hidden" }}>
       <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: -1, background: "radial-gradient(60% 60% at 80% 10%, color-mix(in oklab, var(--gold) 18%, transparent), transparent), radial-gradient(50% 50% at 0% 100%, color-mix(in oklab, var(--forest) 12%, transparent), transparent)" }} />
-      <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "1fr 1.08fr", gap: 48, alignItems: "center", padding: "72px 20px" }}>
+      <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "1.18fr 0.82fr", gap: 48, alignItems: "center", padding: "72px 20px" }}>
         <div>
           <GoldDivider>Ayurvedic · Satvic · Homemade</GoldDivider>
           <h1 style={{ marginTop: 24, fontSize: "clamp(66px, 9vw, 116px)", fontWeight: 600, lineHeight: 0.94, letterSpacing: "-0.025em", color: "var(--primary)" }}>
@@ -177,7 +177,7 @@ function Hero() {
         </div>
         <div style={{ position: "relative" }}>
           <div aria-hidden="true" style={{ position: "absolute", inset: -24, zIndex: -1, borderRadius: 32, background: "linear-gradient(135deg, color-mix(in oklab, var(--gold) 20%, transparent), color-mix(in oklab, var(--forest) 10%, transparent))", filter: "blur(40px)" }} />
-          <div style={{ overflow: "hidden", borderRadius: 32, aspectRatio: "5 / 6", border: "1px solid var(--border)", boxShadow: "var(--shadow-xl)" }}>
+          <div style={{ overflow: "hidden", borderRadius: 32, aspectRatio: "4 / 5", border: "1px solid var(--border)", boxShadow: "var(--shadow-xl)" }}>
             <img src={`${ASSET}/hero-kiran-kitchen.png`} alt="Kiran Bansal preparing Ayurvedic food by hand in her Kotkapura home kitchen" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
           </div>
           <div style={{ position: "absolute", bottom: -22, left: 28, width: 280, borderRadius: 18, border: "1px solid var(--border)", background: "color-mix(in oklab, var(--card) 95%, transparent)", padding: 16, boxShadow: "var(--shadow-lg)", backdropFilter: "blur(8px)" }}>
