@@ -148,7 +148,7 @@ function Hero({ onShopAll, onCategory, products }) {
       <div className="shop-hero" style={{ position: "relative", maxWidth: 1280, margin: "0 auto", alignItems: "center" }}>
         <div style={{ minWidth: 0 }}>
           <GoldDivider>Ayurvedic · Satvic · Homemade</GoldDivider>
-          <h1 style={{ margin: "18px 0 0", fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "clamp(34px, 5.4vw, 52px)", lineHeight: 1.08, letterSpacing: "-0.01em", color: "var(--primary)" }}>
+          <h1 style={{ margin: "18px 0 0", fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "clamp(38px, 5.9vw, 62px)", lineHeight: 1.08, letterSpacing: "-0.01em", color: "var(--primary)" }}>
             The Homemade<br />Wellness Shop.<br /><span style={{ fontStyle: "italic", color: "var(--accent)" }}>Pure, by nature.</span>
           </h1>
           <p style={{ margin: "18px 0 0", maxWidth: 520, fontSize: 17, lineHeight: 1.6, color: "var(--muted-foreground)" }}>
