@@ -88,8 +88,8 @@ function Header({ count, wishCount, onCart, onSearch, search, onWish, onHome, on
           <img src="../../assets/mishthi-logo-white.png" alt="Mishthi Sattva — Ayurvedic, Satvic, Homemade" style={{ height: 66, width: "auto", objectFit: "contain", display: "block" }} />
         </a>
         <nav className="shop-nav" style={{ display: "flex", alignItems: "center", gap: 30 }}>
-          {[["Home", "../website/index.html"], ["Story", "../website/about.html"], ["Products", "../shop/index.html"], ["Contact", "../website/contact.html"]].map(([t, h]) => {
-            const on = t === "Products";
+          {[["Home", "../website/index.html"], ["Story", "../website/about.html"], ["Shop", "../shop/index.html"], ["Contact", "../website/contact.html"]].map(([t, h]) => {
+            const on = t === "Shop";
             return <a key={t} href={h} style={{ fontSize: 15, fontWeight: on ? 700 : 600, color: on ? "var(--cream)" : "color-mix(in oklab, var(--cream) 78%, transparent)", borderBottom: on ? "2px solid var(--accent)" : "2px solid transparent", paddingBottom: 3 }}>{t}</a>;
           })}
         </nav>
@@ -428,7 +428,7 @@ function Footer() {
           <ul style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 9, listStyle: "none", padding: 0 }}>
             <li><a href="../website/index.html" style={link}>Home</a></li>
             <li><a href="../website/about.html" style={link}>Our Story</a></li>
-            <li><a href="../shop/index.html" style={link}>Products</a></li>
+            <li><a href="../shop/index.html" style={link}>Shop</a></li>
             <li><a href="../website/contact.html" style={link}>Contact</a></li>
           </ul>
         </div>

@@ -124,7 +124,7 @@ function Leaf({ size = 16 }) {
 function Header({ active = "home" }) {
   // Account is intentionally NOT in this content nav — it's a separate, demarcated
   // button on the right (below) so it reads as the sign-in / account area.
-  const nav = [{ label: "Home", href: "index.html", id: "home" }, { label: "Story", href: "about.html", id: "about" }, { label: "Products", href: "../shop/index.html", id: "products" }, { label: "Contact", href: "contact.html", id: "contact" }];
+  const nav = [{ label: "Home", href: "index.html", id: "home" }, { label: "Story", href: "about.html", id: "about" }, { label: "Shop", href: "../shop/index.html", id: "products" }, { label: "Contact", href: "contact.html", id: "contact" }];
   return (
     <header style={{ position: "sticky", top: 0, zIndex: 40, borderBottom: "1px solid color-mix(in oklab, var(--cream) 12%, transparent)", background: "var(--primary)", boxShadow: "0 8px 24px -12px color-mix(in oklab, var(--forest-deep) 60%, transparent)" }}>
       <div className="ms-container" style={{ display: "flex", height: 88, alignItems: "center", justifyContent: "space-between", gap: 16 }}>
@@ -150,7 +150,6 @@ function Header({ active = "home" }) {
             Account
           </a>
           <span aria-hidden="true" style={{ width: 1, height: 26, background: "color-mix(in oklab, var(--cream) 22%, transparent)" }} />
-          <a href="../shop/index.html" style={{ display: "inline-flex", alignItems: "center", padding: "0.68rem 1.4rem", borderRadius: "var(--radius-pill)", border: "1px solid color-mix(in oklab, var(--cream) 45%, transparent)", color: "var(--cream)", fontWeight: 600, fontSize: 15 }}>Shop</a>
           <WhatsAppButton>Order on WhatsApp</WhatsAppButton>
         </div>
       </div>
@@ -506,7 +505,7 @@ function Footer() {
           <ul style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 9, listStyle: "none", padding: 0 }}>
             <li><a href="index.html" style={link}>Home</a></li>
             <li><a href="about.html" style={link}>Our Story</a></li>
-            <li><a href="../shop/index.html" style={link}>Products</a></li>
+            <li><a href="../shop/index.html" style={link}>Shop</a></li>
             <li><a href="contact.html" style={link}>Contact</a></li>
           </ul>
         </div>
