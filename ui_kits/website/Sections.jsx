@@ -553,6 +553,29 @@ function Footer() {
    Uniform framing (4:3, cream backdrop, same corners) is applied here, but a
    real single-shoot catalogue is still recommended for full consistency.
    TODO: replace "Ask for price" with real ₹ prices once confirmed. */
+const INR = (n) => "₹" + Number(n).toLocaleString("en-IN");
+function askPriceWA(p) {
+  return "https://wa.me/918557942246?text=" + encodeURIComponent("Namaste Mishthi Sattva! Please share the price of " + p.name + (p.size ? " (" + p.size + ")" : "") + ".");
+}
+/* Shows the price (with struck-through MRP), or — when a product has no set
+   price — a clickable "Ask price on WhatsApp" link so it's obvious how to ask. */
+function PriceTag({ p, big }) {
+  if (p.price == null) {
+    return (
+      <a href={askPriceWA(p)} target="_blank" rel="noopener noreferrer"
+        style={{ display: "inline-flex", alignItems: "center", gap: 6, fontFamily: "var(--font-sans)", fontSize: big ? 15 : 13.5, fontWeight: 600, color: "var(--whatsapp)", textDecoration: "underline", textUnderlineOffset: 2 }}>
+        Ask price on WhatsApp →
+      </a>
+    );
+  }
+  return (
+    <span style={{ display: "inline-flex", alignItems: "baseline", gap: 8 }}>
+      <span style={{ fontFamily: "var(--font-display)", fontSize: big ? 21 : 18, color: "var(--primary)" }}>{INR(p.price)}</span>
+      {p.mrp && p.mrp > p.price ? <span style={{ fontSize: big ? 14 : 12.5, color: "var(--muted-foreground)", textDecoration: "line-through" }}>{INR(p.mrp)}</span> : null}
+    </span>
+  );
+}
+
 function HomeProductCard({ p, onView }) {
   const [h, setH] = React.useState(false);
   const [faved, setFaved] = React.useState(false);
@@ -571,7 +594,7 @@ function HomeProductCard({ p, onView }) {
         <div style={{ marginTop: 14, display: "flex", alignItems: "baseline", gap: 10 }}>
           <span style={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)" }}>{p.size}</span>
           <span style={{ color: "var(--accent)" }}>·</span>
-          <span style={{ fontFamily: "var(--font-display)", fontSize: 18, color: "var(--primary)" }}>{p.price || "Ask for price"}</span>
+          <PriceTag p={p} />
         </div>
         <div style={{ marginTop: "auto", paddingTop: 18, display: "flex", alignItems: "center", gap: 10 }}>
           {/* opens this product's details in a popup on THIS page — no navigation to the shop */}
@@ -604,7 +627,7 @@ function ProductModal({ p, onClose }) {
   }, [onClose]);
   const waMsg = `Namaste Mishthi Sattva! I'd like to order ${qty} × ${p.name}${p.size ? " (" + p.size + ")" : ""}.`;
   const add = () => {
-    addToShopCart({ id: p.id, name: p.name, price: null, weight: p.size, cat: p.cat || null, photo: `${ASSET}/${p.img}`, mrp: null }, qty);
+    addToShopCart({ id: p.id, name: p.name, price: p.price != null ? p.price : null, weight: p.size, cat: p.cat || null, photo: `${ASSET}/${p.img}`, mrp: p.mrp != null ? p.mrp : null }, qty);
     setAdded(true);
   };
   const stepBtn = { height: 38, width: 38, display: "grid", placeItems: "center", borderRadius: "var(--radius-pill)", border: "1px solid var(--border)", background: "var(--card)", color: "var(--primary)", cursor: "pointer", fontSize: 18, lineHeight: 1 };
@@ -624,7 +647,7 @@ function ProductModal({ p, onClose }) {
           <div style={{ marginTop: 16, display: "flex", alignItems: "baseline", gap: 10 }}>
             <span style={{ fontSize: 14, fontWeight: 600, color: "var(--foreground)" }}>{p.size}</span>
             <span style={{ color: "var(--accent)" }}>·</span>
-            <span style={{ fontFamily: "var(--font-display)", fontSize: 20, color: "var(--primary)" }}>{p.price || "Ask for price"}</span>
+            <PriceTag p={p} big />
           </div>
           {added ? (
             <div style={{ marginTop: 22 }}>
@@ -661,12 +684,12 @@ function HomeProducts() {
   const [view, setView] = React.useState(null);
   // ids match the shop catalogue slugs, so favourites sync with the shop wishlist
   const picks = [
-    { id: "shakti-laddu", name: "Shakti Laddu", benefit: "Dry fruits, gond & jaggery — no refined sugar.", desc: "Energy-rich laddus made with dry fruits, edible gum (gond) and jaggery — a traditional strength tonic with no refined sugar.", img: "shakti-laddu.png", size: "250 g", badge: "Bestseller" },
-    { id: "shinkaji-masala", name: "Shinkaji Masala", benefit: "A robust homestyle Punjabi blend.", desc: "A robust, homestyle Punjabi masala for everyday sabzis and gravies — freshly ground in small batches.", img: "shinkaji-masala-pack.png", size: "100 g" },
-    { id: "herbal-heart-sip", name: "Herbal Heart Sip", benefit: "A warming daily herbal infusion.", desc: "A warming herbal infusion of traditional herbs — one soothing spoon in hot water, any time of day.", img: "herbal-heart-sip.png", size: "200 g" },
-    { id: "shahi-garam-masala", name: "Shahi Garam Masala", benefit: "Whole spices, roasted & stone-ground.", desc: "A royal garam masala of whole spices, roasted and stone-ground for deep, aromatic flavour.", img: "shahi-garam-masala.png", size: "100 g", badge: "Bestseller" },
-    { id: "ayurvedic-hair-oil", name: "Ayurvedic Hair Oil", benefit: "Cold-infused bhringraj & amla.", desc: "Cold-infused with bhringraj, amla and curry leaf to nourish the scalp and strengthen hair from root to tip.", img: "ayurvedic-hair-oil.png", size: "200 ml" },
-    { id: "urban-glow", name: "Instant Ubtan Glow", benefit: "A brightening natural face pack.", desc: "A brightening face pack for an instant, natural radiance — a classic ubtan, ready in minutes.", img: "ubtan-glow-pack.png", size: "50 g", badge: "New" },
+    { id: "shakti-laddu", name: "Shakti Laddu", benefit: "Dry fruits, gond & jaggery — no refined sugar.", desc: "Energy-rich laddus made with dry fruits, edible gum (gond) and jaggery — a traditional strength tonic with no refined sugar.", img: "shakti-laddu.png", size: "500 g", price: 1650, mrp: 2000, badge: "Bestseller" },
+    { id: "shinkaji-masala", name: "Shinkaji Masala", benefit: "A robust homestyle Punjabi blend.", desc: "A robust, homestyle Punjabi masala for everyday sabzis and gravies — freshly ground in small batches.", img: "shinkaji-masala-pack.png", size: "100 g", price: 200 },
+    { id: "herbal-heart-sip", name: "Herbal Heart Sip", benefit: "A warming daily herbal infusion.", desc: "A warming herbal infusion of traditional herbs — one soothing spoon in hot water, any time of day.", img: "herbal-heart-sip.png", size: "200 g", price: 200, mrp: 500 },
+    { id: "shahi-garam-masala", name: "Shahi Garam Masala", benefit: "Whole spices, roasted & stone-ground.", desc: "A royal garam masala of whole spices, roasted and stone-ground for deep, aromatic flavour.", img: "shahi-garam-masala.png", size: "100 g", price: 120, badge: "Bestseller" },
+    { id: "ayurvedic-hair-oil", name: "Ayurvedic Hair Oil", benefit: "Cold-infused bhringraj & amla.", desc: "Cold-infused with bhringraj, amla and curry leaf to nourish the scalp and strengthen hair from root to tip.", img: "ayurvedic-hair-oil.png", size: "200 ml", price: 250, mrp: 350 },
+    { id: "urban-glow", name: "Instant Ubtan Glow", benefit: "A brightening natural face pack.", desc: "A brightening face pack for an instant, natural radiance — a classic ubtan, ready in minutes.", img: "ubtan-glow-pack.png", size: "50 g", price: 200, mrp: 350, badge: "New" },
   ];
   return (
     <section id="bestsellers" style={{ background: "var(--white)", padding: "80px 0", scrollMarginTop: 90 }}>
