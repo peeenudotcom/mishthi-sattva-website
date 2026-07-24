@@ -167,6 +167,9 @@
 
     signOut: function () {
       localStorage.removeItem(LS_SESSION);
+      // Also clear the device cart + wishlist so signing out (e.g. on a shared
+      // device) doesn't leave the next person your cart/favourites.
+      try { localStorage.removeItem("ms_shop_cart"); localStorage.removeItem("ms_shop_wish"); } catch (e) {}
     },
 
     /* ---- Google sign-in (OAuth) ----
