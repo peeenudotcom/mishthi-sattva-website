@@ -254,5 +254,36 @@
     setReviewPublished: function (id, published) {
       return adminPatch("reviews", id, { is_published: published });
     },
+
+    /* ---- admin: create / delete products + photo upload ---- */
+    createProduct: function (fields) {
+      return rest("products", { method: "POST", headers: { Prefer: "return=representation" }, body: fields })
+        .then(function (rows) {
+          if (!rows || !rows.length) throw new Error("Not created — your admin session may have expired, or this account isn't an admin.");
+          return rows[0];
+        });
+    },
+    updateProductFields: function (id, patch) {
+      patch.updated_at = new Date().toISOString();
+      return adminPatch("products", id, patch);
+    },
+    deleteProduct: function (id) {
+      return rest("products?id=eq." + encodeURIComponent(id), { method: "DELETE" });
+    },
+    /* Upload an image to the public product-photos bucket; returns its public URL. */
+    uploadProductImage: function (file, slug) {
+      var s = session();
+      var token = s && s.access_token ? s.access_token : KEY;
+      var ext = ((file.name || "").split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
+      var path = (slug || "product") + "-" + Date.now() + "." + ext;
+      return fetch(ROOT + "/storage/v1/object/product-photos/" + path, {
+        method: "POST",
+        headers: { apikey: KEY, Authorization: "Bearer " + token, "Content-Type": file.type || "application/octet-stream", "x-upsert": "true" },
+        body: file,
+      }).then(function (r) {
+        if (!r.ok) return r.text().then(function (t) { throw new Error("Photo upload failed: " + t.slice(0, 160)); });
+        return ROOT + "/storage/v1/object/public/product-photos/" + path;
+      });
+    },
   };
 })();

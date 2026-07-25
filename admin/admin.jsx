@@ -46,12 +46,70 @@ function SignIn({ onDone }) {
 }
 
 /* ---------------- products ---------------- */
+const CATS = [["ayurvedic", "Ayurvedic & Health"], ["spices", "Spices & Masala"], ["hair", "Hair Care"], ["beauty", "Beauty & Skincare"], ["special", "Special Foods"]];
+const catLabel = (v) => (CATS.find((c) => c[0] === v) || [v, v])[1];
+const slugify = (s) => (s || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const lbl = { display: "grid", gap: 5, fontSize: 12, fontWeight: 600, color: "var(--muted-foreground)" };
+
+/* ---- add a brand-new product (with photo upload) ---- */
+function NewProduct({ onAdded }) {
+  const [open, setOpen] = React.useState(false);
+  const empty = { name: "", category: "ayurvedic", price: "", mrp: "", weight: "", short_desc: "" };
+  const [f, setF] = React.useState(empty);
+  const [file, setFile] = React.useState(null);
+  const [busy, setBusy] = React.useState(false);
+  const [msg, setMsg] = React.useState("");
+  const set = (k) => (e) => setF((o) => ({ ...o, [k]: e.target.value }));
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (!f.name.trim()) { setMsg("Please enter a product name."); return; }
+    setBusy(true); setMsg("");
+    const slug = slugify(f.name);
+    const create = (photo) => D.createProduct({
+      name: f.name.trim(), slug: slug, category: f.category,
+      price: f.price === "" ? null : Number(f.price),
+      mrp: f.mrp === "" ? null : Number(f.mrp),
+      weight: f.weight.trim() || null, short_desc: f.short_desc.trim() || null,
+      photo: photo || null, in_stock: true,
+    });
+    (file ? D.uploadProductImage(file, slug) : Promise.resolve(null))
+      .then(create)
+      .then((row) => { setBusy(false); setOpen(false); setF(empty); setFile(null); if (onAdded) onAdded(row); })
+      .catch((ex) => { setBusy(false); setMsg(ex.message); });
+  };
+
+  if (!open) return <button className="btn" style={{ marginBottom: 16 }} onClick={() => setOpen(true)}>+ Add product</button>;
+
+  return (
+    <form onSubmit={submit} className="card" style={{ marginBottom: 18, display: "grid", gap: 12 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <b style={{ color: "var(--primary)", fontSize: 16 }}>New product</b>
+        <button type="button" className="btn ghost" onClick={() => { setOpen(false); setMsg(""); }}>Cancel</button>
+      </div>
+      <label style={lbl}>Product name<input value={f.name} onChange={set("name")} placeholder="e.g. Nitya Poshan Formula" /></label>
+      <label style={lbl}>Category<select value={f.category} onChange={set("category")}>{CATS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></label>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+        <label style={lbl}>Price ₹<input type="number" value={f.price} onChange={set("price")} placeholder="blank = Ask" /></label>
+        <label style={lbl}>MRP ₹<input type="number" value={f.mrp} onChange={set("mrp")} placeholder="optional" /></label>
+        <label style={lbl}>Weight<input value={f.weight} onChange={set("weight")} placeholder="500 g" /></label>
+      </div>
+      <label style={lbl}>Short description<textarea value={f.short_desc} onChange={set("short_desc")} rows={2} placeholder="A line or two shown on the product." /></label>
+      <label style={lbl}>Photo<input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0] || null)} /></label>
+      <p className="muted" style={{ margin: 0, fontSize: 11 }}>Tip: upload a square-ish image around 800×800px for best results.</p>
+      {msg && <p style={{ color: "var(--destructive)", fontSize: 13, margin: 0 }}>{msg}</p>}
+      <button className="btn" type="submit" disabled={busy}>{busy ? "Saving…" : "Add product"}</button>
+    </form>
+  );
+}
+
 function Products() {
   const [rows, setRows] = React.useState(null);
   const [saving, setSaving] = React.useState({});
   const [err, setErr] = React.useState("");
 
-  React.useEffect(() => { D.adminProducts().then(setRows).catch((e) => setErr(e.message)); }, []);
+  const load = () => D.adminProducts().then(setRows).catch((e) => setErr(e.message));
+  React.useEffect(() => { load(); }, []);
 
   const patch = (row, field, raw) => {
     const value = field === "in_stock" ? raw : raw === "" ? null : Number(raw);
@@ -62,13 +120,23 @@ function Products() {
       .then(() => setSaving((s) => ({ ...s, [row.id]: false })));
   };
 
-  if (err) return <p style={{ color: "var(--destructive)" }}>{err}</p>;
+  const remove = (row) => {
+    if (!window.confirm("Delete “" + row.name + "”? This can't be undone.")) return;
+    setSaving((s) => ({ ...s, [row.id]: true }));
+    D.deleteProduct(row.id)
+      .then(() => setRows((rs) => rs.filter((r) => r.id !== row.id)))
+      .catch((e) => setErr(e.message))
+      .then(() => setSaving((s) => ({ ...s, [row.id]: false })));
+  };
+
+  if (err) return <p style={{ color: "var(--destructive)" }}>{err} <button className="btn ghost" onClick={() => { setErr(""); load(); }}>Retry</button></p>;
   if (!rows) return <p className="muted">Loading products…</p>;
 
   const noPrice = rows.filter((r) => r.price == null).length;
 
   return (
     <div>
+      <NewProduct onAdded={(p) => setRows((rs) => [...rs, p])} />
       <p className="muted" style={{ marginBottom: 14 }}>
         {rows.length} products · {noPrice} still showing “Ask for price”. Edits save immediately.
       </p>
@@ -81,8 +149,15 @@ function Products() {
             {rows.map((r) => (
               <tr key={r.id}>
                 <td>
-                  <b style={{ color: "var(--primary)" }}>{r.name}</b>
-                  <div className="muted" style={{ fontSize: 12 }}>{r.category}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 8, overflow: "hidden", background: "var(--secondary)", display: "grid", placeItems: "center" }}>
+                      {r.photo ? <img src={r.photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span className="muted" style={{ fontSize: 10 }}>no img</span>}
+                    </span>
+                    <span>
+                      <b style={{ color: "var(--primary)" }}>{r.name}</b>
+                      <div className="muted" style={{ fontSize: 12 }}>{catLabel(r.category)}</div>
+                    </span>
+                  </div>
                 </td>
                 <td><input className="num" type="number" defaultValue={r.price == null ? "" : r.price}
                       placeholder="Ask" onBlur={(e) => patch(r, "price", e.target.value)} /></td>
@@ -93,7 +168,10 @@ function Products() {
                   <input type="checkbox" style={{ width: 18, height: 18 }} checked={r.in_stock !== false}
                     onChange={(e) => patch(r, "in_stock", e.target.checked)} />
                 </td>
-                <td className="muted" style={{ fontSize: 12 }}>{saving[r.id] ? "saving…" : ""}</td>
+                <td style={{ whiteSpace: "nowrap" }}>
+                  <span className="muted" style={{ fontSize: 12, marginRight: 8 }}>{saving[r.id] ? "…" : ""}</span>
+                  <button className="btn ghost" style={{ padding: "5px 10px", fontSize: 12 }} onClick={() => remove(r)}>Delete</button>
+                </td>
               </tr>
             ))}
           </tbody>
