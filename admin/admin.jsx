@@ -26,7 +26,7 @@ function SignIn({ onDone }) {
   return (
     <div style={{ display: "grid", placeItems: "center", minHeight: "100vh", padding: 20 }}>
       <form className="card" onSubmit={submit} style={{ width: "min(400px, 100%)" }}>
-        <img src="../assets/mishthi-logo.png" alt="" style={{ height: 56, width: 56, objectFit: "contain" }} />
+        <img src="../assets/mishthi-logo-tag.png" alt="Mishthi Sattva" style={{ height: 60, width: "auto", objectFit: "contain", borderRadius: 10 }} />
         <h1 style={{ margin: "14px 0 4px", fontSize: 26, color: "var(--primary)" }}>Admin sign in</h1>
         <p className="muted" style={{ margin: "0 0 20px" }}>Manage products, orders and enquiries.</p>
         <label className="muted" style={{ display: "block", marginBottom: 6 }}>Email</label>
@@ -148,7 +148,13 @@ function Products() {
       .then(() => setSaving((s) => ({ ...s, [row.id]: false })));
   };
 
-  if (err) return <p style={{ color: "var(--destructive)" }}>{err} <button className="btn ghost" onClick={() => { setErr(""); load(); }}>Retry</button></p>;
+  if (err) return (
+    <p style={{ color: "var(--destructive)" }}>
+      {err}{" "}
+      <button className="btn ghost" onClick={() => { setErr(""); load(); }}>Retry</button>{" "}
+      <button className="btn ghost" onClick={() => { D.signOut(); window.location.reload(); }}>Sign in again</button>
+    </p>
+  );
   if (!rows) return <p className="muted">Loading products…</p>;
 
   const noPrice = rows.filter((r) => r.price == null).length;
@@ -361,7 +367,7 @@ function MSAdminApp() {
     <div className="wrap">
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <img src="../assets/mishthi-logo.png" alt="" style={{ height: 46, width: 46, objectFit: "contain" }} />
+          <img src="../assets/mishthi-logo-tag.png" alt="Mishthi Sattva" style={{ height: 50, width: "auto", objectFit: "contain", borderRadius: 8 }} />
           <div>
             <h1 style={{ margin: 0, fontSize: 24, color: "var(--primary)" }}>Mishthi Sattva Admin</h1>
             <p className="muted" style={{ margin: 0, fontSize: 13 }}>Products, orders, enquiries &amp; reviews</p>

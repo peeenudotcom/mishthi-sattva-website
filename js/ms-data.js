@@ -32,7 +32,10 @@
     }).then(function (r) {
       return r.text().then(function (t) {
         var d = t ? JSON.parse(t) : {};
-        if (!r.ok || !d.access_token) throw new Error("session refresh failed");
+        if (!r.ok || !d.access_token) {
+          localStorage.removeItem(LS_SESSION);  // refresh token rejected → session is dead, force re-login
+          throw new Error("session refresh failed");
+        }
         var merged = Object.assign({}, s, d);
         localStorage.setItem(LS_SESSION, JSON.stringify(merged));
         return merged;
