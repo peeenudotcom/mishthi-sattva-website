@@ -112,8 +112,9 @@ function Products() {
   React.useEffect(() => { load(); }, []);
 
   const patch = (row, field, raw) => {
+    const isText = field === "weight" || field === "name" || field === "short_desc";
     const value = field === "in_stock" ? raw
-      : field === "weight" ? (String(raw).trim() === "" ? null : String(raw).trim())
+      : isText ? (String(raw).trim() === "" ? null : String(raw).trim())
       : raw === "" ? null : Number(raw);
     setRows((rs) => rs.map((r) => (r.id === row.id ? { ...r, [field]: value } : r)));
     setSaving((s) => ({ ...s, [row.id]: true }));
@@ -151,14 +152,19 @@ function Products() {
             {rows.map((r) => (
               <tr key={r.id}>
                 <td>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                     <span style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 8, overflow: "hidden", background: "var(--secondary)", display: "grid", placeItems: "center" }}>
                       {r.photo ? <img src={r.photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span className="muted" style={{ fontSize: 10 }}>no img</span>}
                     </span>
-                    <span>
-                      <b style={{ color: "var(--primary)" }}>{r.name}</b>
+                    <div style={{ display: "grid", gap: 5, minWidth: 240 }}>
+                      <input type="text" defaultValue={r.name}
+                        onBlur={(e) => { const v = e.target.value.trim(); if (v && v !== r.name) patch(r, "name", v); else e.target.value = r.name; }}
+                        style={{ fontWeight: 700, color: "var(--primary)", width: "100%" }} />
                       <div className="muted" style={{ fontSize: 12 }}>{catLabel(r.category)}</div>
-                    </span>
+                      <textarea defaultValue={r.short_desc || ""} rows={2} placeholder="Short description shown on the product…"
+                        onBlur={(e) => patch(r, "short_desc", e.target.value)}
+                        style={{ width: "100%", fontSize: 12, resize: "vertical" }} />
+                    </div>
                   </div>
                 </td>
                 <td><input className="num" type="number" defaultValue={r.price == null ? "" : r.price}
