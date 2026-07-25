@@ -490,9 +490,11 @@ function Footer() {
     <footer style={{ background: "var(--primary)", color: "var(--primary-foreground)" }}>
       <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr 1.2fr", gap: 40, padding: "72px 20px 48px" }}>
         <div>
-          <img src={`${ASSET}/mishthi-logo-white.png`} alt="Mishthi Sattva" style={{ height: 88, width: "auto", objectFit: "contain", display: "block" }} />
-          <p style={{ marginTop: 16, maxWidth: 300, fontSize: 14, lineHeight: 1.6, color: "color-mix(in oklab, var(--cream) 78%, transparent)" }}>Pure, hygienic, homemade Ayurvedic foods, spices and wellness — handmade in small batches in Kotkapura, Punjab.</p>
-          <p className="ms-hindi" style={{ marginTop: 14, fontSize: 14, color: "color-mix(in oklab, var(--cream) 65%, transparent)" }}>घर की रसोई से… आपके परिवार की सेहत तक।</p>
+          <div style={{ maxWidth: 300 }}>
+            <img src={`${ASSET}/mishthi-logo-white.png`} alt="Mishthi Sattva" style={{ height: 112, width: "auto", objectFit: "contain", display: "block", margin: "0 auto" }} />
+            <p style={{ marginTop: 16, fontSize: 14, lineHeight: 1.6, color: "color-mix(in oklab, var(--cream) 78%, transparent)" }}>Pure, hygienic, homemade Ayurvedic foods, spices and wellness — handmade in small batches in Kotkapura, Punjab.</p>
+            <p className="ms-hindi" style={{ marginTop: 14, fontSize: 14, color: "color-mix(in oklab, var(--cream) 65%, transparent)" }}>घर की रसोई से… आपके परिवार की सेहत तक।</p>
+          </div>
         </div>
         <div>
           <p style={heading}>Shop</p>
@@ -540,7 +542,7 @@ function Footer() {
               <a href="terms.html" style={{ color: "inherit" }}>Terms</a>
               <a href="shipping.html" style={{ color: "inherit" }}>Shipping &amp; Returns</a>
             </p>
-            <p style={{ margin: 0 }}>Crafted by <span style={{ color: "var(--accent)", fontWeight: 600 }}>TARAhut AI Labs</span></p>
+            <p style={{ margin: 0 }}>Crafted by <a href="https://tarahutaibuilds.com" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent)", fontWeight: 600 }}>TARAhut AI Builds</a></p>
           </div>
         </div>
       </div>
