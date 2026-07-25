@@ -139,6 +139,16 @@ function Products() {
       .then(() => setSaving((s) => ({ ...s, [row.id]: false })));
   };
 
+  const changePhoto = (row, file) => {
+    if (!file) return;
+    setSaving((s) => ({ ...s, [row.id]: true })); setErr("");
+    D.uploadProductImage(file, row.slug || slugify(row.name))
+      .then((url) => D.updateProductFields(row.id, { photo: url }).then(() => url))
+      .then((url) => { setRows((rs) => rs.map((r) => (r.id === row.id ? { ...r, photo: url } : r))); })
+      .catch((e) => setErr(e.message))
+      .then(() => setSaving((s) => ({ ...s, [row.id]: false })));
+  };
+
   const remove = (row) => {
     if (!window.confirm("Delete “" + row.name + "”? This can't be undone.")) return;
     setSaving((s) => ({ ...s, [row.id]: true }));
@@ -175,9 +185,14 @@ function Products() {
               <tr key={r.id} style={dirty(r.id) ? { background: "color-mix(in oklab, var(--accent) 8%, transparent)" } : null}>
                 <td>
                   <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                    <span style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 8, overflow: "hidden", background: "var(--secondary)", display: "grid", placeItems: "center" }}>
-                      {r.photo ? <img src={r.photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span className="muted" style={{ fontSize: 10 }}>no img</span>}
-                    </span>
+                    <div style={{ display: "grid", gap: 3, justifyItems: "center", flexShrink: 0 }}>
+                      <span style={{ width: 48, height: 48, borderRadius: 8, overflow: "hidden", background: "var(--secondary)", display: "grid", placeItems: "center" }}>
+                        {r.photo ? <img src={r.photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span className="muted" style={{ fontSize: 10 }}>no img</span>}
+                      </span>
+                      <label className="btn ghost" style={{ padding: "2px 8px", fontSize: 10, cursor: "pointer" }}>
+                        Change<input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => changePhoto(r, e.target.files[0])} />
+                      </label>
+                    </div>
                     <div style={{ display: "grid", gap: 5, minWidth: 240 }}>
                       <input type="text" value={cur(r, "name") || ""} onChange={(e) => edit(r.id, "name", e.target.value)}
                         style={{ fontWeight: 700, color: "var(--primary)", width: "100%" }} />

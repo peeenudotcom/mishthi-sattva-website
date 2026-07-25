@@ -46,8 +46,8 @@
   /* Admin requests carry the logged-in user's token, which is what the
      "to authenticated" RLS policies check. Public visitors fall back to the
      anon key and stay restricted to reads + order/enquiry inserts. */
-  function headers(extra) {
-    var s = session();
+  function headers(extra, anon) {
+    var s = anon ? null : session();
     var bearer = s && s.access_token ? s.access_token : KEY;
     var h = {
       apikey: KEY,
@@ -65,7 +65,7 @@
     var run = function () {
       return fetch(BASE + path, {
         method: method,
-        headers: headers(opts.headers),
+        headers: headers(opts.headers, opts.anon),
         body: opts.body ? JSON.stringify(opts.body) : undefined,
       }).then(function (r) {
         if (!r.ok) {
@@ -268,7 +268,10 @@
 
     /* ---- admin reads (RLS requires a signed-in user) ---- */
     adminProducts: function () {
-      return rest("products?select=*&order=sort_order.asc");
+      // Products are publicly readable, so read them with the anon key. This keeps
+      // the admin list loading even if the admin's session token has expired
+      // (writes below still require the logged-in token / admin role).
+      return rest("products?select=*&order=sort_order.asc,name.asc", { anon: true });
     },
     adminOrders: function () {
       return rest("orders?select=*&order=created_at.desc&limit=200");
