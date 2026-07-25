@@ -106,19 +106,35 @@ function NewProduct({ onAdded }) {
 function Products() {
   const [rows, setRows] = React.useState(null);
   const [saving, setSaving] = React.useState({});
+  const [saved, setSaved] = React.useState({});
+  const [drafts, setDrafts] = React.useState({});
   const [err, setErr] = React.useState("");
 
-  const load = () => D.adminProducts().then(setRows).catch((e) => setErr(e.message));
+  const load = () => D.adminProducts().then((r) => { setRows(r); setDrafts({}); }).catch((e) => setErr(e.message));
   React.useEffect(() => { load(); }, []);
 
-  const patch = (row, field, raw) => {
-    const isText = field === "weight" || field === "name" || field === "short_desc";
-    const value = field === "in_stock" ? raw
-      : isText ? (String(raw).trim() === "" ? null : String(raw).trim())
-      : raw === "" ? null : Number(raw);
-    setRows((rs) => rs.map((r) => (r.id === row.id ? { ...r, [field]: value } : r)));
-    setSaving((s) => ({ ...s, [row.id]: true }));
-    D.updateProduct(row.id, { [field]: value })
+  const edit = (id, field, val) => setDrafts((d) => ({ ...d, [id]: { ...d[id], [field]: val } }));
+  const cur = (row, field) => (drafts[row.id] && field in drafts[row.id]) ? drafts[row.id][field] : row[field];
+  const dirty = (id) => drafts[id] && Object.keys(drafts[id]).length > 0;
+
+  const save = (row) => {
+    const d = drafts[row.id]; if (!d) return;
+    const patch = {};
+    Object.keys(d).forEach((f) => {
+      let v = d[f];
+      if (f === "in_stock") v = !!v;
+      else if (f === "price" || f === "mrp") v = (v === "" || v == null) ? null : Number(v);
+      else v = String(v).trim() === "" ? (f === "name" ? row.name : null) : String(v).trim();
+      patch[f] = v;
+    });
+    setSaving((s) => ({ ...s, [row.id]: true })); setErr("");
+    D.updateProductFields(row.id, patch)
+      .then(() => {
+        setRows((rs) => rs.map((r) => (r.id === row.id ? { ...r, ...patch } : r)));
+        setDrafts((dd) => { const n = { ...dd }; delete n[row.id]; return n; });
+        setSaved((m) => ({ ...m, [row.id]: 1 }));
+        setTimeout(() => setSaved((m) => { const n = { ...m }; delete n[row.id]; return n; }), 2500);
+      })
       .catch((e) => setErr(e.message))
       .then(() => setSaving((s) => ({ ...s, [row.id]: false })));
   };
@@ -141,7 +157,7 @@ function Products() {
     <div>
       <NewProduct onAdded={(p) => setRows((rs) => [...rs, p])} />
       <p className="muted" style={{ marginBottom: 14 }}>
-        {rows.length} products · {noPrice} still showing “Ask for price”. Edits save immediately.
+        {rows.length} products · {noPrice} without a price. Edit any field, then click <b>Save</b> on that row.
       </p>
       <div style={{ overflowX: "auto" }} className="card">
         <table>
@@ -150,36 +166,36 @@ function Products() {
           </tr></thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.id}>
+              <tr key={r.id} style={dirty(r.id) ? { background: "color-mix(in oklab, var(--accent) 8%, transparent)" } : null}>
                 <td>
                   <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                     <span style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 8, overflow: "hidden", background: "var(--secondary)", display: "grid", placeItems: "center" }}>
                       {r.photo ? <img src={r.photo} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span className="muted" style={{ fontSize: 10 }}>no img</span>}
                     </span>
                     <div style={{ display: "grid", gap: 5, minWidth: 240 }}>
-                      <input type="text" defaultValue={r.name}
-                        onBlur={(e) => { const v = e.target.value.trim(); if (v && v !== r.name) patch(r, "name", v); else e.target.value = r.name; }}
+                      <input type="text" value={cur(r, "name") || ""} onChange={(e) => edit(r.id, "name", e.target.value)}
                         style={{ fontWeight: 700, color: "var(--primary)", width: "100%" }} />
                       <div className="muted" style={{ fontSize: 12 }}>{catLabel(r.category)}</div>
-                      <textarea defaultValue={r.short_desc || ""} rows={2} placeholder="Short description shown on the product…"
-                        onBlur={(e) => patch(r, "short_desc", e.target.value)}
-                        style={{ width: "100%", fontSize: 12, resize: "vertical" }} />
+                      <textarea value={cur(r, "short_desc") || ""} onChange={(e) => edit(r.id, "short_desc", e.target.value)} rows={2}
+                        placeholder="Short description shown on the product…" style={{ width: "100%", fontSize: 12, resize: "vertical" }} />
                     </div>
                   </div>
                 </td>
-                <td><input className="num" type="number" defaultValue={r.price == null ? "" : r.price}
-                      placeholder="Ask" onBlur={(e) => patch(r, "price", e.target.value)} /></td>
-                <td><input className="num" type="number" defaultValue={r.mrp == null ? "" : r.mrp}
-                      placeholder="—" onBlur={(e) => patch(r, "mrp", e.target.value)} /></td>
-                <td><input className="num" type="text" defaultValue={r.weight || ""}
-                      placeholder="500 g" onBlur={(e) => patch(r, "weight", e.target.value)} /></td>
+                <td><input className="num" type="number" value={cur(r, "price") == null ? "" : cur(r, "price")}
+                      placeholder="Ask" onChange={(e) => edit(r.id, "price", e.target.value)} /></td>
+                <td><input className="num" type="number" value={cur(r, "mrp") == null ? "" : cur(r, "mrp")}
+                      placeholder="—" onChange={(e) => edit(r.id, "mrp", e.target.value)} /></td>
+                <td><input className="num" type="text" value={cur(r, "weight") || ""}
+                      placeholder="500 g" onChange={(e) => edit(r.id, "weight", e.target.value)} /></td>
                 <td>
-                  <input type="checkbox" style={{ width: 18, height: 18 }} checked={r.in_stock !== false}
-                    onChange={(e) => patch(r, "in_stock", e.target.checked)} />
+                  <input type="checkbox" style={{ width: 18, height: 18 }} checked={cur(r, "in_stock") !== false}
+                    onChange={(e) => edit(r.id, "in_stock", e.target.checked)} />
                 </td>
                 <td style={{ whiteSpace: "nowrap" }}>
-                  <span className="muted" style={{ fontSize: 12, marginRight: 8 }}>{saving[r.id] ? "…" : ""}</span>
-                  <button className="btn ghost" style={{ padding: "5px 10px", fontSize: 12 }} onClick={() => remove(r)}>Delete</button>
+                  <button className="btn" style={{ padding: "6px 14px", fontSize: 13 }} disabled={!dirty(r.id) || saving[r.id]} onClick={() => save(r)}>
+                    {saving[r.id] ? "Saving…" : saved[r.id] ? "Saved ✓" : "Save"}
+                  </button>
+                  <button className="btn ghost" style={{ padding: "6px 10px", fontSize: 12, marginLeft: 6 }} onClick={() => remove(r)}>Delete</button>
                 </td>
               </tr>
             ))}

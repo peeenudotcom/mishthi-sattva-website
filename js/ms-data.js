@@ -19,6 +19,27 @@
     try { return JSON.parse(localStorage.getItem(LS_SESSION) || "null"); } catch (e) { return null; }
   }
 
+  /* Exchange the refresh token for a fresh access token. Supabase access tokens
+     expire after ~1 hour; without this, the admin would start getting 401s and
+     an endless "Retry". Called automatically by rest() on a 401. */
+  function refreshSession() {
+    var s = session();
+    if (!s || !s.refresh_token) return Promise.reject(new Error("no refresh token"));
+    return fetch(AUTH + "token?grant_type=refresh_token", {
+      method: "POST",
+      headers: { apikey: KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: s.refresh_token }),
+    }).then(function (r) {
+      return r.text().then(function (t) {
+        var d = t ? JSON.parse(t) : {};
+        if (!r.ok || !d.access_token) throw new Error("session refresh failed");
+        var merged = Object.assign({}, s, d);
+        localStorage.setItem(LS_SESSION, JSON.stringify(merged));
+        return merged;
+      });
+    });
+  }
+
   /* Admin requests carry the logged-in user's token, which is what the
      "to authenticated" RLS policies check. Public visitors fall back to the
      anon key and stay restricted to reads + order/enquiry inserts. */
@@ -64,6 +85,11 @@
        5xx). The free-tier DB sometimes drops the FIRST request after it's idle,
        which succeeds on retry. Never retry writes — that could duplicate rows. */
     return run().catch(function (e) {
+      // Expired/invalid token → refresh once and retry (safe for any method:
+      // a 401 means the request was rejected before it ran, so no duplicate writes).
+      if (e.status === 401 && session() && session().refresh_token) {
+        return refreshSession().then(run).catch(function () { throw e; });
+      }
       var transient = e.status == null || e.status >= 500;
       if (method === "GET" && transient) {
         return new Promise(function (res) { setTimeout(res, 500); }).then(run);
