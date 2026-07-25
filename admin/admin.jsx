@@ -112,7 +112,9 @@ function Products() {
   React.useEffect(() => { load(); }, []);
 
   const patch = (row, field, raw) => {
-    const value = field === "in_stock" ? raw : raw === "" ? null : Number(raw);
+    const value = field === "in_stock" ? raw
+      : field === "weight" ? (String(raw).trim() === "" ? null : String(raw).trim())
+      : raw === "" ? null : Number(raw);
     setRows((rs) => rs.map((r) => (r.id === row.id ? { ...r, [field]: value } : r)));
     setSaving((s) => ({ ...s, [row.id]: true }));
     D.updateProduct(row.id, { [field]: value })
@@ -143,7 +145,7 @@ function Products() {
       <div style={{ overflowX: "auto" }} className="card">
         <table>
           <thead><tr>
-            <th>Product</th><th>Price ₹</th><th>MRP ₹</th><th className="hide-sm">Weight</th><th>In stock</th><th></th>
+            <th>Product</th><th>Price ₹</th><th>MRP ₹</th><th>Weight</th><th>In stock</th><th></th>
           </tr></thead>
           <tbody>
             {rows.map((r) => (
@@ -163,7 +165,8 @@ function Products() {
                       placeholder="Ask" onBlur={(e) => patch(r, "price", e.target.value)} /></td>
                 <td><input className="num" type="number" defaultValue={r.mrp == null ? "" : r.mrp}
                       placeholder="—" onBlur={(e) => patch(r, "mrp", e.target.value)} /></td>
-                <td className="hide-sm muted">{r.weight || "—"}</td>
+                <td><input className="num" type="text" defaultValue={r.weight || ""}
+                      placeholder="500 g" onBlur={(e) => patch(r, "weight", e.target.value)} /></td>
                 <td>
                   <input type="checkbox" style={{ width: 18, height: 18 }} checked={r.in_stock !== false}
                     onChange={(e) => patch(r, "in_stock", e.target.checked)} />
