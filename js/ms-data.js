@@ -33,7 +33,9 @@
       return r.text().then(function (t) {
         var d = t ? JSON.parse(t) : {};
         if (!r.ok || !d.access_token) {
-          localStorage.removeItem(LS_SESSION);  // refresh token rejected → session is dead, force re-login
+          // Only wipe the session when the refresh token is truly rejected (400/401).
+          // A transient 5xx/network blip must NOT nuke a valid login.
+          if (r.status === 400 || r.status === 401) localStorage.removeItem(LS_SESSION);
           throw new Error("session refresh failed");
         }
         var merged = Object.assign({}, s, d);
