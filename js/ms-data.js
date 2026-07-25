@@ -37,23 +37,38 @@
   function rest(path, opts) {
     opts = opts || {};
     if (!configured) return Promise.reject(new Error("Supabase not configured"));
-    return fetch(BASE + path, {
-      method: opts.method || "GET",
-      headers: headers(opts.headers),
-      body: opts.body ? JSON.stringify(opts.body) : undefined,
-    }).then(function (r) {
-      if (!r.ok) {
+    var method = opts.method || "GET";
+    var run = function () {
+      return fetch(BASE + path, {
+        method: method,
+        headers: headers(opts.headers),
+        body: opts.body ? JSON.stringify(opts.body) : undefined,
+      }).then(function (r) {
+        if (!r.ok) {
+          return r.text().then(function (t) {
+            var e = new Error("Supabase " + r.status + ": " + t.slice(0, 200));
+            e.status = r.status;
+            throw e;
+          });
+        }
+        /* A successful insert without `return=representation` replies 201 with an
+           EMPTY body, so calling r.json() directly throws "Unexpected end of JSON
+           input" and a saved order looks like a failure. Parse defensively. */
         return r.text().then(function (t) {
-          throw new Error("Supabase " + r.status + ": " + t.slice(0, 200));
+          if (!t) return null;
+          try { return JSON.parse(t); } catch (e) { return null; }
         });
-      }
-      /* A successful insert without `return=representation` replies 201 with an
-         EMPTY body, so calling r.json() directly throws "Unexpected end of JSON
-         input" and a saved order looks like a failure. Parse defensively. */
-      return r.text().then(function (t) {
-        if (!t) return null;
-        try { return JSON.parse(t); } catch (e) { return null; }
       });
+    };
+    /* One transparent retry for reads on a transient failure (network error or
+       5xx). The free-tier DB sometimes drops the FIRST request after it's idle,
+       which succeeds on retry. Never retry writes — that could duplicate rows. */
+    return run().catch(function (e) {
+      var transient = e.status == null || e.status >= 500;
+      if (method === "GET" && transient) {
+        return new Promise(function (res) { setTimeout(res, 500); }).then(run);
+      }
+      throw e;
     });
   }
 
