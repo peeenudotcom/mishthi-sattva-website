@@ -148,8 +148,8 @@ create policy ms_photos_read on storage.objects
 drop policy if exists ms_photos_write on storage.objects;
 create policy ms_photos_write on storage.objects
   for all to authenticated
-  using (bucket_id = 'product-photos')
-  with check (bucket_id = 'product-photos');
+  using (bucket_id = 'product-photos' and is_admin())
+  with check (bucket_id = 'product-photos' and is_admin());
 
 -- ============================================================
 -- AFTER RUNNING THIS:
