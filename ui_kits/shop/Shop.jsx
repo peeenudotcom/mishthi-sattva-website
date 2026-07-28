@@ -439,7 +439,7 @@ function Footer() {
           <ul style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 10, listStyle: "none", padding: 0 }}>
             <li style={link}>📞 <a href={"tel:+91" + PHONE.replace(/^91/, "")} style={{ color: "inherit" }}>+91 {PHONE.replace(/^91/, "")}</a></li>
             <li style={link}>💬 <a href={"https://wa.me/" + PHONE} style={{ color: "inherit" }}>Order on WhatsApp</a></li>
-            <li style={link}>📍 9/333, Kot Kapura, Faridkot,<br />Punjab 151204</li>
+            <li style={link}>📍 Mishthi Sattva Enterprises,<br />Valmiki Chowk, Kotkapura, Punjab</li>
             <li style={link}>🚚 Home delivery in Kotkapura &amp; nearby</li>
             <li style={link}>🕐 Mon–Sat, 9am–7pm</li>
           </ul>

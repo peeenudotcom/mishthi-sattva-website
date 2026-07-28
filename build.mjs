@@ -26,7 +26,7 @@ const BIZ = {
   name: "Mishthi Sattva",
   legalName: "Mishthi Sattva (Prop. Kiran Bansal)",
   phone: "+918557942246",
-  street: "9/333, Kot Kapura",
+  street: "Valmiki Chowk",
   locality: "Kotkapura",
   region: "Punjab",
   postal: "151204",

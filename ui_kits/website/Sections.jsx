@@ -516,8 +516,7 @@ function Footer() {
           <ul style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 10, listStyle: "none", padding: 0 }}>
             <li style={link}>📞 <a href={`tel:+91${PHONE}`} style={{ color: "inherit" }}>+91 {PHONE}</a></li>
             <li style={link}>💬 <a href="https://wa.me/918557942246" style={{ color: "inherit" }}>Order on WhatsApp</a></li>
-            {/* registered address per FSSAI certificate 22126010000026 */}
-            <li style={link}>📍 9/333, Kot Kapura, Faridkot,<br />Punjab 151204</li>
+            <li style={link}>📍 Mishthi Sattva Enterprises,<br />Valmiki Chowk, Kotkapura, Punjab</li>
             <li style={link}>🚚 Home delivery in Kotkapura &amp; nearby</li>
             <li style={link}>🕐 Mon–Sat, 9am–7pm</li>
           </ul>
@@ -919,7 +918,7 @@ function FounderPromise() {
    dispatch times in particular are business decisions, not legal boilerplate. */
 const BUSINESS = {
   legal: "Mishthi Sattva (Prop. Kiran Bansal)",
-  address: "9/333, Kot Kapura, Faridkot, Punjab 151204",
+  address: "Mishthi Sattva Enterprises, Valmiki Chowk, Kotkapura, Punjab",
   fssai: "22126010000026",
   phone: PHONE,
 };
