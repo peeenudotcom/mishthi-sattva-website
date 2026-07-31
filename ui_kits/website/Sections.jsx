@@ -703,7 +703,8 @@ function HomeProducts() {
         </div>
         <div style={{ marginTop: 44, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 12 }}>
           <Button variant="forest" as="a" href="../shop/index.html">Shop All Products →</Button>
-          <WhatsAppButton message="Hello Mishthi Sattva, please share your full product catalogue and prices.">Get the Catalogue</WhatsAppButton>
+          {/* href overrides the computed chat link (props spread last) → opens the WhatsApp catalogue directly */}
+          <WhatsAppButton href="https://wa.me/c/918557942246">Get the Catalogue</WhatsAppButton>
         </div>
       </div>
       {view && <ProductModal p={view} onClose={() => setView(null)} />}
