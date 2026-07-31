@@ -5,6 +5,7 @@
   "description": "Mishthi Sattva marketing site, shop and admin",
   "scripts": {
     "build": "node build.mjs",
+    "sync": "node scripts/sync-catalogue.mjs",
     "dev": "python3 serve.py"
   },
   "devDependencies": {
