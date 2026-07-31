@@ -57,9 +57,8 @@ const PRODUCT_IMAGES = {
   "Sugar-Free Chyawanprash": `${ASSET}/chyawanprash.jpg`,
   "Herbal Heart Sip": `${ASSET}/herbal-heart-sip.png`,
   "Healthy Namkeen Mix": `${ASSET}/namkeen-mix.png`,
-  "Ayurvedic Hair Oil": `${ASSET}/ayurvedic-hair-oil.png`,
-  "Ayur Kesh Vash Shampoo": `${ASSET}/kesh-vash-shampoo.png`,
-  "Ayur Kesh Vardaan Oil": `${ASSET}/kesh-vardaan-oil.png`,
+  "AyurKesh Wash": `${ASSET}/kesh-vash-shampoo.png`,
+  "AyurKesh Vardaan Hair Oil": `${ASSET}/kesh-vardaan-oil.png`,
   "Protein Sattu Drink": `${ASSET}/protein-sattu.png`,
   "Chat Masala": `${ASSET}/chat-masala.png`,
   "Shahi Garam Masala": `${ASSET}/shahi-garam-masala.png`,
@@ -70,21 +69,20 @@ const PRODUCT_IMAGES = {
   "Ice Cream Premix": `${ASSET}/ice-cream-premix.png`,
   "Shahi Sip & Scoop": `${ASSET}/shahi-sip-scoop.png`,
   "Jaljeera Sattu": `${ASSET}/jaljeera-sattu.png`,
-  "Energy Sattu": `${ASSET}/energy-sattu.png`,
   "Paani Puri Combo": `${ASSET}/paani-puri-combo-uniform.png`,
-  "Mirchi Pickle": `${ASSET}/mirchi-pickle.png`,
-  "Mango Pickle": `${ASSET}/mango-pickle.png`,
-  "Nimboo Pickle – Sweet & Spicy": `${ASSET}/nimboo-pickle.png`,
+  "Nitya Poshan Formula- Kids": "https://wiuokqmggxkonxvzrnsb.supabase.co/storage/v1/object/public/product-photos/nitya-poshan-formula-kids-1784983057177.png",
+  "Nitya Poshan Formula- Men": "https://wiuokqmggxkonxvzrnsb.supabase.co/storage/v1/object/public/product-photos/nitya-poshan-formula-men-1784983323822.png",
+  "Nitya Poshan Formula- Women": "https://wiuokqmggxkonxvzrnsb.supabase.co/storage/v1/object/public/product-photos/nitya-poshan-formula-women-1784983223006.png",
   "Glow Radiance Cream": `${ASSET}/glow-radiance-cream-pack.png`,
 };
 
 /* ---------- shared data ---------- */
 const PRODUCT_CATS = [
-  { id: "ayurvedic", name: "Ayurvedic & Health", blurb: "Natural wellness from traditional Ayurvedic ingredients that support immunity, energy and wellbeing.", items: ["Shakti Laddu", "Sampooran Laddu", "Sugar-Free Chyawanprash", "Herbal Heart Sip", "Healthy Namkeen Mix", "Ayurvedic Hair Oil", "Protein Sattu Drink"] },
-  { id: "hair", name: "Hair Care", blurb: "Natural hair care designed to nourish scalp health and promote stronger hair.", items: ["Ayur Kesh Vash Shampoo", "Ayur Kesh Vardaan Oil"] },
-  { id: "spices", name: "Spices & Masala", blurb: "Authentic homemade spice blends that enhance flavour while keeping purity and freshness.", items: ["Chat Masala", "Shinkaji Masala", "Thandai Premix", "Shahi Garam Masala", "Ice Cream Premix", "Shahi Sip & Scoop", "Jaljeera Sattu", "Energy Sattu"] },
+  { id: "ayurvedic", name: "Ayurvedic & Health", blurb: "Natural wellness from traditional Ayurvedic ingredients that support immunity, energy and wellbeing.", items: ["Shakti Laddu", "Sampooran Laddu", "Sugar-Free Chyawanprash", "Herbal Heart Sip", "Healthy Namkeen Mix", "Protein Sattu Drink"] },
+  { id: "hair", name: "Hair Care", blurb: "Natural hair care designed to nourish scalp health and promote stronger hair.", items: ["AyurKesh Wash", "AyurKesh Vardaan Hair Oil"] },
+  { id: "spices", name: "Spices & Masala", blurb: "Authentic homemade spice blends that enhance flavour while keeping purity and freshness.", items: ["Chat Masala", "Shinkaji Masala", "Thandai Premix", "Shahi Garam Masala", "Ice Cream Premix", "Shahi Sip & Scoop", "Jaljeera Sattu"] },
   { id: "beauty", name: "Beauty & Skincare", blurb: "Natural skincare for healthy, glowing skin.", items: ["Instant Ubtan Glow", "Glow Radiance Cream", "Vitamin C Serum"] },
-  { id: "special", name: "Special Foods", blurb: "Traditional homemade food products with authentic taste.", items: ["Paani Puri Combo", "Mirchi Pickle", "Mango Pickle", "Nimboo Pickle – Sweet & Spicy"] },
+  { id: "special", name: "Special Foods", blurb: "Traditional homemade food products with authentic taste.", items: ["Paani Puri Combo", "Nitya Poshan Formula- Kids", "Nitya Poshan Formula- Men", "Nitya Poshan Formula- Women"] },
 ];
 
 const BENEFITS = [
@@ -685,12 +683,12 @@ function HomeProducts() {
   const [view, setView] = React.useState(null);
   // ids match the shop catalogue slugs, so favourites sync with the shop wishlist
   const picks = [
-    { id: "shakti-laddu", name: "Shakti Laddu", benefit: "Dry fruits, gond & jaggery — no refined sugar.", desc: "Energy-rich laddus made with dry fruits, edible gum (gond) and jaggery — a traditional strength tonic with no refined sugar.", img: "shakti-laddu.png", size: "500 g", price: 1650, mrp: 2000, badge: "Bestseller" },
-    { id: "shinkaji-masala", name: "Shinkaji Masala", benefit: "A robust homestyle Punjabi blend.", desc: "A robust, homestyle Punjabi masala for everyday sabzis and gravies — freshly ground in small batches.", img: "shinkaji-masala-pack.png", size: "100 g", price: 200 },
-    { id: "herbal-heart-sip", name: "Herbal Heart Sip", benefit: "A warming daily herbal infusion.", desc: "A warming herbal infusion of traditional herbs — one soothing spoon in hot water, any time of day.", img: "herbal-heart-sip.png", size: "200 g", price: 200, mrp: 500 },
-    { id: "shahi-garam-masala", name: "Shahi Garam Masala", benefit: "Whole spices, roasted & stone-ground.", desc: "A royal garam masala of whole spices, roasted and stone-ground for deep, aromatic flavour.", img: "shahi-garam-masala.png", size: "100 g", price: 120, badge: "Bestseller" },
-    { id: "ayurvedic-hair-oil", name: "Ayurvedic Hair Oil", benefit: "Cold-infused bhringraj & amla.", desc: "Cold-infused with bhringraj, amla and curry leaf to nourish the scalp and strengthen hair from root to tip.", img: "ayurvedic-hair-oil.png", size: "200 ml", price: 250, mrp: 350 },
-    { id: "urban-glow", name: "Instant Ubtan Glow", benefit: "A brightening natural face pack.", desc: "A brightening face pack for an instant, natural radiance — a classic ubtan, ready in minutes.", img: "ubtan-glow-pack.png", size: "50 g", price: 200, mrp: 350, badge: "New" },
+    { id: "shakti-laddu", name: "Shakti Laddu", benefit: "Dry fruits, gond & jaggery — no refined sugar.", desc: "Energy-rich laddus made with dry fruits, edible gum (gond) and jaggery — a traditional strength tonic with no refined sugar.", img: "shakti-laddu.png", size: "500 g", price: 850, mrp: 1200, badge: "Bestseller" },
+    { id: "shinkaji-masala", name: "Shinkaji Masala", benefit: "A robust homestyle Punjabi blend.", desc: "A robust, homestyle Punjabi masala for everyday sabzis and gravies — freshly ground in small batches.", img: "shinkaji-masala-pack.png", size: "100 g", price: 200, mrp: 500 },
+    { id: "herbal-heart-sip", name: "Herbal Heart Sip", benefit: "A warming daily herbal infusion.", desc: "A warming herbal infusion of traditional herbs — one soothing spoon in hot water, any time of day.", img: "herbal-heart-sip.png", size: "40 g", price: 200, mrp: 500 },
+    { id: "shahi-garam-masala", name: "Shahi Garam Masala", benefit: "Whole spices, roasted & stone-ground.", desc: "A royal garam masala of whole spices, roasted and stone-ground for deep, aromatic flavour.", img: "shahi-garam-masala.png", size: "50 g", price: 120, mrp: 300, badge: "Bestseller" },
+    { id: "kesh-vardaan-oil", name: "AyurKesh Vardaan Hair Oil", benefit: "Bhringraj, brahmi & sesame for stronger hair.", desc: "An intensive hair-fall oil blend of bhringraj, brahmi and sesame — nourishes the scalp for thicker, stronger hair.", img: "kesh-vardaan-oil.png", size: "100 ml", price: 250, mrp: 350 },
+    { id: "urban-glow", name: "Instant Ubtan Glow", benefit: "A brightening natural face pack.", desc: "A brightening face pack for an instant, natural radiance — a classic ubtan, ready in minutes.", img: "ubtan-glow-pack.png", size: "100 g", price: 200, mrp: 350, badge: "New" },
   ];
   return (
     <section id="bestsellers" style={{ background: "var(--white)", padding: "80px 0", scrollMarginTop: 90 }}>
