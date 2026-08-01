@@ -175,7 +175,7 @@ function Hero() {
             <Button variant="forest" as="a" href="../shop/index.html">Explore Our Bestsellers →</Button>
             <Button variant="outline" as="a" href={`https://wa.me/${WA}?text=${encodeURIComponent("Namaste! I'm looking for a Mishthi Sattva product for my family. Please help me choose the right option.")}`} target="_blank" rel="noopener noreferrer">Help Me Choose</Button>
           </div>
-          <div style={{ marginTop: 38, display: "grid", gridTemplateColumns: "repeat(4, auto)", gap: "12px 24px", maxWidth: 480 }}>
+          <div style={{ marginTop: 38, display: "flex", flexWrap: "wrap", gap: "12px 24px", maxWidth: 520 }}>
             {["Homemade", "Sugar-Free", "Preservative Free", "Sattvic"].map((t) => (
               <div key={t} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--primary)" }}>
                 <span style={{ color: "var(--accent)" }}><Leaf size={16} /></span> {t}

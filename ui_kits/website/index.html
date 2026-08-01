@@ -21,7 +21,7 @@
     main { padding-bottom: 76px; }          /* room for the fixed bar */
   }
   @media (max-width: 860px) {
-    .ms-stack { grid-template-columns: 1fr !important; }
+    .ms-stack { grid-template-columns: minmax(0, 1fr) !important; }
     .ms-nav { display: none !important; }
     .ms-why-grid { grid-template-columns: repeat(2, 1fr); }
   }
