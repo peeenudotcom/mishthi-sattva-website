@@ -10,7 +10,7 @@ const MS_CATEGORIES = [
   { id: "spices", name: "Spices & Masala", tint: "var(--gold)" },
   { id: "hair", name: "Hair Care", tint: "var(--forest-deep)" },
   { id: "beauty", name: "Beauty & Skincare", tint: "var(--gold-soft)" },
-  { id: "special", name: "Special Foods", tint: "var(--whatsapp)" },
+  { id: "special", name: "Special Foods", tint: "color-mix(in oklab, var(--forest) 55%, var(--gold))" },
 ];
 
 const MS_PRODUCTS = [
