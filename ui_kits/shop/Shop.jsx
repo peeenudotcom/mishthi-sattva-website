@@ -253,7 +253,7 @@ function CartDrawer({ items, onClose, onQty, onRemove, onCheckout, subtotal }) {
                 {remaining > 0 ? <span>Add <b style={{ color: "var(--primary)" }}>{money(remaining)}</b> more for free delivery</span> : <span style={{ color: "var(--success)", fontWeight: 600 }}>You've unlocked free delivery!</span>}
               </p>
               <div style={{ marginTop: 8, height: 6, borderRadius: 99, background: "var(--secondary)", overflow: "hidden" }}>
-                <div style={{ height: "100%", width: pct + "%", background: "linear-gradient(90deg, var(--gold), var(--whatsapp))", transition: "width .3s" }} />
+                <div style={{ height: "100%", width: pct + "%", background: "linear-gradient(90deg, var(--gold), var(--primary))", transition: "width .3s" }} />
               </div>
             </div>
             <div style={{ flex: 1, overflow: "auto", padding: "8px 22px" }}>
@@ -373,7 +373,7 @@ function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
                   </p>
                 )}
               </div>
-              <button onClick={placeOrder} disabled={!valid} style={{ marginTop: 18, width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, padding: "15px", borderRadius: "var(--radius-pill)", border: "none", background: valid ? "var(--whatsapp)" : "var(--muted)", color: valid ? "#fff" : "var(--muted-foreground)", fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 15, cursor: valid ? "pointer" : "not-allowed", boxShadow: valid ? "var(--shadow-whatsapp)" : "none" }}>
+              <button onClick={placeOrder} disabled={!valid} style={{ marginTop: 18, width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, padding: "15px", borderRadius: "var(--radius-pill)", border: "none", background: valid ? "var(--primary)" : "var(--muted)", color: valid ? "var(--primary-foreground)" : "var(--muted-foreground)", fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 15, cursor: valid ? "pointer" : "not-allowed", boxShadow: valid ? "var(--shadow-lg)" : "none" }}>
                 <I.wa s={20} /> Place Order on WhatsApp
               </button>
               <p style={{ marginTop: 10, fontSize: 11.5, textAlign: "center", color: "var(--muted-foreground)" }}>By placing the order you'll be taken to WhatsApp to confirm.</p>

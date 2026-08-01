@@ -173,7 +173,7 @@ function Hero() {
           <p className="ms-hindi" style={{ marginTop: 12, fontSize: 19, color: "color-mix(in oklab, var(--primary) 90%, transparent)" }}>घर की रसोई से… आपके परिवार की सेहत तक।</p>
           <div style={{ marginTop: 30, display: "flex", flexWrap: "wrap", gap: 12 }}>
             <Button variant="forest" as="a" href="../shop/index.html">Explore Our Bestsellers →</Button>
-            <WhatsAppButton message="Namaste! I'm looking for a Mishthi Sattva product for my family. Please help me choose the right option.">Help Me Choose</WhatsAppButton>
+            <Button variant="outline" as="a" href={`https://wa.me/${WA}?text=${encodeURIComponent("Namaste! I'm looking for a Mishthi Sattva product for my family. Please help me choose the right option.")}`} target="_blank" rel="noopener noreferrer">Help Me Choose</Button>
           </div>
           <div style={{ marginTop: 38, display: "grid", gridTemplateColumns: "repeat(4, auto)", gap: "12px 24px", maxWidth: 480 }}>
             {["Homemade", "Sugar-Free", "Preservative Free", "Sattvic"].map((t) => (
@@ -310,6 +310,9 @@ function Products() {
 /* ---------- featured ---------- */
 function Featured() {
   const bullets = ["No Refined Sugar", "Amla & Warming Spices", "Small-Batch Made", "Homemade Quality", "Family Friendly"];
+  const [showDetails, setShowDetails] = React.useState(false);
+  // id matches the shop catalogue slug so Add to Cart syncs with the shop cart
+  const chyawanprash = { id: "chyawanprash", name: "Sugar-Free Chyawanprash", desc: "Inspired by the traditional Ayurvedic preparation of amla, herbs and warming spices — slow-cooked in small batches for modern families. No refined sugar, no compromises.", img: "chyawanprash.jpg", size: "500 g", price: 600, mrp: 1000, badge: "Featured" };
   return (
     <section style={{ position: "relative", overflow: "hidden", background: "var(--primary)", color: "var(--primary-foreground)", padding: "96px 0" }}>
       <div aria-hidden="true" style={{ position: "absolute", right: -128, top: -128, height: 384, width: 384, borderRadius: "50%", background: "color-mix(in oklab, var(--gold) 20%, transparent)", filter: "blur(60px)" }} />
@@ -337,9 +340,9 @@ function Featured() {
             <span>Home delivery in Kotkapura</span>
           </div>
           <div style={{ marginTop: 26, display: "flex", flexWrap: "wrap", gap: 12 }}>
-            <Button variant="gold" as="a" href="../shop/index.html">View Chyawanprash Details →</Button>
-            <WhatsAppButton message="Namaste! I'd like to know more about the ingredients in your Sugar-Free Chyawanprash (500 g).">Ask About Ingredients</WhatsAppButton>
+            <Button variant="gold" onClick={() => setShowDetails(true)}>View Chyawanprash Details →</Button>
           </div>
+          {showDetails && <ProductModal p={chyawanprash} onClose={() => setShowDetails(false)} />}
         </div>
       </div>
     </section>
@@ -467,7 +470,7 @@ function Contact() {
             <Input label="Phone" type="tel" placeholder="10-digit mobile" value={form.phone} onChange={set("phone")} />
             <Input label="Message" multiline rows={4} placeholder="What would you like to order or ask?" value={form.message} onChange={set("message")} />
             <span onClick={saveEnquiry}>
-              <WhatsAppButton fullWidth message={waText}>Send via WhatsApp</WhatsAppButton>
+              <Button variant="forest" fullWidth as="a" href={`https://wa.me/${WA}?text=${encodeURIComponent(waText)}`} target="_blank" rel="noopener noreferrer">Send via WhatsApp</Button>
             </span>
             {!valid && <p style={{ fontSize: 12, color: "var(--muted-foreground)", textAlign: "center" }}>Add your name and a message — we'll open WhatsApp with it filled in.</p>}
           </div>
@@ -560,7 +563,7 @@ function PriceTag({ p, big }) {
   if (p.price == null) {
     return (
       <a href={askPriceWA(p)} target="_blank" rel="noopener noreferrer"
-        style={{ display: "inline-flex", alignItems: "center", gap: 6, fontFamily: "var(--font-sans)", fontSize: big ? 15 : 13.5, fontWeight: 600, color: "var(--whatsapp)", textDecoration: "underline", textUnderlineOffset: 2 }}>
+        style={{ display: "inline-flex", alignItems: "center", gap: 6, fontFamily: "var(--font-sans)", fontSize: big ? 15 : 13.5, fontWeight: 600, color: "var(--primary)", textDecoration: "underline", textUnderlineOffset: 2 }}>
         Ask price on WhatsApp →
       </a>
     );
@@ -667,7 +670,7 @@ function ProductModal({ p, onClose }) {
               </div>
               <Button variant="forest" onClick={add} fullWidth>Add to Cart</Button>
               <div style={{ marginTop: 10 }}>
-                <WhatsAppButton fullWidth message={waMsg}>Ask About This Product</WhatsAppButton>
+                <Button variant="outline" fullWidth as="a" href={`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`} target="_blank" rel="noopener noreferrer">Ask About This Product</Button>
               </div>
             </div>
           )}
@@ -701,8 +704,7 @@ function HomeProducts() {
         </div>
         <div style={{ marginTop: 44, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 12 }}>
           <Button variant="forest" as="a" href="../shop/index.html">Explore All Products →</Button>
-          {/* href overrides the computed chat link (props spread last) → opens the WhatsApp catalogue directly */}
-          <WhatsAppButton href="https://wa.me/c/918557942246">Get the Catalogue</WhatsAppButton>
+          <Button variant="gold" as="a" href="https://wa.me/c/918557942246" target="_blank" rel="noopener noreferrer">Get the Catalogue</Button>
         </div>
       </div>
       {view && <ProductModal p={view} onClose={() => setView(null)} />}
@@ -905,7 +907,7 @@ function FounderPromise() {
         <p style={{ marginTop: 16, fontSize: 13, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.16em", color: "var(--accent)" }}>— Kiran Bansal, Founder</p>
         <div style={{ marginTop: 32, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 12 }}>
           <Button variant="forest" as="a" href="../shop/index.html">Explore Our Products →</Button>
-          <WhatsAppButton message="Namaste Kiran! I read your story on the Mishthi Sattva website and would like to know more.">Talk to Kiran on WhatsApp</WhatsAppButton>
+          <Button variant="outline" as="a" href={`https://wa.me/${WA}?text=${encodeURIComponent("Namaste Kiran! I read your story on the Mishthi Sattva website and would like to know more.")}`} target="_blank" rel="noopener noreferrer">Talk to Kiran on WhatsApp</Button>
         </div>
       </div>
     </section>
@@ -1030,7 +1032,7 @@ function MobileBar() {
   return (
     <div className="ms-mobilebar" style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 60, gap: 10, padding: "10px 12px calc(10px + env(safe-area-inset-bottom))", background: "color-mix(in oklab, var(--card) 96%, transparent)", borderTop: "1px solid var(--border)", backdropFilter: "blur(8px)", boxShadow: "0 -6px 24px -12px oklch(0.24 0.05 158 / 0.25)" }}>
       <a href={`tel:+91${PHONE}`} style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, height: 48, borderRadius: "var(--radius-pill)", border: "1px solid var(--primary)", color: "var(--primary)", fontWeight: 700, fontSize: 15 }}>📞 Call</a>
-      <a href={`https://wa.me/${WA}`} target="_blank" rel="noopener noreferrer" style={{ flex: 2, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, height: 48, borderRadius: "var(--radius-pill)", background: "var(--whatsapp)", color: "#fff", fontWeight: 700, fontSize: 15 }}>💬 Chat With Us</a>
+      <a href={`https://wa.me/${WA}`} target="_blank" rel="noopener noreferrer" style={{ flex: 2, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, height: 48, borderRadius: "var(--radius-pill)", background: "var(--primary)", color: "var(--primary-foreground)", fontWeight: 700, fontSize: 15 }}>💬 Chat With Us</a>
     </div>
   );
 }
@@ -1038,7 +1040,7 @@ function MobileBar() {
 function StickyWhatsApp() {
   return (
     <a className="ms-fab" href={`https://wa.me/918557942246`} target="_blank" rel="noopener noreferrer" aria-label="Need help? Chat with us on WhatsApp" title="Need Help? Chat With Us"
-       style={{ position: "fixed", bottom: 20, right: 20, zIndex: 50, display: "grid", placeItems: "center", height: 56, width: 56, borderRadius: "var(--radius-pill)", background: "var(--whatsapp)", color: "#fff", boxShadow: "var(--shadow-xl)", border: "4px solid color-mix(in oklab, var(--whatsapp) 25%, transparent)" }}>
+       style={{ position: "fixed", bottom: 20, right: 20, zIndex: 50, display: "grid", placeItems: "center", height: 56, width: 56, borderRadius: "var(--radius-pill)", background: "var(--primary)", color: "var(--cream)", boxShadow: "var(--shadow-xl)", border: "4px solid color-mix(in oklab, var(--gold) 45%, transparent)" }}>
       <svg viewBox="0 0 32 32" width={28} height={28} fill="currentColor"><path d="M19.11 17.36c-.27-.14-1.6-.79-1.85-.88-.25-.09-.43-.14-.61.14-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.14-1.14-.42-2.18-1.34-.81-.72-1.35-1.6-1.51-1.87-.16-.27-.02-.42.12-.55.12-.12.27-.32.41-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.48-.07-.14-.61-1.46-.83-2-.22-.53-.45-.46-.61-.47l-.52-.01c-.18 0-.48.07-.73.34-.25.27-.95.93-.95 2.27 0 1.34.98 2.63 1.11 2.81.14.18 1.92 2.93 4.65 4.11.65.28 1.16.45 1.56.58.65.21 1.25.18 1.72.11.52-.08 1.6-.65 1.83-1.28.23-.63.23-1.17.16-1.28-.07-.11-.25-.18-.52-.32zM16 4C9.37 4 4 9.37 4 16c0 2.11.55 4.09 1.52 5.81L4 28l6.36-1.49A11.92 11.92 0 0 0 16 28c6.63 0 12-5.37 12-12S22.63 4 16 4z" /></svg>
     </a>
   );
@@ -1095,7 +1097,7 @@ function Account() {
           <GoldDivider align="center">Account</GoldDivider>
           <h1 style={{ marginTop: 16, fontSize: 40, fontWeight: 700 }}>Accounts are being set up</h1>
           <p style={{ marginTop: 12, color: "var(--muted-foreground)" }}>Customer login isn't connected yet — please order on WhatsApp in the meantime.</p>
-          <div style={{ marginTop: 24 }}><WhatsAppButton>Order on WhatsApp</WhatsAppButton></div>
+          <div style={{ marginTop: 24 }}><Button variant="forest" as="a" href={`https://wa.me/${WA}`} target="_blank" rel="noopener noreferrer">Order on WhatsApp</Button></div>
         </div>
       </section>
     );
