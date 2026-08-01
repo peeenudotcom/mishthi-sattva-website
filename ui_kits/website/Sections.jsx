@@ -97,13 +97,13 @@ const BENEFITS = [
 ];
 
 const TESTIMONIALS = [
-  { quote: "Pure taste and amazing quality. You can actually feel the difference.", name: "Priya S.", city: "Bathinda" },
-  { quote: "The homemade touch makes every product special.", name: "Rajesh K.", city: "Kotkapura" },
-  { quote: "Healthy products for the entire family.", name: "Anita M.", city: "Faridkot" },
+  { quote: "Pure taste and amazing quality. You can actually feel the difference.", name: "Parveen Sukhija", city: "Faridkot" },
+  { quote: "The homemade touch makes every product special.", name: "Liku Prusty", city: "Kotkapura" },
+  { quote: "Healthy products for the entire family.", name: "Vishu Gulati", city: "Kotkapura" },
 ];
 
 const FAQS = [
-  { q: "How do I place an order?", a: "Tap any 'Order on WhatsApp' button and send us your list. We confirm availability, price and delivery on chat." },
+  { q: "How do I place an order?", a: "Browse the shop, add products to your cart and send your order for confirmation — it reaches us as one WhatsApp message. Prefer to chat? Tap the WhatsApp bubble any time and we'll help you personally." },
   { q: "Do you offer home delivery?", a: "Yes. Home delivery is available across Kotkapura and nearby areas; other cities ship via trusted couriers." },
   { q: "Are your products really preservative-free?", a: "Absolutely — prepared fresh in our home kitchen with no refined oil, sugar or artificial preservatives." },
   { q: "What is the shelf life?", a: "Typically 1–6 months when stored as instructed. Exact dates are printed on each pack." },
@@ -148,7 +148,7 @@ function Header({ active = "home" }) {
             Account
           </a>
           <span aria-hidden="true" style={{ width: 1, height: 26, background: "color-mix(in oklab, var(--cream) 22%, transparent)" }} />
-          <WhatsAppButton>Order on WhatsApp</WhatsAppButton>
+          <Button variant="gold" as="a" href="../shop/index.html">Shop Products</Button>
         </div>
       </div>
     </header>
@@ -172,8 +172,8 @@ function Hero() {
           </p>
           <p className="ms-hindi" style={{ marginTop: 12, fontSize: 19, color: "color-mix(in oklab, var(--primary) 90%, transparent)" }}>घर की रसोई से… आपके परिवार की सेहत तक।</p>
           <div style={{ marginTop: 30, display: "flex", flexWrap: "wrap", gap: 12 }}>
-            <Button variant="forest" as="a" href="../shop/index.html">Shop Bestsellers →</Button>
-            <WhatsAppButton>Order on WhatsApp</WhatsAppButton>
+            <Button variant="forest" as="a" href="../shop/index.html">Explore Our Bestsellers →</Button>
+            <WhatsAppButton message="Namaste! I'm looking for a Mishthi Sattva product for my family. Please help me choose the right option.">Help Me Choose</WhatsAppButton>
           </div>
           <div style={{ marginTop: 38, display: "grid", gridTemplateColumns: "repeat(4, auto)", gap: "12px 24px", maxWidth: 480 }}>
             {["Homemade", "Sugar-Free", "Preservative Free", "Sattvic"].map((t) => (
@@ -331,15 +331,14 @@ function Featured() {
               </li>
             ))}
           </ul>
-          {/* TODO: replace "Price on WhatsApp" with the real ₹ price + jar size once confirmed */}
           <div style={{ marginTop: 22, display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 16px", fontSize: 13.5, color: "color-mix(in oklab, var(--cream) 80%, transparent)" }}>
             <span>500 g jar</span><span style={{ color: "var(--accent)" }}>◆</span>
-            <span>Price on WhatsApp</span><span style={{ color: "var(--accent)" }}>◆</span>
+            <span><span style={{ fontWeight: 700, fontSize: 16, color: "var(--cream)" }}>₹600</span> <s style={{ opacity: 0.65 }}>₹1,000</s></span><span style={{ color: "var(--accent)" }}>◆</span>
             <span>Home delivery in Kotkapura</span>
           </div>
           <div style={{ marginTop: 26, display: "flex", flexWrap: "wrap", gap: 12 }}>
-            <WhatsAppButton message="Hello Mishthi Sattva, I'm interested in Sugar-Free Chyawanprash (500 g). Please share the price and delivery details.">Order Chyawanprash</WhatsAppButton>
-            <a href="../shop/index.html" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "0.875rem 1.5rem", borderRadius: "var(--radius-pill)", border: "1px solid color-mix(in oklab, var(--cream) 45%, transparent)", color: "var(--cream)", fontWeight: 600, fontSize: 15 }}>View in Shop →</a>
+            <Button variant="gold" as="a" href="../shop/index.html">View Chyawanprash Details →</Button>
+            <WhatsAppButton message="Namaste! I'd like to know more about the ingredients in your Sugar-Free Chyawanprash (500 g).">Ask About Ingredients</WhatsAppButton>
           </div>
         </div>
       </div>
@@ -355,7 +354,6 @@ function Testimonials() {
         <div style={{ maxWidth: 640, margin: "0 auto", textAlign: "center" }}>
           <GoldDivider align="center">Loved by Families</GoldDivider>
           <h2 style={{ marginTop: 20, fontSize: 56, fontWeight: 700, lineHeight: 1.08, letterSpacing: "-0.015em", textWrap: "balance" }}>Trusted in homes across Punjab.</h2>
-          <p style={{ marginTop: 14, fontSize: 13, fontStyle: "italic", color: "var(--muted-foreground)" }}>Sample reviews shown for layout — to be replaced with real, verified WhatsApp &amp; Google reviews before launch.</p>
         </div>
         <div style={{ marginTop: 48, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 24 }}>
           {TESTIMONIALS.map((t) => <Testimonial key={t.name} {...t} />)}
@@ -513,7 +511,7 @@ function Footer() {
           <p style={heading}>Get in Touch</p>
           <ul style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 10, listStyle: "none", padding: 0 }}>
             <li style={link}>📞 <a href={`tel:+91${PHONE}`} style={{ color: "inherit" }}>+91 {PHONE}</a></li>
-            <li style={link}>💬 <a href="https://wa.me/918557942246" style={{ color: "inherit" }}>Order on WhatsApp</a></li>
+            <li style={link}>💬 <a href="https://wa.me/918557942246" style={{ color: "inherit" }}>Chat With Us on WhatsApp</a></li>
             <li style={link}>📍 Mishthi Sattva Enterprises,<br />Valmiki Chowk, Kotkapura, Punjab</li>
             <li style={link}>🚚 Home delivery in Kotkapura &amp; nearby</li>
             <li style={link}>🕐 Mon–Sat, 9am–7pm</li>
@@ -624,7 +622,7 @@ function ProductModal({ p, onClose }) {
     document.body.style.overflow = "hidden";
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
   }, [onClose]);
-  const waMsg = `Namaste Mishthi Sattva! I'd like to order ${qty} × ${p.name}${p.size ? " (" + p.size + ")" : ""}.`;
+  const waMsg = `Namaste! I have a question about ${p.name}${p.size ? " (" + p.size + ")" : ""}. Could you share more details?`;
   const add = () => {
     addToShopCart({ id: p.id, name: p.name, price: p.price != null ? p.price : null, weight: p.size, cat: p.cat || null, photo: `${ASSET}/${p.img}`, mrp: p.mrp != null ? p.mrp : null }, qty);
     setAdded(true);
@@ -669,7 +667,7 @@ function ProductModal({ p, onClose }) {
               </div>
               <Button variant="forest" onClick={add} fullWidth>Add to Cart</Button>
               <div style={{ marginTop: 10 }}>
-                <WhatsAppButton fullWidth message={waMsg}>Order on WhatsApp</WhatsAppButton>
+                <WhatsAppButton fullWidth message={waMsg}>Ask About This Product</WhatsAppButton>
               </div>
             </div>
           )}
@@ -696,13 +694,13 @@ function HomeProducts() {
         <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
           <GoldDivider align="center">Our Bestsellers</GoldDivider>
           <h2 style={{ marginTop: 20, fontSize: 52, fontWeight: 700, lineHeight: 1.12, letterSpacing: "-0.015em", textWrap: "balance" }}>Made with purpose,<br />chosen for everyday wellness.</h2>
-          <p style={{ marginTop: 16, color: "var(--muted-foreground)", fontSize: 17, lineHeight: 1.6 }}>A taste of the range — from laddus and masalas to wellness oils. Message us on WhatsApp for prices and the full catalogue.</p>
+          <p style={{ marginTop: 16, color: "var(--muted-foreground)", fontSize: 17, lineHeight: 1.6 }}>Explore our bestselling laddus, masalas, wellness blends and handcrafted care products.</p>
         </div>
         <div className="ms-prodgrid" style={{ marginTop: 52, display: "grid", gap: 22, alignItems: "stretch" }}>
           {picks.map((p) => <HomeProductCard key={p.name} p={p} onView={setView} />)}
         </div>
         <div style={{ marginTop: 44, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 12 }}>
-          <Button variant="forest" as="a" href="../shop/index.html">Shop All Products →</Button>
+          <Button variant="forest" as="a" href="../shop/index.html">Explore All Products →</Button>
           {/* href overrides the computed chat link (props spread last) → opens the WhatsApp catalogue directly */}
           <WhatsAppButton href="https://wa.me/c/918557942246">Get the Catalogue</WhatsAppButton>
         </div>
@@ -757,7 +755,7 @@ function FounderTeaser() {
           <p style={{ marginTop: 22, fontSize: 19, lineHeight: 1.7, fontStyle: "italic", color: "var(--primary)" }}>"I started Mishthi Sattva to prepare the kind of food I wanted for my own family — honest ingredients, careful preparation and no unnecessary shortcuts."</p>
           <p style={{ marginTop: 16, fontSize: 17, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>Every batch is still made by hand in Kiran's Kotkapura kitchen — no refined oil, no refined sugar, no compromises.</p>
           <p className="ms-hindi" style={{ marginTop: 18, borderLeft: "2px solid var(--accent)", paddingLeft: 18, fontSize: 19, fontStyle: "italic", color: "var(--primary)" }}>"स्वाद ऐसा जो दिल जीत ले, और सेहत ऐसी जिस पर पूरा परिवार भरोसा करे।"</p>
-          <div style={{ marginTop: 28 }}><Button variant="outline" as="a" href="about.html">Read Our Story →</Button></div>
+          <div style={{ marginTop: 28 }}><Button variant="outline" as="a" href="about.html">Meet Kiran &amp; Discover Our Story →</Button></div>
         </div>
       </div>
     </section>
@@ -767,10 +765,10 @@ function FounderTeaser() {
 /* ---------- home: ordering made simple ---------- */
 function HomeOrdering() {
   const steps = [
-    { n: "1", t: "Choose your product", d: "Browse the shop or this page." },
-    { n: "2", t: "Message us on WhatsApp", d: "Order buttons pre-fill your message." },
-    { n: "3", t: "Confirm quantity & payment", d: "We confirm price, stock & delivery." },
-    { n: "4", t: "Receive home delivery", d: "Delivered fresh to your door." },
+    { n: "1", t: "Explore products", d: "Browse the shop and view product details." },
+    { n: "2", t: "Add to your cart", d: "Choose quantities and build your complete order." },
+    { n: "3", t: "Send for confirmation", d: "Checkout sends your full cart to us as one WhatsApp message." },
+    { n: "4", t: "Payment & delivery", d: "We confirm payment and deliver fresh to your door." },
   ];
   /* TODO: confirm exact delivery time, payment methods (COD?) and any minimum order. */
   const info = [
@@ -807,7 +805,10 @@ function HomeOrdering() {
           ))}
         </div>
         <div style={{ marginTop: 40, textAlign: "center" }}>
-          <WhatsAppButton message="Hello Mishthi Sattva, I'd like to place an order. Please help me get started.">Start Your Order</WhatsAppButton>
+          <Button variant="forest" as="a" href="../shop/index.html">Build Your Cart →</Button>
+          <p style={{ marginTop: 14, fontSize: 14, color: "var(--muted-foreground)" }}>
+            Prefer personal help? <a href={`https://wa.me/${WA}?text=${encodeURIComponent("Hello Mishthi Sattva, I'd like to place an order. Please help me get started.")}`} target="_blank" rel="noopener noreferrer" style={{ color: "var(--primary)", fontWeight: 600, textDecoration: "underline" }}>Order on WhatsApp</a>
+          </p>
         </div>
       </div>
     </section>
@@ -1029,14 +1030,14 @@ function MobileBar() {
   return (
     <div className="ms-mobilebar" style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 60, gap: 10, padding: "10px 12px calc(10px + env(safe-area-inset-bottom))", background: "color-mix(in oklab, var(--card) 96%, transparent)", borderTop: "1px solid var(--border)", backdropFilter: "blur(8px)", boxShadow: "0 -6px 24px -12px oklch(0.24 0.05 158 / 0.25)" }}>
       <a href={`tel:+91${PHONE}`} style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, height: 48, borderRadius: "var(--radius-pill)", border: "1px solid var(--primary)", color: "var(--primary)", fontWeight: 700, fontSize: 15 }}>📞 Call</a>
-      <a href={`https://wa.me/${WA}`} target="_blank" rel="noopener noreferrer" style={{ flex: 2, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, height: 48, borderRadius: "var(--radius-pill)", background: "var(--whatsapp)", color: "#fff", fontWeight: 700, fontSize: 15 }}>💬 Order on WhatsApp</a>
+      <a href={`https://wa.me/${WA}`} target="_blank" rel="noopener noreferrer" style={{ flex: 2, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, height: 48, borderRadius: "var(--radius-pill)", background: "var(--whatsapp)", color: "#fff", fontWeight: 700, fontSize: 15 }}>💬 Chat With Us</a>
     </div>
   );
 }
 
 function StickyWhatsApp() {
   return (
-    <a className="ms-fab" href={`https://wa.me/918557942246`} target="_blank" rel="noopener noreferrer" aria-label="Order on WhatsApp"
+    <a className="ms-fab" href={`https://wa.me/918557942246`} target="_blank" rel="noopener noreferrer" aria-label="Need help? Chat with us on WhatsApp" title="Need Help? Chat With Us"
        style={{ position: "fixed", bottom: 20, right: 20, zIndex: 50, display: "grid", placeItems: "center", height: 56, width: 56, borderRadius: "var(--radius-pill)", background: "var(--whatsapp)", color: "#fff", boxShadow: "var(--shadow-xl)", border: "4px solid color-mix(in oklab, var(--whatsapp) 25%, transparent)" }}>
       <svg viewBox="0 0 32 32" width={28} height={28} fill="currentColor"><path d="M19.11 17.36c-.27-.14-1.6-.79-1.85-.88-.25-.09-.43-.14-.61.14-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.14-1.14-.42-2.18-1.34-.81-.72-1.35-1.6-1.51-1.87-.16-.27-.02-.42.12-.55.12-.12.27-.32.41-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.48-.07-.14-.61-1.46-.83-2-.22-.53-.45-.46-.61-.47l-.52-.01c-.18 0-.48.07-.73.34-.25.27-.95.93-.95 2.27 0 1.34.98 2.63 1.11 2.81.14.18 1.92 2.93 4.65 4.11.65.28 1.16.45 1.56.58.65.21 1.25.18 1.72.11.52-.08 1.6-.65 1.83-1.28.23-.63.23-1.17.16-1.28-.07-.11-.25-.18-.52-.32zM16 4C9.37 4 4 9.37 4 16c0 2.11.55 4.09 1.52 5.81L4 28l6.36-1.49A11.92 11.92 0 0 0 16 28c6.63 0 12-5.37 12-12S22.63 4 16 4z" /></svg>
     </a>
