@@ -625,7 +625,7 @@ function ProductModal({ p, onClose }) {
     document.body.style.overflow = "hidden";
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
   }, [onClose]);
-  const waMsg = `Namaste! I have a question about ${p.name}${p.size ? " (" + p.size + ")" : ""}. Could you share more details?`;
+  const waMsg = `Namaste! I have a question about ${p.name}${p.size ? " (" + p.size + ")" : ""}.`;
   const add = () => {
     addToShopCart({ id: p.id, name: p.name, price: p.price != null ? p.price : null, weight: p.size, cat: p.cat || null, photo: `${ASSET}/${p.img}`, mrp: p.mrp != null ? p.mrp : null }, qty);
     setAdded(true);
@@ -670,7 +670,7 @@ function ProductModal({ p, onClose }) {
               </div>
               <Button variant="forest" onClick={add} fullWidth>Add to Cart</Button>
               <div style={{ marginTop: 10 }}>
-                <Button variant="outline" fullWidth as="a" href={`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`} target="_blank" rel="noopener noreferrer">Ask About This Product</Button>
+                <Button variant="outline" fullWidth as="a" href={`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`} target="_blank" rel="noopener noreferrer">Questions? Chat with Us</Button>
               </div>
             </div>
           )}
