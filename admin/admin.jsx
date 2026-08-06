@@ -122,7 +122,7 @@ function Products() {
     const patch = {};
     Object.keys(d).forEach((f) => {
       let v = d[f];
-      if (f === "in_stock") v = !!v;
+      if (f === "in_stock" || f === "featured") v = !!v;
       else if (f === "price" || f === "mrp") v = (v === "" || v == null) ? null : Number(v);
       else v = String(v).trim() === "" ? (f === "name" ? row.name : null) : String(v).trim();
       patch[f] = v;
@@ -174,11 +174,12 @@ function Products() {
       <NewProduct onAdded={(p) => setRows((rs) => [...rs, p])} />
       <p className="muted" style={{ marginBottom: 14 }}>
         {rows.length} products · {noPrice} without a price. Edit any field, then click <b>Save</b> on that row.
+        <br />Tick <b>Featured</b> to show a product in the home-page <b>Bestsellers</b> row (up to 6). Leave all unticked to show the default set.
       </p>
       <div style={{ overflowX: "auto" }} className="card">
         <table>
           <thead><tr>
-            <th>Product</th><th>Price ₹</th><th>MRP ₹</th><th>Weight</th><th>In stock</th><th></th>
+            <th>Product</th><th>Price ₹</th><th>MRP ₹</th><th>Weight</th><th>In stock</th><th>Featured</th><th></th>
           </tr></thead>
           <tbody>
             {rows.map((r) => (
@@ -211,6 +212,10 @@ function Products() {
                 <td>
                   <input type="checkbox" style={{ width: 18, height: 18 }} checked={cur(r, "in_stock") !== false}
                     onChange={(e) => edit(r.id, "in_stock", e.target.checked)} />
+                </td>
+                <td>
+                  <input type="checkbox" title="Show in the home-page Bestsellers row" style={{ width: 18, height: 18 }} checked={cur(r, "featured") === true}
+                    onChange={(e) => edit(r.id, "featured", e.target.checked)} />
                 </td>
                 <td style={{ whiteSpace: "nowrap" }}>
                   <button className="btn" style={{ padding: "6px 14px", fontSize: 13 }} disabled={!dirty(r.id) || saving[r.id]} onClick={() => save(r)}>

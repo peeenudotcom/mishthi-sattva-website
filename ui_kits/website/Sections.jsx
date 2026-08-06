@@ -587,7 +587,7 @@ function HomeProductCard({ p, onView }) {
     <div onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
       style={{ display: "flex", flexDirection: "column", background: "var(--card)", border: `1px solid ${h ? "var(--accent)" : "var(--border)"}`, borderRadius: "var(--radius-2xl)", overflow: "hidden", boxShadow: h ? "var(--shadow-lg)" : "var(--shadow-sm)", transform: h ? "translateY(-4px)" : "none", transition: "all .2s var(--ease-standard)" }}>
       <div style={{ position: "relative", aspectRatio: "4 / 3", background: "var(--cream)", overflow: "hidden", borderBottom: "1px solid color-mix(in oklab, var(--accent) 20%, transparent)" }}>
-        <img src={`${ASSET}/${p.img}`} alt={p.name} loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        <img src={p.photo || `${ASSET}/${p.img}`} alt={p.name} loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
         {p.badge && <span style={{ position: "absolute", top: 12, left: 12, background: "var(--forest-deep)", color: "var(--cream)", fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: "var(--radius-pill)" }}>{p.badge}</span>}
       </div>
       <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "20px 20px 22px" }}>
@@ -785,6 +785,7 @@ function ProductFinder({ onClose }) {
 
 function HomeProducts() {
   const [view, setView] = React.useState(null);
+  const [featured, setFeatured] = React.useState(null); // products the owner ticked "Featured" in /admin
   // ids match the shop catalogue slugs, so favourites sync with the shop wishlist
   const picks = [
     { id: "shakti-laddu", name: "Shakti Laddu", benefit: "Dry fruits, gond & jaggery — no refined sugar.", desc: "Energy-rich laddus made with dry fruits, edible gum (gond) and jaggery — a traditional strength tonic with no refined sugar.", img: "shakti-laddu.png", size: "500 g", price: 850, mrp: 1200, badge: "Bestseller" },
@@ -794,6 +795,23 @@ function HomeProducts() {
     { id: "kesh-vardaan-oil", name: "AyurKesh Vardaan Hair Oil", benefit: "Bhringraj, brahmi & sesame for stronger hair.", desc: "An intensive hair-fall oil blend of bhringraj, brahmi and sesame — nourishes the scalp for thicker, stronger hair.", img: "kesh-vardaan-oil.png", size: "100 ml", price: 250, mrp: 350 },
     { id: "urban-glow", name: "Instant Ubtan Glow", benefit: "A brightening natural face pack.", desc: "A brightening face pack for an instant, natural radiance — a classic ubtan, ready in minutes.", img: "ubtan-glow-pack.png", size: "100 g", price: 200, mrp: 350, badge: "New" },
   ];
+  React.useEffect(() => {
+    let alive = true;
+    if (window.MSData && window.MSData.getProducts) {
+      window.MSData.getProducts().then((rows) => {
+        if (!alive) return;
+        const feat = (rows || [])
+          .filter((r) => r.featured === true && r.in_stock !== false)
+          .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+          .slice(0, 6)
+          .map((r) => ({ id: r.slug, name: r.name, benefit: r.short_desc || "", desc: r.short_desc || "", photo: r.photo, size: r.weight, price: r.price == null ? null : Number(r.price), mrp: r.mrp == null ? null : Number(r.mrp), badge: "Bestseller", cat: r.category }));
+        setFeatured(feat);
+      }).catch(() => {});
+    }
+    return () => { alive = false; };
+  }, []);
+  // Show the owner's "Featured" products if any are ticked in admin; otherwise the curated set so the row is never empty.
+  const list = (featured && featured.length) ? featured : picks;
   return (
     <section id="bestsellers" style={{ background: "var(--white)", padding: "80px 0", scrollMarginTop: 90 }}>
       <div className="ms-container">
@@ -803,7 +821,7 @@ function HomeProducts() {
           <p style={{ marginTop: 16, color: "var(--muted-foreground)", fontSize: 17, lineHeight: 1.6 }}>Explore our bestselling laddus, masalas, wellness blends and handcrafted care products.</p>
         </div>
         <div className="ms-prodgrid" style={{ marginTop: 52, display: "grid", gap: 22, alignItems: "stretch" }}>
-          {picks.map((p) => <HomeProductCard key={p.name} p={p} onView={setView} />)}
+          {list.map((p) => <HomeProductCard key={p.id || p.name} p={p} onView={setView} />)}
         </div>
         <div style={{ marginTop: 44, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 12 }}>
           <Button variant="forest" as="a" href="../shop/index.html">Explore All Products →</Button>
