@@ -810,8 +810,14 @@ function HomeProducts() {
     }
     return () => { alive = false; };
   }, []);
-  // Show the owner's "Featured" products if any are ticked in admin; otherwise the curated set so the row is never empty.
-  const list = (featured && featured.length) ? featured : picks;
+  // Featured products (ticked in admin) lead the row; if fewer than 3 are ticked,
+  // top up with the curated set so the row is never sparse. None ticked → curated set.
+  const list = (() => {
+    if (!featured || !featured.length) return picks;
+    if (featured.length >= 3) return featured.slice(0, 6);
+    const ids = new Set(featured.map((p) => p.id));
+    return [...featured, ...picks.filter((p) => !ids.has(p.id))].slice(0, 3);
+  })();
   return (
     <section id="bestsellers" style={{ background: "var(--white)", padding: "80px 0", scrollMarginTop: 90 }}>
       <div className="ms-container">
