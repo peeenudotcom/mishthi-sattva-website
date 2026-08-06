@@ -157,6 +157,7 @@ function Header({ active = "home" }) {
 
 /* ---------- hero ---------- */
 function Hero() {
+  const [finder, setFinder] = React.useState(false);
   return (
     <section id="top" style={{ position: "relative", overflow: "hidden" }}>
       <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: -1, background: "radial-gradient(60% 60% at 80% 10%, color-mix(in oklab, var(--gold) 18%, transparent), transparent), radial-gradient(50% 50% at 0% 100%, color-mix(in oklab, var(--forest) 12%, transparent), transparent)" }} />
@@ -173,8 +174,9 @@ function Hero() {
           <p className="ms-hindi" style={{ marginTop: 12, fontSize: 19, color: "color-mix(in oklab, var(--primary) 90%, transparent)" }}>घर की रसोई से… आपके परिवार की सेहत तक।</p>
           <div style={{ marginTop: 30, display: "flex", flexWrap: "wrap", gap: 12 }}>
             <Button variant="forest" as="a" href="../shop/index.html">Explore Our Bestsellers →</Button>
-            <Button variant="outline" as="a" href={`https://wa.me/${WA}?text=${encodeURIComponent("Namaste! I'm looking for a Mishthi Sattva product for my family. Please help me choose the right option.")}`} target="_blank" rel="noopener noreferrer">Help Me Choose</Button>
+            <Button variant="outline" onClick={() => setFinder(true)}>Help Me Choose</Button>
           </div>
+          {finder && <ProductFinder onClose={() => setFinder(false)} />}
           <div style={{ marginTop: 38, display: "flex", flexWrap: "wrap", gap: "12px 24px", maxWidth: 520 }}>
             {["Homemade", "Sugar-Free", "Preservative Free", "Sattvic"].map((t) => (
               <div key={t} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--primary)" }}>
@@ -626,8 +628,9 @@ function ProductModal({ p, onClose }) {
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
   }, [onClose]);
   const waMsg = `Namaste! I have a question about ${p.name}${p.size ? " (" + p.size + ")" : ""}.`;
+  const imgSrc = p.photo || `${ASSET}/${p.img}`;
   const add = () => {
-    addToShopCart({ id: p.id, name: p.name, price: p.price != null ? p.price : null, weight: p.size, cat: p.cat || null, photo: `${ASSET}/${p.img}`, mrp: p.mrp != null ? p.mrp : null }, qty);
+    addToShopCart({ id: p.id, name: p.name, price: p.price != null ? p.price : null, weight: p.size, cat: p.cat || null, photo: imgSrc, mrp: p.mrp != null ? p.mrp : null }, qty);
     setAdded(true);
   };
   const stepBtn = { height: 38, width: 38, display: "grid", placeItems: "center", borderRadius: "var(--radius-pill)", border: "1px solid var(--border)", background: "var(--card)", color: "var(--primary)", cursor: "pointer", fontSize: 18, lineHeight: 1 };
@@ -637,7 +640,7 @@ function ProductModal({ p, onClose }) {
       <div onClick={(e) => e.stopPropagation()}
         style={{ width: "min(440px, 96vw)", maxHeight: "92vh", overflow: "auto", background: "var(--white)", borderRadius: "var(--radius-3xl)", boxShadow: "var(--shadow-xl)", border: "1px solid var(--border)" }}>
         <div style={{ position: "relative", aspectRatio: "4 / 3", background: "var(--cream)", overflow: "hidden", borderTopLeftRadius: "var(--radius-3xl)", borderTopRightRadius: "var(--radius-3xl)" }}>
-          <img src={`${ASSET}/${p.img}`} alt={p.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+          <img src={imgSrc} alt={p.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
           {p.badge && <span style={{ position: "absolute", top: 14, left: 14, background: "var(--forest-deep)", color: "var(--cream)", fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: "var(--radius-pill)" }}>{p.badge}</span>}
           <button onClick={onClose} aria-label="Close" style={{ position: "absolute", top: 12, right: 12, height: 36, width: 36, display: "grid", placeItems: "center", borderRadius: "var(--radius-pill)", border: "none", background: "color-mix(in oklab, var(--forest-deep) 55%, transparent)", color: "var(--cream)", cursor: "pointer", fontSize: 20, lineHeight: 1 }}>×</button>
         </div>
@@ -677,6 +680,106 @@ function ProductModal({ p, onClose }) {
         </div>
       </div>
     </div>
+  );
+}
+
+/* ---------- "Help Me Choose" product finder ---------- */
+const FINDER_GOALS = [
+  { id: "wellness", emoji: "🌿", label: "Daily wellness & immunity", sub: "Immunity & everyday health", slugs: ["chyawanprash", "herbal-heart-sip", "shakti-laddu"] },
+  { id: "energy",   emoji: "💪", label: "Energy & strength",         sub: "Stamina for active days",   slugs: ["shakti-laddu", "protein-sattu", "sampooran-laddu"] },
+  { id: "cooking",  emoji: "🍲", label: "Everyday cooking & spices",  sub: "Masalas & kitchen staples", slugs: ["shahi-garam-masala", "chat-masala", "shinkaji-masala"] },
+  { id: "care",     emoji: "✨", label: "Hair & skin care",          sub: "Natural self-care",         slugs: ["kesh-vardaan-oil", "urban-glow", "vitamin-c-serum"] },
+  { id: "treats",   emoji: "🎁", label: "Gifting & treats",          sub: "Snacks & gift-worthy picks", slugs: ["shakti-laddu", "paani-puri-combo", "shahi-sip-scoop"] },
+];
+
+function ProductFinder({ onClose }) {
+  const [goal, setGoal] = React.useState(null);
+  const [bySlug, setBySlug] = React.useState(null); // null = still loading
+  const [selected, setSelected] = React.useState(null);
+  React.useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") { if (selected) setSelected(null); else onClose(); } };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow; document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
+  }, [onClose, selected]);
+  React.useEffect(() => {
+    let alive = true;
+    if (window.MSData && window.MSData.getProducts) {
+      window.MSData.getProducts()
+        .then((rows) => { if (alive) { const m = {}; (rows || []).forEach((r) => { m[r.slug] = r; }); setBySlug(m); } })
+        .catch(() => { if (alive) setBySlug({}); });
+    } else { setBySlug({}); }
+    return () => { alive = false; };
+  }, []);
+  const toP = (r) => ({ id: r.slug, name: r.name, size: r.weight, desc: r.short_desc, photo: r.photo, price: r.price == null ? null : Number(r.price), mrp: r.mrp == null ? null : Number(r.mrp), badge: r.featured ? "Featured" : undefined, cat: r.category });
+  const g = FINDER_GOALS.find((x) => x.id === goal);
+  const recs = g && bySlug ? g.slugs.map((s) => bySlug[s]).filter(Boolean).map(toP) : [];
+  const waHelp = `https://wa.me/${WA}?text=` + encodeURIComponent("Namaste! I'm looking for a Mishthi Sattva product for my family. Please help me choose the right option.");
+  return (
+    <React.Fragment>
+      <div onClick={onClose} role="dialog" aria-modal="true" aria-label="Help me choose"
+        style={{ position: "fixed", inset: 0, zIndex: 118, background: "color-mix(in oklab, var(--forest-deep) 55%, transparent)", backdropFilter: "blur(4px)", display: "grid", placeItems: "center", padding: 20 }}>
+        <div onClick={(e) => e.stopPropagation()}
+          style={{ width: "min(560px, 96vw)", maxHeight: "92vh", overflow: "auto", background: "var(--white)", borderRadius: "var(--radius-3xl)", boxShadow: "var(--shadow-xl)", border: "1px solid var(--border)", padding: "26px 24px 24px" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+            <div>
+              <p style={{ margin: 0, fontFamily: "var(--font-sans)", fontSize: 12, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--accent)" }}>Help me choose</p>
+              <h3 style={{ margin: "6px 0 0", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 26, lineHeight: 1.1, color: "var(--primary)" }}>{goal ? "Our picks for you" : "What are you looking for?"}</h3>
+            </div>
+            <button onClick={onClose} aria-label="Close" style={{ flex: "0 0 auto", height: 36, width: 36, display: "grid", placeItems: "center", borderRadius: "var(--radius-pill)", border: "1px solid var(--border)", background: "var(--card)", color: "var(--primary)", cursor: "pointer", fontSize: 20, lineHeight: 1 }}>×</button>
+          </div>
+          {!goal ? (
+            <div style={{ marginTop: 20, display: "grid", gap: 10 }}>
+              {FINDER_GOALS.map((x) => (
+                <button key={x.id} onClick={() => setGoal(x.id)}
+                  style={{ display: "flex", alignItems: "center", gap: 14, textAlign: "left", padding: "14px 16px", borderRadius: 16, border: "1px solid var(--border)", background: "var(--card)", cursor: "pointer", fontFamily: "inherit" }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}>
+                  <span style={{ fontSize: 26, lineHeight: 1 }}>{x.emoji}</span>
+                  <span style={{ minWidth: 0 }}>
+                    <span style={{ display: "block", fontWeight: 700, fontSize: 16, color: "var(--primary)" }}>{x.label}</span>
+                    <span style={{ display: "block", fontSize: 13, color: "var(--muted-foreground)" }}>{x.sub}</span>
+                  </span>
+                  <span style={{ marginLeft: "auto", color: "var(--accent)", fontSize: 18 }}>→</span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div style={{ marginTop: 18 }}>
+              <button onClick={() => setGoal(null)} style={{ background: "transparent", border: "none", color: "var(--muted-foreground)", fontFamily: "inherit", fontSize: 14, cursor: "pointer", padding: 0, marginBottom: 12 }}>← Choose something else</button>
+              {bySlug == null ? (
+                <p style={{ color: "var(--muted-foreground)", fontSize: 15, padding: "16px 0" }}>Finding the best matches…</p>
+              ) : recs.length ? (
+                <div style={{ display: "grid", gap: 12 }}>
+                  {recs.map((p) => (
+                    <button key={p.id} onClick={() => setSelected(p)}
+                      style={{ display: "flex", alignItems: "center", gap: 14, textAlign: "left", padding: 10, borderRadius: 16, border: "1px solid var(--border)", background: "var(--card)", cursor: "pointer", fontFamily: "inherit" }}
+                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; }}>
+                      <span style={{ flex: "0 0 auto", height: 64, width: 64, borderRadius: 12, overflow: "hidden", background: "var(--cream)", display: "block" }}>
+                        {p.photo ? <img src={p.photo} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /> : null}
+                      </span>
+                      <span style={{ minWidth: 0 }}>
+                        <span style={{ display: "block", fontWeight: 700, fontSize: 15.5, color: "var(--primary)" }}>{p.name}</span>
+                        {p.size ? <span style={{ display: "block", fontSize: 12.5, color: "var(--muted-foreground)", marginBottom: 3 }}>{p.size}</span> : null}
+                        <PriceTag p={p} />
+                      </span>
+                      <span style={{ marginLeft: "auto", flex: "0 0 auto", color: "var(--accent)", fontSize: 13, fontWeight: 600 }}>View →</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p style={{ color: "var(--muted-foreground)", fontSize: 15, padding: "10px 0" }}>We couldn't load products just now — tap "Chat with us" below and we'll help you personally.</p>
+              )}
+              <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--border)", textAlign: "center" }}>
+                <a href={waHelp} target="_blank" rel="noopener noreferrer" style={{ fontSize: 14, fontWeight: 600, color: "var(--primary)", textDecoration: "underline", textUnderlineOffset: 2 }}>Still not sure? Chat with us on WhatsApp →</a>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      {selected && <ProductModal p={selected} onClose={() => setSelected(null)} />}
+    </React.Fragment>
   );
 }
 
