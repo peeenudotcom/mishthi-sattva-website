@@ -483,6 +483,20 @@ function Contact() {
 }
 
 /* ---------- footer ---------- */
+function WAicon({ size = 18 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={{ flexShrink: 0 }}>
+      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 2.1.55 4.06 1.6 5.83L2 22l4.4-1.15a9.9 9.9 0 0 0 5.64 1.76h.01c5.46 0 9.91-4.45 9.91-9.91C22.06 6.45 17.5 2 12.04 2Zm5.8 14.16c-.24.68-1.4 1.3-1.94 1.35-.5.05-.95.24-3.2-.67-2.7-1.06-4.42-3.8-4.55-3.98-.13-.18-1.1-1.46-1.1-2.79 0-1.33.7-1.98.95-2.25.24-.27.53-.34.7-.34.18 0 .35 0 .5.01.16.01.38-.06.6.46.24.54.8 1.87.87 2 .07.13.12.29.02.47-.1.18-.15.29-.29.45-.14.16-.3.36-.43.48-.14.13-.29.28-.12.55.17.27.76 1.25 1.63 2.02 1.12 1 2.06 1.31 2.33 1.46.27.13.43.11.6-.07.16-.18.68-.8.86-1.07.18-.27.36-.22.6-.13.24.09 1.55.73 1.82.86.27.13.45.2.51.31.06.11.06.63-.18 1.31Z" />
+    </svg>
+  );
+}
+
+/* Share the site/a product to a WhatsApp contact (opens the contact picker). */
+function shareToWhatsApp(text) {
+  const origin = (typeof window !== "undefined" && window.location && window.location.origin) ? window.location.origin : "https://mishthisattva.com";
+  return `https://wa.me/?text=${encodeURIComponent(text.replace("{site}", origin))}`;
+}
+
 function Footer() {
   const cats = ["Ayurvedic & Health", "Spices & Masala", "Hair Care", "Beauty & Skincare", "Special Foods"];
   const link = { fontSize: 14, color: "color-mix(in oklab, var(--cream) 80%, transparent)" };
@@ -495,6 +509,11 @@ function Footer() {
             <img src={`${ASSET}/mishthi-logo-white.png`} alt="Mishthi Sattva" style={{ height: 112, width: "auto", objectFit: "contain", display: "block", margin: "0 auto" }} />
             <p style={{ marginTop: 16, fontSize: 14, lineHeight: 1.6, color: "color-mix(in oklab, var(--cream) 78%, transparent)" }}>Pure, hygienic, homemade Ayurvedic foods, spices and wellness — handmade in small batches in Kotkapura, Punjab.</p>
             <p className="ms-hindi" style={{ marginTop: 14, fontSize: 14, color: "color-mix(in oklab, var(--cream) 65%, transparent)" }}>घर की रसोई से… आपके परिवार की सेहत तक।</p>
+            <a href={shareToWhatsApp("🌿 Homemade Ayurvedic foods, spices & wellness from Mishthi Sattva — pure, hygienic, handmade in Kotkapura. Take a look: {site}")}
+               target="_blank" rel="noopener noreferrer"
+               style={{ marginTop: 18, display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 18px", borderRadius: "var(--radius-pill)", background: "#25D366", color: "#fff", fontWeight: 600, fontSize: 14, textDecoration: "none" }}>
+              <WAicon size={18} /> Share Mishthi Sattva
+            </a>
           </div>
         </div>
         <div>
@@ -629,6 +648,7 @@ function ProductModal({ p, onClose }) {
   }, [onClose]);
   const waMsg = `Namaste! I have a question about ${p.name}${p.size ? " (" + p.size + ")" : ""}.`;
   const imgSrc = p.photo || `${ASSET}/${p.img}`;
+  const shareHref = shareToWhatsApp(`You have to try the ${p.name} from Mishthi Sattva 🌿 — homemade & preservative-free. See it here: {site}/shop`);
   const add = () => {
     addToShopCart({ id: p.id, name: p.name, price: p.price != null ? p.price : null, weight: p.size, cat: p.cat || null, photo: imgSrc, mrp: p.mrp != null ? p.mrp : null }, qty);
     setAdded(true);
@@ -674,6 +694,11 @@ function ProductModal({ p, onClose }) {
               <Button variant="forest" onClick={add} fullWidth>Add to Cart</Button>
               <div style={{ marginTop: 10 }}>
                 <Button variant="outline" fullWidth as="a" href={`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`} target="_blank" rel="noopener noreferrer">Questions? Chat with Us</Button>
+              </div>
+              <div style={{ marginTop: 14, textAlign: "center" }}>
+                <a href={shareHref} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13.5, fontWeight: 600, color: "var(--whatsapp, #128C4B)", textDecoration: "none" }}>
+                  <WAicon size={16} /> Share this with a friend
+                </a>
               </div>
             </div>
           )}
