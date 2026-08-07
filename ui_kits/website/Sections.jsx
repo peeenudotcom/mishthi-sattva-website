@@ -52,8 +52,8 @@ const SOCIAL = [
 
 /* name -> product photo (from the brand's uploaded catalogue) */
 const PRODUCT_IMAGES = {
-  "Shakti Laddus": `${ASSET}/shakti-laddu.png`,
-  "Sampooran Laddus": `${ASSET}/sampooran-laddu.png`,
+  "Shakti Laddu": `${ASSET}/shakti-laddu.png`,
+  "Sampooran Laddu": `${ASSET}/sampooran-laddu.png`,
   "Sugar-Free Chyawanprash": `${ASSET}/chyawanprash.jpg`,
   "Herbal Heart Sip": `${ASSET}/herbal-heart-sip.png`,
   "Healthy Namkeen Mix": `${ASSET}/namkeen-mix.png`,
@@ -78,7 +78,7 @@ const PRODUCT_IMAGES = {
 
 /* ---------- shared data ---------- */
 const PRODUCT_CATS = [
-  { id: "ayurvedic", name: "Ayurvedic & Health", blurb: "Natural wellness from traditional Ayurvedic ingredients that support immunity, energy and wellbeing.", items: ["Shakti Laddus", "Sampooran Laddus", "Sugar-Free Chyawanprash", "Herbal Heart Sip", "Healthy Namkeen Mix", "Protein Sattu Drink"] },
+  { id: "ayurvedic", name: "Ayurvedic & Health", blurb: "Natural wellness from traditional Ayurvedic ingredients that support immunity, energy and wellbeing.", items: ["Shakti Laddu", "Sampooran Laddu", "Sugar-Free Chyawanprash", "Herbal Heart Sip", "Healthy Namkeen Mix", "Protein Sattu Drink"] },
   { id: "hair", name: "Hair Care", blurb: "Natural hair care designed to nourish scalp health and promote stronger hair.", items: ["AyurKesh Wash", "AyurKesh Vardaan Hair Oil"] },
   { id: "spices", name: "Spices & Masala", blurb: "Authentic homemade spice blends that enhance flavour while keeping purity and freshness.", items: ["Chat Masala", "Shinkaji Masala", "Thandai Premix", "Shahi Garam Masala", "Ice Cream Premix", "Shahi Sip & Scoop", "Jaljeera Sattu"] },
   { id: "beauty", name: "Beauty & Skincare", blurb: "Natural skincare for healthy, glowing skin.", items: ["Instant Ubtan Glow", "Glow Radiance Cream", "Vitamin C Serum"] },
@@ -169,7 +169,7 @@ function Hero() {
             <span style={{ fontStyle: "italic", color: "var(--accent)" }}>Pure Intentions.</span>
           </h1>
           <p style={{ marginTop: 22, maxWidth: 552, fontSize: 18, lineHeight: 1.6, color: "var(--muted-foreground)" }}>
-            Homemade Ayurvedic laddus, wellness blends, traditional spices and handcrafted foods — prepared in small batches in Cherry Bansal's home kitchen in Kotkapura.
+            Homemade Ayurvedic laddu, wellness blends, traditional spices and handcrafted foods — prepared in small batches in Cherry Bansal's home kitchen in Kotkapura.
           </p>
           <p className="ms-hindi" style={{ marginTop: 12, fontSize: 19, color: "color-mix(in oklab, var(--primary) 90%, transparent)" }}>घर की रसोई से… आपके परिवार की सेहत तक।</p>
           <div style={{ marginTop: 30, display: "flex", flexWrap: "wrap", gap: 12 }}>
@@ -226,7 +226,7 @@ function About() {
     <section id="about" style={{ background: "var(--white)", padding: "84px 0", scrollMarginTop: 84 }}>
       <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "0.82fr 1.18fr", gap: 52, alignItems: "center" }}>
         <div style={{ overflow: "hidden", borderRadius: 28, border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", aspectRatio: "4 / 5" }}>
-          <img src={`${ASSET}/story-serving-green.png`} alt="Cherry Bansal serving homemade laddus and herbal tea to her family" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", display: "block" }} />
+          <img src={`${ASSET}/story-serving-green.png`} alt="Cherry Bansal serving homemade laddu and herbal tea to her family" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", display: "block" }} />
         </div>
         <div>
           <GoldDivider>Our Story</GoldDivider>
@@ -813,7 +813,7 @@ function HomeProducts() {
   const [rows, setRows] = React.useState(null); // full live catalogue, so the home reflects admin edits
   // ids match the shop catalogue slugs, so favourites sync with the shop wishlist
   const picks = [
-    { id: "shakti-laddu", name: "Shakti Laddus", benefit: "Dry fruits, gond & jaggery — no refined sugar.", desc: "Energy-rich laddus made with dry fruits, edible gum (gond) and jaggery — a traditional strength tonic with no refined sugar.", img: "shakti-laddu.png", size: "500 g", price: 850, mrp: 1200, badge: "Bestseller" },
+    { id: "shakti-laddu", name: "Shakti Laddu", benefit: "Dry fruits, gond & jaggery — no refined sugar.", desc: "Energy-rich laddu made with dry fruits, edible gum (gond) and jaggery — a traditional strength tonic with no refined sugar.", img: "shakti-laddu.png", size: "500 g", price: 850, mrp: 1200, badge: "Bestseller" },
     { id: "shinkaji-masala", name: "Shinkaji Masala", benefit: "A robust homestyle Punjabi blend.", desc: "A robust, homestyle Punjabi masala for everyday sabzis and gravies — freshly ground in small batches.", img: "shinkaji-masala-pack.png", size: "100 g", price: 200, mrp: 500 },
     { id: "herbal-heart-sip", name: "Herbal Heart Sip", benefit: "A warming daily herbal infusion.", desc: "A warming herbal infusion of traditional herbs — one soothing pinch in hot water, any time of day.", img: "herbal-heart-sip.png", size: "40 g", price: 200, mrp: 500 },
     { id: "shahi-garam-masala", name: "Shahi Garam Masala", benefit: "Whole spices, roasted & stone-ground.", desc: "A royal garam masala of whole spices, roasted and stone-ground for deep, aromatic flavour.", img: "shahi-garam-masala.png", size: "50 g", price: 120, mrp: 300, badge: "Bestseller" },
@@ -846,7 +846,7 @@ function HomeProducts() {
         <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
           <GoldDivider align="center">Our Bestsellers</GoldDivider>
           <h2 style={{ marginTop: 20, fontSize: 52, fontWeight: 700, lineHeight: 1.12, letterSpacing: "-0.015em", textWrap: "balance" }}>Made with purpose,<br />chosen for everyday wellness.</h2>
-          <p style={{ marginTop: 16, color: "var(--muted-foreground)", fontSize: 17, lineHeight: 1.6 }}>Explore our bestselling laddus, masalas, wellness blends and handcrafted care products.</p>
+          <p style={{ marginTop: 16, color: "var(--muted-foreground)", fontSize: 17, lineHeight: 1.6 }}>Explore our bestselling laddu, masalas, wellness blends and handcrafted care products.</p>
         </div>
         <div className="ms-prodgrid" style={{ marginTop: 52, display: "grid", gap: 22, alignItems: "stretch" }}>
           {list.map((p) => <HomeProductCard key={p.id || p.name} p={p} onView={setView} />)}
@@ -898,7 +898,7 @@ function FounderTeaser() {
     <section style={{ background: "color-mix(in oklab, var(--secondary) 60%, var(--background))", padding: "84px 0" }}>
       <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "0.85fr 1.15fr", gap: 48, alignItems: "center" }}>
         <div style={{ overflow: "hidden", borderRadius: 28, border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", aspectRatio: "4 / 5" }}>
-          <img src={`${ASSET}/founder-kiran.jpg`} alt="Cherry Bansal shaping laddus by hand in her Kotkapura kitchen" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 32%", display: "block" }} />
+          <img src={`${ASSET}/founder-kiran.jpg`} alt="Cherry Bansal shaping laddu by hand in her Kotkapura kitchen" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 32%", display: "block" }} />
         </div>
         <div>
           <GoldDivider>From Cherry's Kitchen</GoldDivider>
