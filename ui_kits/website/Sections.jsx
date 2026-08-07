@@ -169,7 +169,7 @@ function Hero() {
             <span style={{ fontStyle: "italic", color: "var(--accent)" }}>Pure Intentions.</span>
           </h1>
           <p style={{ marginTop: 22, maxWidth: 552, fontSize: 18, lineHeight: 1.6, color: "var(--muted-foreground)" }}>
-            Homemade Ayurvedic laddoos, wellness blends, traditional spices and handcrafted foods — prepared in small batches in Kiran Bansal's home kitchen in Kotkapura.
+            Homemade Ayurvedic laddoos, wellness blends, traditional spices and handcrafted foods — prepared in small batches in Cherry Bansal's home kitchen in Kotkapura.
           </p>
           <p className="ms-hindi" style={{ marginTop: 12, fontSize: 19, color: "color-mix(in oklab, var(--primary) 90%, transparent)" }}>घर की रसोई से… आपके परिवार की सेहत तक।</p>
           <div style={{ marginTop: 30, display: "flex", flexWrap: "wrap", gap: 12 }}>
@@ -188,7 +188,7 @@ function Hero() {
         <div style={{ position: "relative" }}>
           <div aria-hidden="true" style={{ position: "absolute", inset: -24, zIndex: -1, borderRadius: 32, background: "linear-gradient(135deg, color-mix(in oklab, var(--gold) 20%, transparent), color-mix(in oklab, var(--forest) 10%, transparent))", filter: "blur(40px)" }} />
           <div style={{ overflow: "hidden", borderRadius: 32, aspectRatio: "4 / 5", border: "1px solid var(--border)", boxShadow: "var(--shadow-xl)" }}>
-            <img src={`${ASSET}/hero-kiran-kitchen.png`} alt="Kiran Bansal preparing Ayurvedic food by hand in her Kotkapura home kitchen" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            <img src={`${ASSET}/hero-kiran-kitchen.png`} alt="Cherry Bansal preparing Ayurvedic food by hand in her Kotkapura home kitchen" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
           </div>
           <div style={{ position: "absolute", bottom: -22, left: 28, width: 280, borderRadius: 18, border: "1px solid var(--border)", background: "color-mix(in oklab, var(--card) 95%, transparent)", padding: 16, boxShadow: "var(--shadow-lg)", backdropFilter: "blur(8px)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -226,14 +226,14 @@ function About() {
     <section id="about" style={{ background: "var(--white)", padding: "84px 0", scrollMarginTop: 84 }}>
       <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "0.82fr 1.18fr", gap: 52, alignItems: "center" }}>
         <div style={{ overflow: "hidden", borderRadius: 28, border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", aspectRatio: "4 / 5" }}>
-          <img src={`${ASSET}/story-serving-green.png`} alt="Kiran Bansal serving homemade laddus and herbal tea to her family" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", display: "block" }} />
+          <img src={`${ASSET}/story-serving-green.png`} alt="Cherry Bansal serving homemade laddus and herbal tea to her family" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", display: "block" }} />
         </div>
         <div>
           <GoldDivider>Our Story</GoldDivider>
           <h2 style={{ marginTop: 18, fontSize: 50, fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.015em", textWrap: "balance" }}>It began in one home kitchen — with a mother's wish to feed her family better.</h2>
           <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 18, fontSize: 18, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>
-            <p>Mishthi Sattva was born in Kiran Bansal's kitchen in Kotkapura — not as a business plan, but as a search for honest everyday food. What began as carefully prepared recipes for family and friends slowly grew into a collection of homemade foods, spices and wellness products for more families to trust.</p>
-            <p>Kiran wanted to prepare everyday foods using thoughtfully selected ingredients, familiar recipes and methods she would confidently choose for her own family.</p>
+            <p>Mishthi Sattva was born in Cherry Bansal's kitchen in Kotkapura — not as a business plan, but as a search for honest everyday food. What began as carefully prepared recipes for family and friends slowly grew into a collection of homemade foods, spices and wellness products for more families to trust.</p>
+            <p>Cherry wanted to prepare everyday foods using thoughtfully selected ingredients, familiar recipes and methods she would confidently choose for her own family.</p>
             <p style={{ fontFamily: "var(--font-display)", fontSize: 22, fontStyle: "italic", color: "var(--primary)" }}>Every product is crafted with a commitment to quality, purity and family wellness.</p>
           </div>
           <p style={{ marginTop: 22, display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.14em", color: "var(--accent)" }}><Leaf size={14} /> Rooted in Kotkapura, Punjab</p>
@@ -377,22 +377,22 @@ function Founder() {
           {/* portrait source (977x1610) — framed 4:5 and focused slightly high so
               her face, hands and the laddu tray all stay in shot */}
           <div style={{ overflow: "hidden", borderRadius: 32, border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", aspectRatio: "4 / 5", position: "relative" }}>
-            <img src={`${ASSET}/founder-maroon.png`} alt="Kiran Bansal selecting fresh Ayurvedic ingredients in her garden in Kotkapura" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 8%", display: "block" }} />
+            <img src={`${ASSET}/founder-maroon.png`} alt="Cherry Bansal selecting fresh Ayurvedic ingredients in her garden in Kotkapura" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 8%", display: "block" }} />
           </div>
           <div style={{ position: "absolute", bottom: -20, right: -20, borderRadius: 18, border: "1px solid color-mix(in oklab, var(--gold) 40%, transparent)", background: "var(--card)", padding: "12px 20px", textAlign: "center", boxShadow: "var(--shadow-lg)" }}>
-            <p style={{ fontFamily: "var(--font-display)", fontSize: 24, fontStyle: "italic", color: "var(--primary)" }}>Kiran Bansal</p>
+            <p style={{ fontFamily: "var(--font-display)", fontSize: 24, fontStyle: "italic", color: "var(--primary)" }}>Cherry Bansal</p>
             <p style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.25em", color: "var(--accent)" }}>Founder · Kotkapura</p>
           </div>
         </div>
         <div>
           <GoldDivider>Meet Our Founder</GoldDivider>
-          <h2 style={{ marginTop: 20, fontSize: 46, fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.015em", textWrap: "balance" }}>Meet Kiran Bansal — the heart and hands behind Mishthi Sattva.</h2>
-          <p style={{ marginTop: 22, fontSize: 18, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>For Kiran, homemade is not simply a label. It means knowing what goes into every batch, preparing it with care, and serving customers with the same honesty she expects for her own family.</p>
+          <h2 style={{ marginTop: 20, fontSize: 46, fontWeight: 700, lineHeight: 1.1, letterSpacing: "-0.015em", textWrap: "balance" }}>Meet Cherry Bansal — the heart and hands behind Mishthi Sattva.</h2>
+          <p style={{ marginTop: 22, fontSize: 18, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>For Cherry, homemade is not simply a label. It means knowing what goes into every batch, preparing it with care, and serving customers with the same honesty she expects for her own family.</p>
           <p style={{ marginTop: 16, fontSize: 18, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>She built Mishthi Sattva recipe by recipe — starting with food for her own home, then for friends and neighbours who kept asking for more. Every product still passes through her hands before it reaches yours.</p>
           <p className="ms-hindi" style={{ marginTop: 24, borderLeft: "2px solid var(--accent)", paddingLeft: 20, fontSize: 20, fontStyle: "italic", color: "var(--primary)" }}>"स्वाद ऐसा जो दिल जीत ले, और सेहत ऐसी जिस पर पूरा परिवार भरोसा करे।"</p>
-          {/* TODO: confirm this is Kiran's own wording and the exact translation */}
+          {/* TODO: confirm this is Cherry's own wording and the exact translation */}
           <p style={{ marginTop: 8, paddingLeft: 20, fontSize: 14, fontStyle: "italic", color: "var(--muted-foreground)" }}>"True taste wins the heart, and true health earns every family's trust."</p>
-          <p style={{ marginTop: 12, fontSize: 14, color: "var(--muted-foreground)" }}>— Kiran Bansal, Founder</p>
+          <p style={{ marginTop: 12, fontSize: 14, color: "var(--muted-foreground)" }}>— Cherry Bansal, Founder</p>
         </div>
       </div>
     </section>
@@ -810,38 +810,35 @@ function ProductFinder({ onClose }) {
 
 function HomeProducts() {
   const [view, setView] = React.useState(null);
-  const [featured, setFeatured] = React.useState(null); // products the owner ticked "Featured" in /admin
+  const [rows, setRows] = React.useState(null); // full live catalogue, so the home reflects admin edits
   // ids match the shop catalogue slugs, so favourites sync with the shop wishlist
   const picks = [
     { id: "shakti-laddu", name: "Shakti Laddu", benefit: "Dry fruits, gond & jaggery — no refined sugar.", desc: "Energy-rich laddus made with dry fruits, edible gum (gond) and jaggery — a traditional strength tonic with no refined sugar.", img: "shakti-laddu.png", size: "500 g", price: 850, mrp: 1200, badge: "Bestseller" },
     { id: "shinkaji-masala", name: "Shinkaji Masala", benefit: "A robust homestyle Punjabi blend.", desc: "A robust, homestyle Punjabi masala for everyday sabzis and gravies — freshly ground in small batches.", img: "shinkaji-masala-pack.png", size: "100 g", price: 200, mrp: 500 },
-    { id: "herbal-heart-sip", name: "Herbal Heart Sip", benefit: "A warming daily herbal infusion.", desc: "A warming herbal infusion of traditional herbs — one soothing spoon in hot water, any time of day.", img: "herbal-heart-sip.png", size: "40 g", price: 200, mrp: 500 },
+    { id: "herbal-heart-sip", name: "Herbal Heart Sip", benefit: "A warming daily herbal infusion.", desc: "A warming herbal infusion of traditional herbs — one soothing pinch in hot water, any time of day.", img: "herbal-heart-sip.png", size: "40 g", price: 200, mrp: 500 },
     { id: "shahi-garam-masala", name: "Shahi Garam Masala", benefit: "Whole spices, roasted & stone-ground.", desc: "A royal garam masala of whole spices, roasted and stone-ground for deep, aromatic flavour.", img: "shahi-garam-masala.png", size: "50 g", price: 120, mrp: 300, badge: "Bestseller" },
-    { id: "kesh-vardaan-oil", name: "AyurKesh Vardaan Hair Oil", benefit: "Bhringraj, brahmi & sesame for stronger hair.", desc: "An intensive hair-fall oil blend of bhringraj, brahmi and sesame — nourishes the scalp for thicker, stronger hair.", img: "kesh-vardaan-oil.png", size: "100 ml", price: 250, mrp: 350 },
+    { id: "kesh-vardaan-oil", name: "AyurKesh Vardaan Hair Oil", benefit: "Bhringraj, brahmi, sesame & amaltas — helps reverse greying.", desc: "An intensive hair-fall oil blend of bhringraj, brahmi, sesame and amaltas pods — nourishes the scalp for thicker, stronger hair and helps reverse greying.", img: "kesh-vardaan-oil.png", size: "100 ml", price: 250, mrp: 350 },
     { id: "urban-glow", name: "Instant Ubtan Glow", benefit: "A brightening natural face pack.", desc: "A brightening face pack for an instant, natural radiance — a classic ubtan, ready in minutes.", img: "ubtan-glow-pack.png", size: "100 g", price: 200, mrp: 350, badge: "New" },
   ];
   React.useEffect(() => {
     let alive = true;
     if (window.MSData && window.MSData.getProducts) {
-      window.MSData.getProducts().then((rows) => {
-        if (!alive) return;
-        const feat = (rows || [])
-          .filter((r) => r.featured === true && r.in_stock !== false)
-          .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
-          .slice(0, 6)
-          .map((r) => ({ id: r.slug, name: r.name, benefit: r.short_desc || "", desc: r.short_desc || "", photo: r.photo, size: r.weight, price: r.price == null ? null : Number(r.price), mrp: r.mrp == null ? null : Number(r.mrp), badge: "Bestseller", cat: r.category }));
-        setFeatured(feat);
-      }).catch(() => {});
+      window.MSData.getProducts().then((rs) => { if (alive) setRows(rs || []); }).catch(() => { if (alive) setRows(null); });
     }
     return () => { alive = false; };
   }, []);
-  // Featured products (ticked in admin) lead the row; if fewer than 3 are ticked,
-  // top up with the curated set so the row is never sparse. None ticked → curated set.
+  // Home Bestsellers are built LIVE from the database so admin edits always show here too.
+  // Owner-featured products (ticked in /admin) lead; the curated picks fill the rest, each
+  // refreshed with live price/description. Falls back to the static set only if the DB is unreachable.
   const list = (() => {
-    if (!featured || !featured.length) return picks;
-    if (featured.length >= 3) return featured.slice(0, 6);
-    const ids = new Set(featured.map((p) => p.id));
-    return [...featured, ...picks.filter((p) => !ids.has(p.id))].slice(0, 3);
+    if (!rows || !rows.length) return picks;
+    const bySlug = {}; rows.forEach((r) => { bySlug[r.slug] = r; });
+    const live = (r, fb) => ({ id: r.slug, name: r.name, benefit: (fb && fb.benefit) || r.short_desc || "", desc: r.short_desc || (fb && fb.desc) || "", photo: r.photo, size: r.weight, price: r.price == null ? null : Number(r.price), mrp: r.mrp == null ? null : Number(r.mrp), badge: (fb && fb.badge) || (r.featured ? "Bestseller" : undefined), cat: r.category });
+    const curated = picks.map((pk) => (bySlug[pk.id] && bySlug[pk.id].in_stock !== false) ? live(bySlug[pk.id], pk) : null).filter(Boolean);
+    const curIds = new Set(curated.map((p) => p.id));
+    const feat = rows.filter((r) => r.featured === true && r.in_stock !== false && !curIds.has(r.slug)).map((r) => live(r));
+    const combined = [...feat, ...curated].slice(0, 6);
+    return combined.length ? combined : picks;
   })();
   return (
     <section id="bestsellers" style={{ background: "var(--white)", padding: "80px 0", scrollMarginTop: 90 }}>
@@ -901,15 +898,15 @@ function FounderTeaser() {
     <section style={{ background: "color-mix(in oklab, var(--secondary) 60%, var(--background))", padding: "84px 0" }}>
       <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "0.85fr 1.15fr", gap: 48, alignItems: "center" }}>
         <div style={{ overflow: "hidden", borderRadius: 28, border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", aspectRatio: "4 / 5" }}>
-          <img src={`${ASSET}/founder-kiran.jpg`} alt="Kiran Bansal shaping laddus by hand in her Kotkapura kitchen" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 32%", display: "block" }} />
+          <img src={`${ASSET}/founder-kiran.jpg`} alt="Cherry Bansal shaping laddus by hand in her Kotkapura kitchen" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 32%", display: "block" }} />
         </div>
         <div>
-          <GoldDivider>From Kiran's Kitchen</GoldDivider>
+          <GoldDivider>From Cherry's Kitchen</GoldDivider>
           <h2 style={{ marginTop: 18, fontSize: 52, fontWeight: 700, lineHeight: 1.08, letterSpacing: "-0.015em" }}>From my kitchen<br />to your family.</h2>
           <p style={{ marginTop: 22, fontSize: 19, lineHeight: 1.7, fontStyle: "italic", color: "var(--primary)" }}>"I started Mishthi Sattva to prepare the kind of food I wanted for my own family — honest ingredients, careful preparation and no unnecessary shortcuts."</p>
-          <p style={{ marginTop: 16, fontSize: 17, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>Every batch is still made by hand in Kiran's Kotkapura kitchen — no refined oil, no refined sugar, no compromises.</p>
+          <p style={{ marginTop: 16, fontSize: 17, lineHeight: 1.7, color: "color-mix(in oklab, var(--foreground) 85%, transparent)" }}>Every batch is still made by hand in Cherry's Kotkapura kitchen — no refined oil, no refined sugar, no compromises.</p>
           <p className="ms-hindi" style={{ marginTop: 18, borderLeft: "2px solid var(--accent)", paddingLeft: 18, fontSize: 19, fontStyle: "italic", color: "var(--primary)" }}>"स्वाद ऐसा जो दिल जीत ले, और सेहत ऐसी जिस पर पूरा परिवार भरोसा करे।"</p>
-          <div style={{ marginTop: 28 }}><Button variant="outline" as="a" href="about.html">Meet Kiran &amp; Discover Our Story →</Button></div>
+          <div style={{ marginTop: 28 }}><Button variant="outline" as="a" href="about.html">Meet Cherry &amp; Discover Our Story →</Button></div>
         </div>
       </div>
     </section>
@@ -1054,12 +1051,12 @@ function FounderPromise() {
   return (
     <section style={{ background: "color-mix(in oklab, var(--secondary) 60%, var(--background))", padding: "88px 0" }}>
       <div className="ms-container" style={{ maxWidth: 780, marginInline: "auto", textAlign: "center" }}>
-        <GoldDivider align="center">Kiran's Promise</GoldDivider>
+        <GoldDivider align="center">Cherry's Promise</GoldDivider>
         <p style={{ marginTop: 24, fontFamily: "var(--font-display)", fontSize: 30, lineHeight: 1.35, fontStyle: "italic", color: "var(--primary)", textWrap: "balance" }}>"We will always tell you what goes into our products, prepare them with personal care, and recommend only what we'd confidently serve in our own home."</p>
-        <p style={{ marginTop: 16, fontSize: 13, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.16em", color: "var(--accent)" }}>— Kiran Bansal, Founder</p>
+        <p style={{ marginTop: 16, fontSize: 13, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.16em", color: "var(--accent)" }}>— Cherry Bansal, Founder</p>
         <div style={{ marginTop: 32, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 12 }}>
           <Button variant="forest" as="a" href="../shop/index.html">Explore Our Products →</Button>
-          <Button variant="outline" as="a" href={`https://wa.me/${WA}?text=${encodeURIComponent("Namaste Kiran! I read your story on the Mishthi Sattva website and would like to know more.")}`} target="_blank" rel="noopener noreferrer">Talk to Kiran on WhatsApp</Button>
+          <Button variant="outline" as="a" href={`https://wa.me/${WA}?text=${encodeURIComponent("Namaste Cherry! I read your story on the Mishthi Sattva website and would like to know more.")}`} target="_blank" rel="noopener noreferrer">Talk to Cherry on WhatsApp</Button>
         </div>
       </div>
     </section>

@@ -31,7 +31,7 @@ const BIZ = {
   region: "Punjab",
   postal: "151204",
   fssai: "22126010000026",
-  founder: "Kiran Bansal",
+  founder: "Cherry Bansal",
 };
 
 /* Per-page meta, keyed by output path. Description ~150 chars, keyword-aware
@@ -45,8 +45,8 @@ const SEO = {
   },
   "story.html": {
     path: "/story",
-    title: "Our Story — Made in Kiran Bansal's Kitchen | Mishthi Sattva",
-    desc: "The story of Mishthi Sattva — homemade Ayurvedic food born in Kiran Bansal's kitchen in Kotkapura, made with honest ingredients and small-batch care.",
+    title: "Our Story — Made in Cherry Bansal's Kitchen | Mishthi Sattva",
+    desc: "The story of Mishthi Sattva — homemade Ayurvedic food born in Cherry Bansal's kitchen in Kotkapura, made with honest ingredients and small-batch care.",
   },
   "products.html": {
     path: "/products",

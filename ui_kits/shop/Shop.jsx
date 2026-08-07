@@ -173,7 +173,7 @@ function Hero({ onShopAll, onCategory, products }) {
         <div style={{ position: "relative", minWidth: 0 }}>
           <div aria-hidden="true" style={{ position: "absolute", inset: -20, borderRadius: 32, background: "linear-gradient(135deg, color-mix(in oklab, var(--gold) 22%, transparent), color-mix(in oklab, var(--forest) 12%, transparent))", filter: "blur(38px)" }} />
           <div style={{ position: "relative", overflow: "hidden", borderRadius: 32, aspectRatio: "4 / 5", border: "1px solid var(--border)", boxShadow: "var(--shadow-xl)" }}>
-            <img src="../../assets/shop-hero-packing.png" alt="Kiran Bansal packing a Mishthi Sattva gift box of homemade laddus and wellness products" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%", display: "block" }} />
+            <img src="../../assets/shop-hero-packing.png" alt="Cherry Bansal packing a Mishthi Sattva gift box of homemade laddus and wellness products" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%", display: "block" }} />
           </div>
         </div>
       </div>

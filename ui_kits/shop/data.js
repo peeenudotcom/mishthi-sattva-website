@@ -19,7 +19,7 @@ const MS_PRODUCTS = [
     desc: "Roasted, never fried — a guilt-free namkeen made with millets, lentils and gentle spices.",
     facts: ["Roasted not Fried","No Refined Oil","High Fibre"] },
   { id: "herbal-heart-sip", name: "Herbal Heart Sip", cat: "ayurvedic", price: 200, mrp: 500, weight: "40 g", rating: 4.7, reviews: 54, tags: [], photo: "../../assets/herbal-heart-sip.png",
-    desc: "A warming herbal infusion blended to support heart health and circulation. One spoon in hot water, daily.",
+    desc: "A warming herbal infusion blended to support heart health and circulation. One pinch in hot water, daily.",
     facts: ["Heart-Friendly","Caffeine-Free","Herbal Blend"] },
   { id: "protein-sattu", name: "Protein Sattu Drink", cat: "ayurvedic", price: 260, mrp: 500, weight: "400 g", rating: 4.7, reviews: 61, tags: ["new"], badge: "New", photo: "../../assets/protein-sattu.png",
     desc: "Roasted gram sattu, naturally high in protein and fibre. Mix sweet or savoury for an instant cooling drink.",
@@ -59,7 +59,7 @@ const MS_PRODUCTS = [
 
   // ---- Hair Care ----
   { id: "kesh-vardaan-oil", name: "AyurKesh Vardaan Hair Oil", cat: "hair", price: 250, mrp: 350, weight: "100 ml", rating: 4.8, reviews: 74, tags: [], photo: "../../assets/kesh-vardaan-oil.png",
-    desc: "An intensive hair-fall oil blend of bhringraj, brahmi and sesame for thicker, stronger hair.",
+    desc: "An intensive hair-fall oil blend of bhringraj, brahmi, sesame and amaltas pods for thicker, stronger hair and to help reverse greying.",
     facts: ["Anti Hair-Fall","Brahmi & Bhringraj","Deep Nourishment"] },
   { id: "kesh-vash-shampoo", name: "AyurKesh Wash", cat: "hair", price: 200, mrp: 500, weight: "100 g", rating: 4.7, reviews: 88, tags: ["bestseller"], photo: "../../assets/kesh-vash-shampoo.png",
     desc: "A gentle herbal shampoo with shikakai and reetha — cleanses without stripping natural oils.",
