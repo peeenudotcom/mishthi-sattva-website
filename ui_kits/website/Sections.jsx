@@ -52,8 +52,8 @@ const SOCIAL = [
 
 /* name -> product photo (from the brand's uploaded catalogue) */
 const PRODUCT_IMAGES = {
-  "Shakti Laddu": `${ASSET}/shakti-laddu.png`,
-  "Sampooran Laddu": `${ASSET}/sampooran-laddu.png`,
+  "Shakti Laddus": `${ASSET}/shakti-laddu.png`,
+  "Sampooran Laddus": `${ASSET}/sampooran-laddu.png`,
   "Sugar-Free Chyawanprash": `${ASSET}/chyawanprash.jpg`,
   "Herbal Heart Sip": `${ASSET}/herbal-heart-sip.png`,
   "Healthy Namkeen Mix": `${ASSET}/namkeen-mix.png`,
@@ -78,7 +78,7 @@ const PRODUCT_IMAGES = {
 
 /* ---------- shared data ---------- */
 const PRODUCT_CATS = [
-  { id: "ayurvedic", name: "Ayurvedic & Health", blurb: "Natural wellness from traditional Ayurvedic ingredients that support immunity, energy and wellbeing.", items: ["Shakti Laddu", "Sampooran Laddu", "Sugar-Free Chyawanprash", "Herbal Heart Sip", "Healthy Namkeen Mix", "Protein Sattu Drink"] },
+  { id: "ayurvedic", name: "Ayurvedic & Health", blurb: "Natural wellness from traditional Ayurvedic ingredients that support immunity, energy and wellbeing.", items: ["Shakti Laddus", "Sampooran Laddus", "Sugar-Free Chyawanprash", "Herbal Heart Sip", "Healthy Namkeen Mix", "Protein Sattu Drink"] },
   { id: "hair", name: "Hair Care", blurb: "Natural hair care designed to nourish scalp health and promote stronger hair.", items: ["AyurKesh Wash", "AyurKesh Vardaan Hair Oil"] },
   { id: "spices", name: "Spices & Masala", blurb: "Authentic homemade spice blends that enhance flavour while keeping purity and freshness.", items: ["Chat Masala", "Shinkaji Masala", "Thandai Premix", "Shahi Garam Masala", "Ice Cream Premix", "Shahi Sip & Scoop", "Jaljeera Sattu"] },
   { id: "beauty", name: "Beauty & Skincare", blurb: "Natural skincare for healthy, glowing skin.", items: ["Instant Ubtan Glow", "Glow Radiance Cream", "Vitamin C Serum"] },
@@ -813,7 +813,7 @@ function HomeProducts() {
   const [rows, setRows] = React.useState(null); // full live catalogue, so the home reflects admin edits
   // ids match the shop catalogue slugs, so favourites sync with the shop wishlist
   const picks = [
-    { id: "shakti-laddu", name: "Shakti Laddu", benefit: "Dry fruits, gond & jaggery — no refined sugar.", desc: "Energy-rich laddus made with dry fruits, edible gum (gond) and jaggery — a traditional strength tonic with no refined sugar.", img: "shakti-laddu.png", size: "500 g", price: 850, mrp: 1200, badge: "Bestseller" },
+    { id: "shakti-laddu", name: "Shakti Laddus", benefit: "Dry fruits, gond & jaggery — no refined sugar.", desc: "Energy-rich laddus made with dry fruits, edible gum (gond) and jaggery — a traditional strength tonic with no refined sugar.", img: "shakti-laddu.png", size: "500 g", price: 850, mrp: 1200, badge: "Bestseller" },
     { id: "shinkaji-masala", name: "Shinkaji Masala", benefit: "A robust homestyle Punjabi blend.", desc: "A robust, homestyle Punjabi masala for everyday sabzis and gravies — freshly ground in small batches.", img: "shinkaji-masala-pack.png", size: "100 g", price: 200, mrp: 500 },
     { id: "herbal-heart-sip", name: "Herbal Heart Sip", benefit: "A warming daily herbal infusion.", desc: "A warming herbal infusion of traditional herbs — one soothing pinch in hot water, any time of day.", img: "herbal-heart-sip.png", size: "40 g", price: 200, mrp: 500 },
     { id: "shahi-garam-masala", name: "Shahi Garam Masala", benefit: "Whole spices, roasted & stone-ground.", desc: "A royal garam masala of whole spices, roasted and stone-ground for deep, aromatic flavour.", img: "shahi-garam-masala.png", size: "50 g", price: 120, mrp: 300, badge: "Bestseller" },

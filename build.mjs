@@ -51,7 +51,7 @@ const SEO = {
   "products.html": {
     path: "/products",
     title: "Products — Homemade Ayurvedic Foods, Spices & Wellness | Mishthi Sattva",
-    desc: "Browse Mishthi Sattva's range: Shakti Laddu, sugar-free Chyawanprash, homemade masalas, Ayurvedic hair oil and natural skincare. Home delivery in Kotkapura.",
+    desc: "Browse Mishthi Sattva's range: Shakti Laddus, sugar-free Chyawanprash, homemade masalas, Ayurvedic hair oil and natural skincare. Home delivery in Kotkapura.",
     product: true,
   },
   "contact.html": {
