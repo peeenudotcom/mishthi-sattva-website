@@ -19,7 +19,7 @@ const ROOT = path.dirname(new URL(import.meta.url).pathname);
 const OUT = path.join(ROOT, "dist");
 
 /* ============================ SEO ============================ */
-const SITE = "https://mishthi-sattva.vercel.app";
+const SITE = "https://www.mishthisattva.com";
 const OG_IMAGE = SITE + "/assets/og-image.jpg";
 
 const BIZ = {
