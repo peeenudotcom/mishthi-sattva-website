@@ -736,7 +736,7 @@ function ProductFinder({ onClose }) {
     } else { setBySlug({}); }
     return () => { alive = false; };
   }, []);
-  const toP = (r) => ({ id: r.slug, name: r.name, size: r.weight, desc: r.short_desc, photo: r.photo, price: r.price == null ? null : Number(r.price), mrp: r.mrp == null ? null : Number(r.mrp), badge: r.featured ? "Featured" : undefined, cat: r.category });
+  const toP = (r) => ({ id: r.slug, name: r.name, size: r.weight, desc: r.short_desc, photo: r.photo, price: r.price == null ? null : Number(r.price), mrp: r.mrp == null ? null : Number(r.mrp), badge: r.badge || undefined, cat: r.category });
   const g = FINDER_GOALS.find((x) => x.id === goal);
   const recs = g && bySlug ? g.slugs.map((s) => bySlug[s]).filter(Boolean).map(toP) : [];
   const waHelp = `https://wa.me/${WA}?text=` + encodeURIComponent("Namaste! I'm looking for a Mishthi Sattva product for my family. Please help me choose the right option.");
@@ -833,7 +833,7 @@ function HomeProducts() {
   const list = (() => {
     if (!rows || !rows.length) return picks;
     const bySlug = {}; rows.forEach((r) => { bySlug[r.slug] = r; });
-    const live = (r, fb) => ({ id: r.slug, name: r.name, benefit: (fb && fb.benefit) || r.short_desc || "", desc: r.short_desc || (fb && fb.desc) || "", photo: r.photo, size: r.weight, price: r.price == null ? null : Number(r.price), mrp: r.mrp == null ? null : Number(r.mrp), badge: (fb && fb.badge) || (r.featured ? "Bestseller" : undefined), cat: r.category });
+    const live = (r, fb) => ({ id: r.slug, name: r.name, benefit: (fb && fb.benefit) || r.short_desc || "", desc: r.short_desc || (fb && fb.desc) || "", photo: r.photo, size: r.weight, price: r.price == null ? null : Number(r.price), mrp: r.mrp == null ? null : Number(r.mrp), badge: r.badge || (fb && fb.badge) || undefined, cat: r.category });
     const curated = picks.map((pk) => (bySlug[pk.id] && bySlug[pk.id].in_stock !== false) ? live(bySlug[pk.id], pk) : null).filter(Boolean);
     const curIds = new Set(curated.map((p) => p.id));
     const feat = rows.filter((r) => r.featured === true && r.in_stock !== false && !curIds.has(r.slug)).map((r) => live(r));

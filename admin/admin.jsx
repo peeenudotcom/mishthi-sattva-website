@@ -175,11 +175,12 @@ function Products() {
       <p className="muted" style={{ marginBottom: 14 }}>
         {rows.length} products · {noPrice} without a price. Edit any field, then click <b>Save</b> on that row.
         <br />Tick <b>Featured</b> to show a product in the home-page <b>Bestsellers</b> row (up to 6). Leave all unticked to show the default set.
+        <br /><b>Label</b> sets the little badge on the product card (Bestseller / New / Special Offer / Limited) — or “none” for no badge.
       </p>
       <div style={{ overflowX: "auto" }} className="card">
         <table>
           <thead><tr>
-            <th>Product</th><th>Price ₹</th><th>MRP ₹</th><th>Weight</th><th>In stock</th><th>Featured</th><th></th>
+            <th>Product</th><th>Price ₹</th><th>MRP ₹</th><th>Weight</th><th>In stock</th><th>Featured</th><th>Label</th><th></th>
           </tr></thead>
           <tbody>
             {rows.map((r) => (
@@ -216,6 +217,16 @@ function Products() {
                 <td>
                   <input type="checkbox" title="Show in the home-page Bestsellers row" style={{ width: 18, height: 18 }} checked={cur(r, "featured") === true}
                     onChange={(e) => edit(r.id, "featured", e.target.checked)} />
+                </td>
+                <td>
+                  <select title="Badge shown on the product card" value={cur(r, "badge") || ""} onChange={(e) => edit(r.id, "badge", e.target.value)}
+                    style={{ fontFamily: "inherit", fontSize: 13, padding: "5px 6px" }}>
+                    <option value="">— none —</option>
+                    <option value="Bestseller">Bestseller</option>
+                    <option value="New">New</option>
+                    <option value="Special Offer">Special Offer</option>
+                    <option value="Limited">Limited</option>
+                  </select>
                 </td>
                 <td style={{ whiteSpace: "nowrap" }}>
                   <button className="btn" style={{ padding: "6px 14px", fontSize: 13 }} disabled={!dirty(r.id) || saving[r.id]} onClick={() => save(r)}>

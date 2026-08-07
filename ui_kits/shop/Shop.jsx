@@ -50,7 +50,7 @@ function mergeFromDb(rows) {
         desc: r.short_desc || base.desc || "",
         facts: (r.benefits && r.benefits.length ? r.benefits : base.facts) || [],
         photo: photo,
-        badge: base.badge,
+        badge: r.badge || base.badge,
         tags: base.tags || [],
         rating: base.rating || 4.8,
         reviews: base.reviews || 0,
