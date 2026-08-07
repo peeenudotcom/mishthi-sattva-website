@@ -40,7 +40,7 @@ const SEO = {
   "index.html": {
     path: "/",
     title: "Mishthi Sattva — Homemade Ayurvedic Foods, Spices & Wellness in Kotkapura",
-    desc: "Pure, homemade Ayurvedic laddoos, spices, wellness blends and skincare — made in small batches in Kotkapura, Punjab. No refined sugar or preservatives. Order on WhatsApp.",
+    desc: "Pure, homemade Ayurvedic laddus, spices, wellness blends and skincare — made in small batches in Kotkapura, Punjab. No refined sugar or preservatives. Order on WhatsApp.",
     faq: true, product: true,
   },
   "story.html": {

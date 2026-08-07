@@ -226,6 +226,8 @@ function Products() {
                     <option value="New">New</option>
                     <option value="Special Offer">Special Offer</option>
                     <option value="Limited">Limited</option>
+                    <option value="Festive Special">Festive Special</option>
+                    <option value="Combo Offer">Combo Offer</option>
                   </select>
                 </td>
                 <td style={{ whiteSpace: "nowrap" }}>
