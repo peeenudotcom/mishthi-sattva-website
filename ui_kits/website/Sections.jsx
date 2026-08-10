@@ -46,8 +46,8 @@ const GIFT_BADGE = { title: "Complimentary wellness gift", sub: "on orders this 
    here and those buttons appear automatically in the footer. */
 const SOCIAL = [
   { label: "WhatsApp", href: "https://wa.me/918557942246" },
-  { label: "Instagram", href: null }, // TODO: add real profile URL
-  { label: "Facebook", href: null },  // TODO: add real profile URL
+  { label: "Instagram", href: "https://www.instagram.com/mishthisattva" },
+  { label: "Facebook", href: "https://www.facebook.com/p/Mishthi-Sattva-61585174464292/" },
 ];
 
 /* name -> product photo (from the brand's uploaded catalogue) */
@@ -497,6 +497,22 @@ function shareToWhatsApp(text) {
   return `https://wa.me/?text=${encodeURIComponent(text.replace("{site}", origin))}`;
 }
 
+function IcoIG({ size = 15 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" style={{ flexShrink: 0 }}>
+      <rect x="2" y="2" width="20" height="20" rx="5.4" /><circle cx="12" cy="12" r="4.2" /><circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+function IcoFB({ size = 15 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={{ flexShrink: 0 }}>
+      <path d="M13 22v-8h2.7l.4-3H13V9.1c0-.87.24-1.46 1.5-1.46H16V5.02C15.72 4.98 14.79 4.9 13.7 4.9c-2.28 0-3.84 1.39-3.84 3.95V11H7.5v3h2.36v8H13z" />
+    </svg>
+  );
+}
+const socialIcon = (label) => label === "Instagram" ? <IcoIG /> : label === "Facebook" ? <IcoFB /> : <WAicon size={15} />;
+
 function Footer() {
   const cats = ["Ayurvedic & Health", "Spices & Masala", "Hair Care", "Beauty & Skincare", "Special Foods"];
   const link = { fontSize: 14, color: "color-mix(in oklab, var(--cream) 80%, transparent)" };
@@ -545,8 +561,8 @@ function Footer() {
               no button at all. */}
           <div style={{ marginTop: 16, display: "flex", gap: 10 }}>
             {SOCIAL.filter((s) => s.href).map((s) => (
-              <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
-                 style={{ borderRadius: "var(--radius-pill)", border: "1px solid color-mix(in oklab, var(--cream) 20%, transparent)", padding: "7px 14px", fontSize: 12, fontWeight: 600 }}>{s.label}</a>
+              <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}
+                 style={{ display: "inline-flex", alignItems: "center", gap: 7, borderRadius: "var(--radius-pill)", border: "1px solid color-mix(in oklab, var(--cream) 20%, transparent)", padding: "7px 14px", fontSize: 12, fontWeight: 600 }}>{socialIcon(s.label)}{s.label}</a>
             ))}
           </div>
         </div>
