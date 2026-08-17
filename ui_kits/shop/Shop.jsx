@@ -74,7 +74,13 @@ function signedInUser() {
 }
 
 function Header({ count, wishCount, onCart, onSearch, search, onWish, onHome, onShopAll, products, onPick }) {
-  const acct = signedInUser();
+  const [acct, setAcct] = React.useState(signedInUser());
+  React.useEffect(() => {
+    const refresh = () => setAcct(signedInUser());
+    window.addEventListener("ms-auth", refresh);   // same-page auth change
+    window.addEventListener("storage", refresh);   // auth changed in another tab
+    return () => { window.removeEventListener("ms-auth", refresh); window.removeEventListener("storage", refresh); };
+  }, []);
   const [focused, setFocused] = React.useState(false);
   const [active, setActive] = React.useState(-1);
   // typeahead suggestions: match the query against name / category / benefits
