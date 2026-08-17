@@ -308,19 +308,29 @@ function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
   const [form, setForm] = React.useState(() => { const s = load(LS_DELIVERY, {}); return { name: s.name || "", phone: s.phone || "", address: s.address || "", city: s.city || "Kotkapura", note: "" }; });
   const prefilled = React.useMemo(() => { const s = load(LS_DELIVERY, {}); return !!(s.name && s.address); }, []);
   const [done, setDone] = React.useState(false);
+  const [sent, setSent] = React.useState(false); // true only once the customer confirms they pressed Send in WhatsApp
+  const [waHref, setWaHref] = React.useState("");
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
   const ship = subtotal >= FREE_SHIP || subtotal === 0 ? 0 : 49;
   const total = subtotal + ship;
   const valid = form.name.trim() && form.phone.trim().length >= 10 && form.address.trim();
 
-  const placeOrder = () => {
+  // Step 1: open the WhatsApp draft. We deliberately do NOT save the order yet —
+  // WhatsApp can't tell us whether the customer actually pressed Send, so recording
+  // it here would create "ghost" orders the customer never sent (shown as Placed).
+  const openWhatsApp = () => {
     const lines = items.map((it) => `• ${it.name} (${it.weight}) × ${it.qty} — ${it.price == null ? "Ask for price" : money(it.price * it.qty)}`).join("\n");
     const msg = `Namaste Mishthi Sattva! 🌿 I'd like to place an order:\n\n${lines}\n\nSubtotal: ${money(subtotal)}\nDelivery: ${ship === 0 ? "Free" : money(ship)}\nTotal: ${money(total)}\n\nName: ${form.name}\nPhone: ${form.phone}\nAddress: ${form.address}, ${form.city}${form.note ? `\nNote: ${form.note}` : ""}`;
+    const href = `https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`;
+    // Remember delivery details on this device so the next checkout is pre-filled.
+    try { localStorage.setItem(LS_DELIVERY, JSON.stringify({ name: form.name, phone: form.phone, address: form.address, city: form.city })); } catch (e) {}
+    setWaHref(href);
+    window.open(href, "_blank");
+    setDone(true);
+  };
 
-    /* Save a record of the order, then hand off to WhatsApp.
-       The WhatsApp handoff must NEVER be blocked by the database — losing a
-       real order because a save failed would be far worse than losing the
-       record. So this is fire-and-forget and failures are only logged. */
+  // Step 2: the customer confirms they sent it — only NOW do we record the order.
+  const confirmSent = () => {
     if (window.MSData && window.MSData.configured) {
       window.MSData.createOrder({
         customer_name: form.name,
@@ -337,24 +347,32 @@ function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
         console.warn("[order] could not be saved to the database:", err.message);
       });
     }
-
-    // Remember these delivery details on this device so the next checkout is pre-filled.
-    try { localStorage.setItem(LS_DELIVERY, JSON.stringify({ name: form.name, phone: form.phone, address: form.address, city: form.city })); } catch (e) {}
-
-    window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`, "_blank");
-    setDone(true);
+    setSent(true);
   };
 
   return (
     <Overlay onClose={onClose} align="center">
       <div onClick={(e) => e.stopPropagation()} style={{ width: "min(820px, 95vw)", maxHeight: "92vh", overflow: "auto", background: "var(--background)", borderRadius: "var(--radius-3xl)", boxShadow: "var(--shadow-xl)", border: "1px solid var(--border)" }}>
         {done ? (
-          <div style={{ padding: "56px 40px", textAlign: "center" }}>
-            <div style={{ display: "grid", placeItems: "center", height: 84, width: 84, margin: "0 auto", borderRadius: "var(--radius-pill)", background: "var(--success)", color: "#fff" }}><I.check s={42} /></div>
-            <h2 style={{ marginTop: 22, fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 36, color: "var(--primary)" }}>Order sent on WhatsApp!</h2>
-            <p style={{ marginTop: 12, maxWidth: 460, marginInline: "auto", fontSize: 16, lineHeight: 1.6, color: "var(--muted-foreground)" }}>We've opened a WhatsApp chat with your order summary. Send it to us and we'll confirm availability, delivery time and payment. Dhanyavaad! 🙏</p>
-            <div style={{ marginTop: 26 }}><Button variant="forest" size="lg" onClick={onPlaced}>Continue Shopping</Button></div>
-          </div>
+          sent ? (
+            <div style={{ padding: "56px 40px", textAlign: "center" }}>
+              <div style={{ display: "grid", placeItems: "center", height: 84, width: 84, margin: "0 auto", borderRadius: "var(--radius-pill)", background: "var(--success)", color: "#fff" }}><I.check s={42} /></div>
+              <h2 style={{ marginTop: 22, fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 36, color: "var(--primary)" }}>Order placed — thank you! 🙏</h2>
+              <p style={{ marginTop: 12, maxWidth: 460, marginInline: "auto", fontSize: 16, lineHeight: 1.6, color: "var(--muted-foreground)" }}>We've got your order. We'll reply on WhatsApp to confirm availability, delivery time and payment. Dhanyavaad!</p>
+              <div style={{ marginTop: 26 }}><Button variant="forest" size="lg" onClick={onPlaced}>Continue Shopping</Button></div>
+            </div>
+          ) : (
+            <div style={{ padding: "48px 40px", textAlign: "center" }}>
+              <div style={{ display: "grid", placeItems: "center", height: 84, width: 84, margin: "0 auto", borderRadius: "var(--radius-pill)", background: "color-mix(in oklab, var(--whatsapp, #25D366) 16%, var(--card))", color: "var(--whatsapp, #128C4B)" }}><I.wa s={40} /></div>
+              <h2 style={{ marginTop: 22, fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 32, color: "var(--primary)" }}>Almost there — send it on WhatsApp</h2>
+              <p style={{ marginTop: 12, maxWidth: 480, marginInline: "auto", fontSize: 16, lineHeight: 1.6, color: "var(--muted-foreground)" }}>We've opened a WhatsApp chat with your order. <b style={{ color: "var(--primary)" }}>Tap the send button in WhatsApp to place your order</b> — we only start once you've sent it.</p>
+              <div style={{ marginTop: 24, display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+                <Button variant="forest" size="lg" onClick={confirmSent}>✓ I've sent it on WhatsApp</Button>
+                <a href={waHref} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", padding: "13px 22px", borderRadius: "var(--radius-pill)", border: "1px solid var(--border)", background: "var(--card)", color: "var(--primary)", fontWeight: 600, fontSize: 15, textDecoration: "none" }}>Re-open WhatsApp</a>
+              </div>
+              <button onClick={onClose} style={{ marginTop: 16, background: "transparent", border: "none", color: "var(--muted-foreground)", fontFamily: "inherit", fontSize: 13.5, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 2 }}>I'll send it later</button>
+            </div>
+          )
         ) : (
           <div className="shop-checkout" style={{ display: "grid" }}>
             <div style={{ padding: 32 }}>
@@ -394,7 +412,7 @@ function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
                   </p>
                 )}
               </div>
-              <button onClick={placeOrder} disabled={!valid} style={{ marginTop: 18, width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, padding: "15px", borderRadius: "var(--radius-pill)", border: "none", background: valid ? "var(--primary)" : "var(--muted)", color: valid ? "var(--primary-foreground)" : "var(--muted-foreground)", fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 15, cursor: valid ? "pointer" : "not-allowed", boxShadow: valid ? "var(--shadow-lg)" : "none" }}>
+              <button onClick={openWhatsApp} disabled={!valid} style={{ marginTop: 18, width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, padding: "15px", borderRadius: "var(--radius-pill)", border: "none", background: valid ? "var(--primary)" : "var(--muted)", color: valid ? "var(--primary-foreground)" : "var(--muted-foreground)", fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 15, cursor: valid ? "pointer" : "not-allowed", boxShadow: valid ? "var(--shadow-lg)" : "none" }}>
                 <I.wa s={20} /> Place Order on WhatsApp
               </button>
               <p style={{ marginTop: 10, fontSize: 11.5, textAlign: "center", color: "var(--muted-foreground)" }}>By placing the order you'll be taken to WhatsApp to confirm.</p>
