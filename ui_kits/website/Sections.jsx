@@ -133,7 +133,13 @@ function signedInUser() {
 }
 
 function Header({ active = "home" }) {
-  const acct = signedInUser();
+  const [acct, setAcct] = React.useState(signedInUser());
+  React.useEffect(() => {
+    const refresh = () => setAcct(signedInUser());
+    window.addEventListener("ms-auth", refresh);   // fired on sign in / sign out (same page)
+    window.addEventListener("storage", refresh);   // fired when auth changes in another tab
+    return () => { window.removeEventListener("ms-auth", refresh); window.removeEventListener("storage", refresh); };
+  }, []);
   // Account is intentionally NOT in this content nav — it's a separate, demarcated
   // button on the right (below) so it reads as the sign-in / account area.
   const nav = [{ label: "Home", href: "index.html", id: "home" }, { label: "Story", href: "about.html", id: "about" }, { label: "Shop", href: "../shop/index.html", id: "products" }, { label: "Contact", href: "contact.html", id: "contact" }];
@@ -1269,7 +1275,7 @@ function Account() {
   // If we just returned from Google's OAuth redirect, capture the session.
   React.useEffect(() => {
     if (!oauthBusy) return;
-    D.handleOAuthReturn().then((ok) => { if (ok) setUser(D.currentUser()); setOauthBusy(false); });
+    D.handleOAuthReturn().then((ok) => { if (ok) { setUser(D.currentUser()); window.dispatchEvent(new Event("ms-auth")); } setOauthBusy(false); });
   }, []);
 
   if (!configured) {
@@ -1292,7 +1298,7 @@ function Account() {
       : D.signIn(form.email.trim(), form.password);
     p.then(() => {
       setBusy(false);
-      if (D.isSignedIn()) { setUser(D.currentUser()); if (mode === "signup") setWelcome(true); }
+      if (D.isSignedIn()) { setUser(D.currentUser()); if (mode === "signup") setWelcome(true); window.dispatchEvent(new Event("ms-auth")); }
       else { setMode("login"); setMsg("Account created. Check your email to confirm, then sign in."); }
     }).catch((ex) => { setBusy(false); setMsg(ex.message); });
   };
@@ -1348,7 +1354,7 @@ function Account() {
             <h1 style={{ marginTop: 12, fontSize: 40, fontWeight: 700 }}>Namaste{firstName}.</h1>
             <p style={{ marginTop: 6, color: "var(--muted-foreground)" }}>{user.email}</p>
           </div>
-          <Button variant="outline" onClick={() => { D.signOut(); setUser(null); setOrders(null); }}>Sign out</Button>
+          <Button variant="outline" onClick={() => { D.signOut(); setUser(null); setOrders(null); setWelcome(false); window.dispatchEvent(new Event("ms-auth")); }}>Sign out</Button>
         </div>
         {welcome && (
           <div style={{ marginTop: 24, padding: "14px 18px", borderRadius: 16, border: "1px solid color-mix(in oklab, var(--success, #2e7d32) 40%, transparent)", background: "color-mix(in oklab, var(--success, #2e7d32) 10%, var(--card))", display: "flex", alignItems: "center", gap: 10 }}>
