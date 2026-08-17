@@ -119,7 +119,21 @@ function Leaf({ size = 16 }) {
 }
 
 /* ---------- header ---------- */
+/* If a customer is signed in, return their initial + first name for the header avatar. */
+function signedInUser() {
+  try {
+    var d = window.MSData;
+    var u = d && d.currentUser ? d.currentUser() : null;
+    if (!u) return null;
+    var meta = u.user_metadata || {};
+    var name = (meta.full_name || meta.name || u.email || "").trim();
+    if (!name) return null;
+    return { initial: name[0].toUpperCase(), first: name.split(" ")[0], name: name };
+  } catch (e) { return null; }
+}
+
 function Header({ active = "home" }) {
+  const acct = signedInUser();
   // Account is intentionally NOT in this content nav — it's a separate, demarcated
   // button on the right (below) so it reads as the sign-in / account area.
   const nav = [{ label: "Home", href: "index.html", id: "home" }, { label: "Story", href: "about.html", id: "about" }, { label: "Shop", href: "../shop/index.html", id: "products" }, { label: "Contact", href: "contact.html", id: "contact" }];
@@ -139,13 +153,15 @@ function Header({ active = "home" }) {
           })}
         </nav>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <a href="account.html" title="My account" aria-label="My account" aria-current={active === "account" ? "page" : undefined}
-             style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "0.55rem 0.95rem", borderRadius: "var(--radius-pill)", fontWeight: 600, fontSize: 15,
+          <a href="account.html" title={acct ? "Signed in as " + acct.name : "My account"} aria-label={acct ? "My account — signed in as " + acct.name : "My account"} aria-current={active === "account" ? "page" : undefined}
+             style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: acct ? "0.4rem 0.9rem 0.4rem 0.4rem" : "0.55rem 0.95rem", borderRadius: "var(--radius-pill)", fontWeight: 600, fontSize: 15,
                color: active === "account" ? "var(--forest-deep)" : "var(--cream)",
                background: active === "account" ? "var(--cream)" : "transparent",
                border: "1px solid color-mix(in oklab, var(--cream) 35%, transparent)" }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" /></svg>
-            Account
+            {acct
+              ? <span aria-hidden="true" style={{ display: "grid", placeItems: "center", height: 26, width: 26, borderRadius: "var(--radius-pill)", background: "var(--accent)", color: "var(--forest-deep)", fontWeight: 700, fontSize: 13.5, flexShrink: 0 }}>{acct.initial}</span>
+              : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" /></svg>}
+            {acct ? acct.first : "Account"}
           </a>
           <span aria-hidden="true" style={{ width: 1, height: 26, background: "color-mix(in oklab, var(--cream) 22%, transparent)" }} />
           <Button variant="gold" as="a" href="../shop/index.html">Shop Products</Button>

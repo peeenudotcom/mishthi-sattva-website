@@ -60,7 +60,21 @@ function mergeFromDb(rows) {
 }
 
 /* ===================== HEADER ===================== */
+/* If a customer is signed in, return their initial + name for the header avatar. */
+function signedInUser() {
+  try {
+    var d = window.MSData;
+    var u = d && d.currentUser ? d.currentUser() : null;
+    if (!u) return null;
+    var meta = u.user_metadata || {};
+    var name = (meta.full_name || meta.name || u.email || "").trim();
+    if (!name) return null;
+    return { initial: name[0].toUpperCase(), name: name };
+  } catch (e) { return null; }
+}
+
 function Header({ count, wishCount, onCart, onSearch, search, onWish, onHome, onShopAll, products, onPick }) {
+  const acct = signedInUser();
   const [focused, setFocused] = React.useState(false);
   const [active, setActive] = React.useState(-1);
   // typeahead suggestions: match the query against name / category / benefits
@@ -122,9 +136,9 @@ function Header({ count, wishCount, onCart, onSearch, search, onWish, onHome, on
               </ul>
             )}
           </div>
-          <a href="../website/account.html" aria-label="My account" title="My account"
-             style={{ height: 44, width: 44, display: "grid", placeItems: "center", borderRadius: "var(--radius-pill)", border: "1px solid var(--border)", background: "var(--card)", color: "var(--primary)" }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" /></svg>
+          <a href="../website/account.html" aria-label={acct ? "My account — signed in as " + acct.name : "My account"} title={acct ? "Signed in as " + acct.name : "My account"}
+             style={{ height: 44, width: 44, display: "grid", placeItems: "center", borderRadius: "var(--radius-pill)", border: acct ? "none" : "1px solid var(--border)", background: acct ? "var(--accent)" : "var(--card)", color: acct ? "var(--forest-deep)" : "var(--primary)", fontWeight: 700, fontSize: 18 }}>
+            {acct ? acct.initial : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" /></svg>}
           </a>
           <IconBtn onClick={onWish} label="Wishlist" badge={wishCount}><I.heart s={20} /></IconBtn>
           <IconBtn onClick={onCart} label="Cart" badge={count} highlight><I.bag s={21} /></IconBtn>
