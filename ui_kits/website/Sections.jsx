@@ -1243,6 +1243,7 @@ function Account() {
   const [mode, setMode] = React.useState("login");
   const [form, setForm] = React.useState({ name: "", phone: "", email: "", password: "" });
   const [busy, setBusy] = React.useState(false);
+  const [welcome, setWelcome] = React.useState(false); // show a confirmation right after a new account is created
   const [msg, setMsg] = React.useState("");
   const [orders, setOrders] = React.useState(null);
   const [oauthBusy, setOauthBusy] = React.useState(configured && (window.location.hash || "").indexOf("access_token=") !== -1);
@@ -1275,7 +1276,7 @@ function Account() {
       : D.signIn(form.email.trim(), form.password);
     p.then(() => {
       setBusy(false);
-      if (D.isSignedIn()) setUser(D.currentUser());
+      if (D.isSignedIn()) { setUser(D.currentUser()); if (mode === "signup") setWelcome(true); }
       else { setMode("login"); setMsg("Account created. Check your email to confirm, then sign in."); }
     }).catch((ex) => { setBusy(false); setMsg(ex.message); });
   };
@@ -1333,6 +1334,12 @@ function Account() {
           </div>
           <Button variant="outline" onClick={() => { D.signOut(); setUser(null); setOrders(null); }}>Sign out</Button>
         </div>
+        {welcome && (
+          <div style={{ marginTop: 24, padding: "14px 18px", borderRadius: 16, border: "1px solid color-mix(in oklab, var(--success, #2e7d32) 40%, transparent)", background: "color-mix(in oklab, var(--success, #2e7d32) 10%, var(--card))", display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ display: "grid", placeItems: "center", height: 24, width: 24, borderRadius: "var(--radius-pill)", background: "var(--success, #2e7d32)", color: "#fff", fontSize: 15, flexShrink: 0 }}>✓</span>
+            <span style={{ fontWeight: 600, color: "var(--primary)" }}>Your account is active — welcome! You're signed in, and your details will be saved for faster checkout.</span>
+          </div>
+        )}
         <h2 style={{ marginTop: 40, fontSize: 26, color: "var(--primary)" }}>Your orders</h2>
         {orders === null && <p style={{ color: "var(--muted-foreground)" }}>Loading your orders…</p>}
         {orders && orders.length === 0 && (

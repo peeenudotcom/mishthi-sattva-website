@@ -13,6 +13,7 @@ const PHONE = "918557942246";
 const FREE_SHIP = 999;
 const LS_CART = "ms_shop_cart";
 const LS_WISH = "ms_shop_wish";
+const LS_DELIVERY = "ms_shop_delivery"; // remembers the last delivery details for faster repeat checkout
 const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
 
 const SORTS = [
@@ -289,7 +290,9 @@ function CartDrawer({ items, onClose, onQty, onRemove, onCheckout, subtotal }) {
 
 /* ===================== CHECKOUT ===================== */
 function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
-  const [form, setForm] = React.useState({ name: "", phone: "", address: "", city: "Kotkapura", note: "" });
+  // Pre-fill from the customer's last order (saved on this device) so repeat buyers don't retype everything.
+  const [form, setForm] = React.useState(() => { const s = load(LS_DELIVERY, {}); return { name: s.name || "", phone: s.phone || "", address: s.address || "", city: s.city || "Kotkapura", note: "" }; });
+  const prefilled = React.useMemo(() => { const s = load(LS_DELIVERY, {}); return !!(s.name && s.address); }, []);
   const [done, setDone] = React.useState(false);
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
   const ship = subtotal >= FREE_SHIP || subtotal === 0 ? 0 : 49;
@@ -321,6 +324,9 @@ function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
       });
     }
 
+    // Remember these delivery details on this device so the next checkout is pre-filled.
+    try { localStorage.setItem(LS_DELIVERY, JSON.stringify({ name: form.name, phone: form.phone, address: form.address, city: form.city })); } catch (e) {}
+
     window.open(`https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`, "_blank");
     setDone(true);
   };
@@ -342,6 +348,7 @@ function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
               <GoldDivider>Checkout</GoldDivider>
               <h2 style={{ margin: "14px 0 0", fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 30, color: "var(--primary)" }}>Delivery details</h2>
               <p style={{ marginTop: 6, fontSize: 14, color: "var(--muted-foreground)" }}>We confirm every order personally on WhatsApp — no online payment needed now.</p>
+              {prefilled && <p style={{ marginTop: 8, fontSize: 13, fontWeight: 600, color: "var(--primary)", display: "flex", alignItems: "center", gap: 6 }}>✓ Filled in from your last order — just check and edit anything that changed.</p>}
               <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 14 }}>
                 <Input label="Full Name" placeholder="Your name" value={form.name} onChange={set("name")} />
                 <Input label="WhatsApp Number" type="tel" placeholder="10-digit mobile" value={form.phone} onChange={set("phone")} />
