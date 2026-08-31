@@ -78,11 +78,10 @@ const PRODUCT_IMAGES = {
 
 /* ---------- shared data ---------- */
 const PRODUCT_CATS = [
-  { id: "ayurvedic", name: "Ayurvedic & Health", blurb: "Natural wellness from traditional Ayurvedic ingredients that support immunity, energy and wellbeing.", items: ["Shakti Laddu", "Sampooran Laddu", "Sugar-Free Chyawanprash", "Herbal Heart Sip", "Healthy Namkeen Mix", "Protein Sattu Drink"] },
-  { id: "hair", name: "Hair Care", blurb: "Natural hair care designed to nourish scalp health and promote stronger hair.", items: ["AyurKesh Wash", "AyurKesh Vardaan Hair Oil"] },
-  { id: "spices", name: "Spices & Masala", blurb: "Authentic homemade spice blends that enhance flavour while keeping purity and freshness.", items: ["Chat Masala", "Shinkaji Masala", "Thandai Premix", "Shahi Garam Masala", "Ice Cream Premix", "Shahi Sip & Scoop", "Jaljeera Sattu"] },
-  { id: "beauty", name: "Beauty & Skincare", blurb: "Natural skincare for healthy, glowing skin.", items: ["Instant Ubtan Glow", "Glow Radiance Cream", "Vitamin C Serum"] },
-  { id: "special", name: "Special Foods", blurb: "Traditional homemade food products with authentic taste.", items: ["Paani Puri Combo", "Nitya Poshan Formula- Kids", "Nitya Poshan Formula- Men", "Nitya Poshan Formula- Women"] },
+  { id: "sweetness", name: "Wellness with Sweetness", blurb: "Nourishing laddus and wholesome sweet treats — jaggery-bound goodness with no refined sugar.", items: ["Shakti Laddu", "Sampooran Laddu", "Ice Cream Premix", "Paani Puri Combo"] },
+  { id: "sip", name: "Sattvic Sip", blurb: "Wholesome drink mixes and sattvic sips — sattu, thandai, jaljeera and more to refresh and restore.", items: ["Herbal Heart Sip", "Protein Sattu Drink", "Jaljeera Sattu", "Thandai Premix", "Shahi Sip & Scoop"] },
+  { id: "immunity", name: "Immunity Booster", blurb: "Chyawanprash, nutrition formulas and Ayurvedic spice blends to support immunity and everyday strength.", items: ["Sugar-Free Chyawanprash", "Healthy Namkeen Mix", "Nitya Poshan Formula- Kids", "Nitya Poshan Formula- Men", "Nitya Poshan Formula- Women", "Chat Masala", "Shahi Garam Masala", "Shinkaji Masala"] },
+  { id: "bodycare", name: "Sattvic Body Care", blurb: "Natural hair and skin care — oils, washes, ubtan and serums for healthy hair and glowing skin.", items: ["AyurKesh Vardaan Hair Oil", "AyurKesh Wash", "Glow Radiance Cream", "Instant Ubtan Glow", "Vitamin C Serum"] },
 ];
 
 const BENEFITS = [
@@ -536,7 +535,7 @@ function IcoFB({ size = 15 }) {
 const socialIcon = (label) => label === "Instagram" ? <IcoIG /> : label === "Facebook" ? <IcoFB /> : <WAicon size={15} />;
 
 function Footer() {
-  const cats = ["Ayurvedic & Health", "Spices & Masala", "Hair Care", "Beauty & Skincare", "Special Foods"];
+  const cats = PRODUCT_CATS.map((c) => c.name);
   const link = { fontSize: 14, color: "color-mix(in oklab, var(--cream) 80%, transparent)" };
   const heading = { fontFamily: "var(--font-display)", fontSize: 13, textTransform: "uppercase", letterSpacing: "0.22em", color: "var(--accent)" };
   return (

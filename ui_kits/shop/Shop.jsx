@@ -29,6 +29,23 @@ const SORTS = [
    extras the schema doesn't carry (rating, review count, tags) are merged from
    the local catalogue by slug, so cards keep their look. Unknown products still
    render with safe defaults. */
+/* Transitional: until the owner runs supabase/categories.sql (which re-files
+   products into the 4 new categories), the DB still holds the OLD slugs. Remap
+   them in code so the shop groups correctly the moment this deploys — with no
+   empty-category window. This ONLY fires for the legacy slugs below, so once the
+   DB (or the admin category dropdown) uses the new slugs, the owner's real
+   assignment always wins. Safe to delete after the DB is migrated + synced. */
+const LEGACY_CATS = { ayurvedic: 1, spices: 1, hair: 1, beauty: 1, special: 1 };
+const REMAP_CAT = {
+  "sampooran-laddu": "sweetness", "shakti-laddu": "sweetness", "ice-cream-premix": "sweetness", "paani-puri-combo": "sweetness",
+  "herbal-heart-sip": "sip", "protein-sattu": "sip", "jaljeera-sattu": "sip", "thandai-premix": "sip", "shahi-sip-scoop": "sip",
+  "chyawanprash": "immunity", "namkeen-mix": "immunity", "chat-masala": "immunity", "shahi-garam-masala": "immunity", "shinkaji-masala": "immunity",
+  "nitya-poshan-formula-kids": "immunity", "nitya-poshan-formula-men": "immunity", "nitya-poshan-formula-women": "immunity",
+  "kesh-vardaan-oil": "bodycare", "kesh-vash-shampoo": "bodycare", "glow-radiance-cream": "bodycare", "urban-glow": "bodycare", "vitamin-c-serum": "bodycare",
+};
+function normaliseCat(slug, cat) {
+  return (LEGACY_CATS[cat] && REMAP_CAT[slug]) ? REMAP_CAT[slug] : cat;
+}
 function mergeFromDb(rows) {
   if (!rows || !rows.length) return null;
   const local = {};
@@ -44,7 +61,7 @@ function mergeFromDb(rows) {
       return {
         id: r.slug,
         name: r.name,
-        cat: r.category,
+        cat: normaliseCat(r.slug, r.category),
         price: r.price == null ? null : Number(r.price),
         mrp: r.mrp == null ? null : Number(r.mrp),
         weight: r.weight || base.weight || "",
@@ -203,12 +220,13 @@ function Hero({ onShopAll, onCategory, products }) {
 }
 
 /* ===================== CATEGORY RAIL ===================== */
-function CategoryRail({ active, onCategory, products }) {
+function CategoryRail({ active, onCategory, products, cats }) {
+  const list = cats && cats.length ? cats : MS_CATEGORIES;
   return (
     <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(148px, 1fr))", gap: 12 }}>
         <CatChip label="All Products" on={active === "all"} onClick={() => onCategory("all")} tint="var(--forest)" total={products.length} />
-        {MS_CATEGORIES.map((c) => <CatChip key={c.id} label={c.name} on={active === c.id} onClick={() => onCategory(c.id)} tint={c.tint} count={products.filter((p) => p.cat === c.id).length} />)}
+        {list.map((c) => <CatChip key={c.id} label={c.name} on={active === c.id} onClick={() => onCategory(c.id)} tint={c.tint} count={products.filter((p) => p.cat === c.id).length} />)}
       </div>
     </div>
   );
@@ -448,7 +466,8 @@ function Toasts({ toasts }) {
 }
 
 /* ===================== FOOTER ===================== */
-function Footer() {
+function Footer({ cats }) {
+  const catList = cats && cats.length ? cats : MS_CATEGORIES;
   // Mirrors the website footer (ui_kits/website/Sections.jsx) so every page shares
   // one footer. Paths are relative to /shop: ../website/* for pages, ../../assets for images.
   const link = { fontSize: 14, color: "color-mix(in oklab, var(--cream) 80%, transparent)" };
@@ -467,7 +486,7 @@ function Footer() {
         <div>
           <p style={heading}>Shop</p>
           <ul style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 9, listStyle: "none", padding: 0 }}>
-            {MS_CATEGORIES.map((c) => <li key={c.id} style={link}>{c.name}</li>)}
+            {catList.map((c) => <li key={c.id} style={link}>{c.name}</li>)}
           </ul>
         </div>
         <div>
@@ -521,6 +540,7 @@ function Shop() {
      works if the database is unreachable; swap in live data once it arrives. */
   const [catalogue, setCatalogue] = React.useState(MS_PRODUCTS);
   const [liveData, setLiveData] = React.useState(false);
+  const [cats, setCats] = React.useState(MS_CATEGORIES);
   const gridRef = React.useRef(null);
 
   React.useEffect(() => {
@@ -530,6 +550,14 @@ function Shop() {
       if (cancelled) return;
       var merged = mergeFromDb(rows);
       if (merged && merged.length) { setCatalogue(merged); setLiveData(true); }
+    });
+    // Owner-managed categories: swap in the live list (and update the shared
+    // snapshot so catName/catTint in ShopParts resolve the same names/tints).
+    window.MSData.getCategories().then(function (rows) {
+      if (cancelled || !rows || !rows.length) return;
+      var live = rows.map(function (r) { return { id: r.slug, name: r.name, tint: r.tint || "var(--forest)" }; });
+      window.MSShopData.MS_CATEGORIES = live;
+      setCats(live);
     });
     return function () { cancelled = true; };
   }, []);
@@ -598,7 +626,7 @@ function Shop() {
       <Header count={count} wishCount={wish.length} search={search} onSearch={setSearch} onCart={() => setView("cart")} onWish={() => setView("wishlist")} onHome={shopAll} onShopAll={shopAll}
         products={catalogue} onPick={(p) => { setQuick(p); setSearch(""); }} />
       <Hero onShopAll={shopAll} onCategory={goCategory} products={catalogue} />
-      <section style={{ padding: "8px 0 4px" }}><CategoryRail active={cat} onCategory={goCategory} products={catalogue} /></section>
+      <section style={{ padding: "8px 0 4px" }}><CategoryRail active={cat} onCategory={goCategory} products={catalogue} cats={cats} /></section>
       <section ref={gridRef} style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 24px 0" }}>
         <Toolbar count={list.length} sort={sort} onSort={setSort} title={title} />
         {list.length === 0 ? (
@@ -614,7 +642,7 @@ function Shop() {
           </div>
         )}
       </section>
-      <Footer />
+      <Footer cats={cats} />
 
       {quick && <QuickView product={quick} onClose={() => setQuick(null)} onAdd={addToCart} onToggleWish={toggleWish} wished={wish.includes(quick.id)} />}
       {view === "cart" && <CartDrawer items={cart} subtotal={subtotal} onClose={() => setView(null)} onQty={setQty} onRemove={removeItem} onCheckout={() => setView("checkout")} />}

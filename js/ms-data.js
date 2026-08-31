@@ -139,6 +139,13 @@
       return safe(rest("reviews?select=*&order=created_at.desc"), "reviews");
     },
 
+    /* ---- shop categories (owner-managed; falls back to the data.js snapshot) ----
+       Returns null if the categories table hasn't been created yet, so callers
+       keep using their bundled MS_CATEGORIES list. */
+    getCategories: function () {
+      return safe(rest("categories?select=*&order=sort_order.asc,name.asc"), "categories");
+    },
+
     /* ---- writes: these must surface errors, so no silent fallback ----
        NOTE: do NOT ask for `Prefer: return=representation` here. Returning the
        inserted row needs SELECT permission, and anon deliberately has none on
@@ -284,6 +291,11 @@
     adminReviews: function () {
       return rest("reviews?select=*&order=created_at.desc&limit=200");
     },
+    // Categories are publicly readable, so the admin list loads with the anon
+    // key even if the session token expired (writes below still need the login).
+    adminCategories: function () {
+      return rest("categories?select=*&order=sort_order.asc,name.asc", { anon: true });
+    },
 
     /* ---- admin writes ----
        An UPDATE blocked by row-level security does NOT error: it simply matches
@@ -318,6 +330,21 @@
     },
     deleteProduct: function (id) {
       return rest("products?id=eq." + encodeURIComponent(id), { method: "DELETE" });
+    },
+
+    /* ---- admin: create / update / delete categories ---- */
+    createCategory: function (fields) {
+      return rest("categories", { method: "POST", headers: { Prefer: "return=representation" }, body: fields })
+        .then(function (rows) {
+          if (!rows || !rows.length) throw new Error("Not created — your admin session may have expired, or this account isn't an admin.");
+          return rows[0];
+        });
+    },
+    updateCategory: function (id, patch) {
+      return adminPatch("categories", id, patch);
+    },
+    deleteCategory: function (id) {
+      return rest("categories?id=eq." + encodeURIComponent(id), { method: "DELETE" });
     },
     /* Upload an image to the public product-photos bucket; returns its public URL. */
     uploadProductImage: function (file, slug) {

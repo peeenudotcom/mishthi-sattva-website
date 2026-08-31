@@ -64,6 +64,21 @@ async function fetchProducts(cfg) {
   return res.json();
 }
 
+/* ---- 3b. fetch owner-managed categories (falls back to the data.js list) ---- */
+async function fetchCategories(cfg, fallback) {
+  try {
+    const url = cfg.SUPABASE_URL.replace(/\/$/, "") +
+      "/rest/v1/categories?select=slug,name,tint,sort_order&order=sort_order.asc,name.asc";
+    const res = await fetch(url, {
+      headers: { apikey: cfg.SUPABASE_ANON_KEY, Authorization: "Bearer " + cfg.SUPABASE_ANON_KEY },
+    });
+    if (!res.ok) return fallback;
+    const rows = await res.json();
+    if (!Array.isArray(rows) || !rows.length) return fallback;
+    return rows.map((r) => ({ id: r.slug, name: r.name, tint: r.tint || "var(--forest)" }));
+  } catch { return fallback; }
+}
+
 /* ---- 4. build one data.js product entry from a DB row + existing extras ---- */
 function toEntry(row, prev) {
   prev = prev || {};
@@ -154,7 +169,8 @@ window.MSShopData = { MS_CATEGORIES, MS_PRODUCTS };
 /* ---- main ---- */
 (async () => {
   const cfg = loadConfig();
-  const { categories, bySlug } = loadCurrent();
+  const { categories: snapshotCats, bySlug } = loadCurrent();
+  const categories = await fetchCategories(cfg, snapshotCats);
   const rows = await fetchProducts(cfg);
 
   const live = rows.filter((r) => r.in_stock !== false);

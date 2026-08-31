@@ -6,15 +6,17 @@
 (function(){
 const DS = window.MishthiSattvaDesignSystem_af8a45;
 const { Button, Badge, GoldDivider, Input } = DS;
-const { MS_CATEGORIES } = window.MSShopData;
 const ASSET = "../../assets";
+/* Read the category list live off MSShopData each call. Shop.jsx swaps in the
+   owner's DB categories after load, so name/tint lookups stay in sync. */
+const catList = () => (window.MSShopData && window.MSShopData.MS_CATEGORIES) || [];
 
 /* Products whose price isn't confirmed yet store price = null. Never render a
    guessed number — show "Ask for price" and let the customer ask on WhatsApp. */
 const money = (n) => (n == null || isNaN(n) ? "Ask for price" : "₹" + Number(n).toLocaleString("en-IN"));
 const hasPrice = (p) => p != null && !isNaN(p);
-const catName = (id) => (MS_CATEGORIES.find((c) => c.id === id) || {}).name || id;
-const catTint = (id) => (MS_CATEGORIES.find((c) => c.id === id) || {}).tint || "var(--forest)";
+const catName = (id) => (catList().find((c) => c.id === id) || {}).name || id;
+const catTint = (id) => (catList().find((c) => c.id === id) || {}).tint || "var(--forest)";
 
 /* ---------------- icons ---------------- */
 const I = {

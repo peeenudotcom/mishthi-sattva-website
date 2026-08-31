@@ -81,7 +81,7 @@ function loadCatalogue() {
   return ctx.window.MSShopData.MS_PRODUCTS;
 }
 
-const CAT_NAME = { ayurvedic: "Ayurvedic & Health", spices: "Spices & Masala", hair: "Hair Care", beauty: "Beauty & Skincare", special: "Special Foods" };
+const CAT_NAME = { sweetness: "Wellness with Sweetness", sip: "Sattvic Sip", immunity: "Immunity Booster", bodycare: "Sattvic Body Care" };
 
 function ld(obj) {
   return `<script type="application/ld+json">${JSON.stringify(obj)}</script>`;
@@ -123,7 +123,10 @@ function localBusinessLd() {
 
 function productsLd(catalogue) {
   const items = catalogue.map((p, i) => {
-    const img = SITE + (p.photo || "").replace("../../", "/");
+    // Photos may be an already-absolute URL (Supabase storage) or a repo-relative
+    // "../../assets/x" path. Only prepend the site origin to relative paths.
+    const rawPhoto = p.photo || "";
+    const img = /^https?:\/\//.test(rawPhoto) ? rawPhoto : SITE + rawPhoto.replace("../../", "/");
     const prod = {
       "@type": "Product",
       name: p.name,

@@ -46,15 +46,23 @@ function SignIn({ onDone }) {
 }
 
 /* ---------------- products ---------------- */
-const CATS = [["ayurvedic", "Ayurvedic & Health"], ["spices", "Spices & Masala"], ["hair", "Hair Care"], ["beauty", "Beauty & Skincare"], ["special", "Special Foods"]];
-const catLabel = (v) => (CATS.find((c) => c[0] === v) || [v, v])[1];
+/* Fallback used only until the DB `categories` table has been created/loaded.
+   The live list comes from D.adminCategories() and is threaded down as `cats`. */
+const DEFAULT_CATS = [
+  { slug: "sweetness", name: "Wellness with Sweetness" },
+  { slug: "sip", name: "Sattvic Sip" },
+  { slug: "immunity", name: "Immunity Booster" },
+  { slug: "bodycare", name: "Sattvic Body Care" },
+];
+const catNameOf = (cats, v) => { const c = (cats || []).find((x) => x.slug === v); return c ? c.name : v; };
 const slugify = (s) => (s || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 const lbl = { display: "grid", gap: 5, fontSize: 12, fontWeight: 600, color: "var(--muted-foreground)" };
 
 /* ---- add a brand-new product (with photo upload) ---- */
-function NewProduct({ onAdded }) {
+function NewProduct({ onAdded, cats }) {
   const [open, setOpen] = React.useState(false);
-  const empty = { name: "", category: "ayurvedic", price: "", mrp: "", weight: "", short_desc: "" };
+  const firstCat = (cats && cats[0] && cats[0].slug) || "immunity";
+  const empty = { name: "", category: firstCat, price: "", mrp: "", weight: "", short_desc: "" };
   const [f, setF] = React.useState(empty);
   const [file, setFile] = React.useState(null);
   const [busy, setBusy] = React.useState(false);
@@ -88,7 +96,7 @@ function NewProduct({ onAdded }) {
         <button type="button" className="btn ghost" onClick={() => { setOpen(false); setMsg(""); }}>Cancel</button>
       </div>
       <label style={lbl}>Product name<input value={f.name} onChange={set("name")} placeholder="e.g. Nitya Poshan Formula" /></label>
-      <label style={lbl}>Category<select value={f.category} onChange={set("category")}>{CATS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></label>
+      <label style={lbl}>Category<select value={f.category} onChange={set("category")}>{(cats || []).map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}</select></label>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
         <label style={lbl}>Price ₹<input type="number" value={f.price} onChange={set("price")} placeholder="blank = Ask" /></label>
         <label style={lbl}>MRP ₹<input type="number" value={f.mrp} onChange={set("mrp")} placeholder="optional" /></label>
@@ -103,7 +111,7 @@ function NewProduct({ onAdded }) {
   );
 }
 
-function Products() {
+function Products({ cats }) {
   const [rows, setRows] = React.useState(null);
   const [saving, setSaving] = React.useState({});
   const [saved, setSaved] = React.useState({});
@@ -171,9 +179,10 @@ function Products() {
 
   return (
     <div>
-      <NewProduct onAdded={(p) => setRows((rs) => [...rs, p])} />
+      <NewProduct cats={cats} onAdded={(p) => setRows((rs) => [...rs, p])} />
       <p className="muted" style={{ marginBottom: 14 }}>
         {rows.length} products · {noPrice} without a price. Edit any field, then click <b>Save</b> on that row.
+        <br />Use the <b>category</b> dropdown under each product name to move it into another category. Add or rename categories in the <b>Categories</b> tab.
         <br />Tick <b>Featured</b> to show a product in the home-page <b>Bestsellers</b> row (up to 6). Leave all unticked to show the default set.
         <br /><b>Label</b> sets the little badge on the product card (Bestseller / New / Special Offer / Limited) — or “none” for no badge.
       </p>
@@ -198,7 +207,11 @@ function Products() {
                     <div style={{ display: "grid", gap: 5, minWidth: 240 }}>
                       <input type="text" value={cur(r, "name") || ""} onChange={(e) => edit(r.id, "name", e.target.value)}
                         style={{ fontWeight: 700, color: "var(--primary)", width: "100%" }} />
-                      <div className="muted" style={{ fontSize: 12 }}>{catLabel(r.category)}</div>
+                      <select title="Category (move this product to another category)" value={cur(r, "category") || ""} onChange={(e) => edit(r.id, "category", e.target.value)}
+                        style={{ fontFamily: "inherit", fontSize: 12, padding: "3px 6px", maxWidth: "100%" }}>
+                        {(cats || []).map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
+                        {cats && !cats.some((c) => c.slug === (cur(r, "category") || "")) && <option value={cur(r, "category") || ""}>{catNameOf(cats, cur(r, "category"))} (unlisted)</option>}
+                      </select>
                       <textarea value={cur(r, "short_desc") || ""} onChange={(e) => edit(r.id, "short_desc", e.target.value)} rows={2}
                         placeholder="Short description shown on the product…" style={{ width: "100%", fontSize: 12, resize: "vertical" }} />
                     </div>
@@ -382,15 +395,134 @@ function Reviews() {
   );
 }
 
+/* ---------------- categories ---------------- */
+/* Owner-managed shop categories. Needs the `categories` table (supabase/categories.sql).
+   `onChange` refreshes the shared list so the product dropdowns update immediately. */
+function Categories({ cats, onChange }) {
+  const [drafts, setDrafts] = React.useState({});
+  const [saving, setSaving] = React.useState({});
+  const [saved, setSaved] = React.useState({});
+  const [err, setErr] = React.useState("");
+  const [nu, setNu] = React.useState({ name: "", tint: "var(--forest)" });
+  const [adding, setAdding] = React.useState(false);
+
+  const cur = (c, f) => (drafts[c.id] && f in drafts[c.id]) ? drafts[c.id][f] : c[f];
+  const edit = (id, f, v) => setDrafts((d) => ({ ...d, [id]: { ...d[id], [f]: v } }));
+  const dirty = (id) => drafts[id] && Object.keys(drafts[id]).length > 0;
+
+  const save = (c) => {
+    const d = drafts[c.id]; if (!d) return;
+    const patch = {};
+    if ("name" in d) patch.name = String(d.name).trim() || c.name;
+    if ("tint" in d) patch.tint = String(d.tint).trim();
+    if ("sort_order" in d) patch.sort_order = Number(d.sort_order) || 0;
+    setSaving((s) => ({ ...s, [c.id]: true })); setErr("");
+    D.updateCategory(c.id, patch)
+      .then(() => {
+        setDrafts((dd) => { const n = { ...dd }; delete n[c.id]; return n; });
+        setSaved((m) => ({ ...m, [c.id]: 1 }));
+        setTimeout(() => setSaved((m) => { const n = { ...m }; delete n[c.id]; return n; }), 2200);
+        if (onChange) onChange();
+      })
+      .catch((e) => setErr(e.message))
+      .then(() => setSaving((s) => ({ ...s, [c.id]: false })));
+  };
+
+  const add = (e) => {
+    e.preventDefault();
+    const name = nu.name.trim(); if (!name) { setErr("Enter a category name."); return; }
+    const slug = slugify(name);
+    if (cats.some((c) => c.slug === slug)) { setErr("A category with that name already exists."); return; }
+    setAdding(true); setErr("");
+    D.createCategory({ slug: slug, name: name, tint: nu.tint.trim() || "var(--forest)", sort_order: (cats.length + 1) })
+      .then(() => { setNu({ name: "", tint: "var(--forest)" }); if (onChange) onChange(); })
+      .catch((e) => setErr(e.message))
+      .then(() => setAdding(false));
+  };
+
+  const remove = (c) => {
+    if (!window.confirm("Delete the “" + c.name + "” category?\n\nProducts in it stay in the database but won't show under any category until you move them (Products tab) to another one.")) return;
+    setSaving((s) => ({ ...s, [c.id]: true })); setErr("");
+    D.deleteCategory(c.id)
+      .then(() => { if (onChange) onChange(); })
+      .catch((e) => setErr(e.message))
+      .then(() => setSaving((s) => ({ ...s, [c.id]: false })));
+  };
+
+  if (!cats) return <p className="muted">Loading categories…</p>;
+
+  return (
+    <div>
+      <p className="muted" style={{ marginBottom: 14 }}>
+        These are the category cards shown on the shop, left to right by <b>order</b>. Add, rename, recolour or remove them here —
+        then use the <b>Products</b> tab to file each product into a category.
+        {!cats.length && <><br /><b style={{ color: "var(--destructive)" }}>No categories found.</b> Run <code>supabase/categories.sql</code> once in Supabase, then reload.</>}
+      </p>
+
+      <form onSubmit={add} className="card" style={{ marginBottom: 18, display: "grid", gap: 12 }}>
+        <b style={{ color: "var(--primary)", fontSize: 16 }}>New category</b>
+        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr auto", gap: 12, alignItems: "end" }}>
+          <label style={lbl}>Category name<input value={nu.name} onChange={(e) => setNu((o) => ({ ...o, name: e.target.value }))} placeholder="e.g. Festive Hampers" /></label>
+          <label style={lbl}>Accent colour<input value={nu.tint} onChange={(e) => setNu((o) => ({ ...o, tint: e.target.value }))} placeholder="var(--gold)" /></label>
+          <button className="btn" type="submit" disabled={adding}>{adding ? "Adding…" : "+ Add"}</button>
+        </div>
+        <p className="muted" style={{ margin: 0, fontSize: 11 }}>Accent colour accepts any CSS colour — e.g. <code>var(--gold)</code>, <code>var(--forest)</code>, or <code>#c79a3b</code>.</p>
+      </form>
+
+      {err && <p style={{ color: "var(--destructive)", marginBottom: 12 }}>{err}</p>}
+
+      {!!cats.length && (
+        <div className="card" style={{ overflowX: "auto" }}>
+          <table>
+            <thead><tr><th>Order</th><th>Category name</th><th>Accent</th><th>Slug</th><th></th></tr></thead>
+            <tbody>
+              {cats.map((c) => (
+                <tr key={c.id} style={dirty(c.id) ? { background: "color-mix(in oklab, var(--accent) 8%, transparent)" } : null}>
+                  <td><input className="num" type="number" value={cur(c, "sort_order") == null ? "" : cur(c, "sort_order")}
+                        onChange={(e) => edit(c.id, "sort_order", e.target.value)} style={{ width: 64 }} /></td>
+                  <td><input type="text" value={cur(c, "name") || ""} onChange={(e) => edit(c.id, "name", e.target.value)}
+                        style={{ fontWeight: 700, color: "var(--primary)", minWidth: 200 }} /></td>
+                  <td>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ width: 18, height: 18, borderRadius: 5, flexShrink: 0, background: cur(c, "tint") || "var(--forest)", border: "1px solid var(--border)" }} />
+                      <input type="text" value={cur(c, "tint") || ""} onChange={(e) => edit(c.id, "tint", e.target.value)} style={{ width: 150, fontSize: 12 }} />
+                    </div>
+                  </td>
+                  <td className="muted" style={{ fontSize: 12 }}>{c.slug}</td>
+                  <td style={{ whiteSpace: "nowrap" }}>
+                    <button className="btn" style={{ padding: "6px 14px", fontSize: 13 }} disabled={!dirty(c.id) || saving[c.id]} onClick={() => save(c)}>
+                      {saving[c.id] ? "Saving…" : saved[c.id] ? "Saved ✓" : "Save"}
+                    </button>
+                    <button className="btn ghost" style={{ padding: "6px 10px", fontSize: 12, marginLeft: 6 }} onClick={() => remove(c)}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ---------------- shell ---------------- */
 function MSAdminApp() {
   const [signedIn, setSignedIn] = React.useState(D.isSignedIn());
   const [tab, setTab] = React.useState("products");
+  const [cats, setCats] = React.useState(null);
+
+  const loadCats = React.useCallback(() => {
+    D.adminCategories()
+      .then((r) => setCats(r && r.length ? r : DEFAULT_CATS.map((c, i) => ({ id: c.slug, slug: c.slug, name: c.name, tint: "", sort_order: i + 1 }))))
+      .catch(() => setCats(DEFAULT_CATS.map((c, i) => ({ id: c.slug, slug: c.slug, name: c.name, tint: "", sort_order: i + 1 }))));
+  }, []);
+  React.useEffect(() => { if (signedIn) loadCats(); }, [signedIn, loadCats]);
 
   if (!signedIn) return <SignIn onDone={() => setSignedIn(true)} />;
 
   const TABS = [
     ["products", "Products"],
+    ["categories", "Categories"],
     ["orders", "Orders"],
     ["enquiries", "Enquiries"],
     ["reviews", "Reviews"],
@@ -418,7 +550,8 @@ function MSAdminApp() {
         ))}
       </div>
 
-      {tab === "products" && <Products />}
+      {tab === "products" && <Products cats={cats} />}
+      {tab === "categories" && <Categories cats={cats} onChange={loadCats} />}
       {tab === "orders" && <Orders />}
       {tab === "enquiries" && <Enquiries />}
       {tab === "reviews" && <Reviews />}
