@@ -367,6 +367,9 @@ async function buildPage({ src, out }) {
     html = html.replace("</head>", inject + "</head>");
   }
 
+  // Global brand cursor (desktop only; the script self-disables on touch / reduced-motion). Not on the admin panel.
+  if (out !== "admin/index.html") html = html.replace("</head>", '  <script src="/js/cursor.js" defer></script>\n</head>');
+
   const dest = path.join(OUT, out);
   await fs.mkdir(path.dirname(dest), { recursive: true });
   await fs.writeFile(dest, html);
