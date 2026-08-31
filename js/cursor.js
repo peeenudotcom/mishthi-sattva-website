@@ -2,7 +2,11 @@
    A gentle gold ring that eases toward the pointer and grows over interactive
    elements. Purely decorative: the real cursor stays visible so clicking is
    never harder. Self-disables on touch devices and when the visitor prefers
-   reduced motion. No dependencies. */
+   reduced motion. No dependencies.
+
+   Perf: the outer element is *positioned* every frame (transform: translate,
+   GPU-composited, no transition), and the inner ring is *sized* via
+   transform: scale() — so hover/click states never trigger layout. */
 (function () {
   // Only for a precise pointer (mouse), and never when reduced motion is asked for.
   try {
@@ -16,20 +20,21 @@
 
     var style = document.createElement("style");
     style.textContent =
-      "#ms-cursor{position:fixed;top:0;left:0;width:26px;height:26px;border-radius:50%;" +
+      "#ms-cursor{position:fixed;top:0;left:0;width:48px;height:48px;pointer-events:none;" +
+      "z-index:2147483000;opacity:0;transform:translate3d(-50%,-50%,0);" +
+      "transition:opacity .25s ease;will-change:transform}" +
+      "#ms-cursor .ring{width:100%;height:100%;border-radius:50%;" +
       "border:1.5px solid var(--accent,#c69b4e);" +
       "background:color-mix(in oklab, var(--accent,#c69b4e) 12%, transparent);" +
-      "pointer-events:none;z-index:2147483000;opacity:0;" +
-      "transform:translate3d(-50%,-50%,0);" +
-      "transition:width .18s ease,height .18s ease,background .18s ease,opacity .25s ease;" +
-      "will-change:transform}" +
-      "#ms-cursor.is-hover{width:48px;height:48px;background:color-mix(in oklab, var(--accent,#c69b4e) 20%, transparent);}" +
-      "#ms-cursor.is-down{width:20px;height:20px;}";
+      "transform:scale(.55);transition:transform .18s ease,background .18s ease;will-change:transform}" +
+      "#ms-cursor.is-hover .ring{transform:scale(1);background:color-mix(in oklab, var(--accent,#c69b4e) 20%, transparent);}" +
+      "#ms-cursor.is-down .ring{transform:scale(.42);}";
     document.head.appendChild(style);
 
     var dot = document.createElement("div");
     dot.id = "ms-cursor";
     dot.setAttribute("aria-hidden", "true");
+    dot.innerHTML = '<div class="ring"></div>';
     document.body.appendChild(dot);
 
     var INTERACTIVE = "a,button,[role=button],input,textarea,select,label,summary";
@@ -47,7 +52,7 @@
     window.addEventListener("mouseup", function () { dot.classList.remove("is-down"); });
 
     function frame() {
-      // ease toward the pointer for a soft trailing lag
+      // ease toward the pointer for a soft trailing lag (position only — no layout)
       x += (tx - x) * 0.18;
       y += (ty - y) * 0.18;
       dot.style.transform = "translate3d(" + x + "px," + y + "px,0) translate(-50%,-50%)";
