@@ -139,13 +139,13 @@ function Header({ count, wishCount, onCart, onSearch, search, onWish, onHome, on
     <header style={{ position: "sticky", top: 0, zIndex: 50, background: "var(--primary)", borderBottom: "1px solid color-mix(in oklab, var(--cream) 12%, transparent)", boxShadow: "0 8px 24px -12px color-mix(in oklab, var(--forest-deep) 60%, transparent)" }}>
       {/* Single-tier bar matching the website header: logo left, nav centre, actions right. */}
       <div className="shop-head" style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", minHeight: 88, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20 }}>
-        <a href="../website/index.html" title="Back to Mishthi Sattva home" style={{ display: "inline-flex", flexDirection: "column", alignItems: "flex-start", gap: 4, cursor: "pointer", textDecoration: "none" }}>
-          {/* mark + wordmark; the tagline words rotate one at a time below it */}
+        <a href="../website/index.html" title="Back to Mishthi Sattva home" style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 6, cursor: "pointer", textDecoration: "none" }}>
+          {/* mark + wordmark; the gold-pill tagline words rotate one at a time, centred below */}
           <img src="../../assets/mishthi-logo-mark-white.png" alt="Mishthi Sattva" style={{ height: 54, width: "auto", objectFit: "contain", display: "block" }} />
-          <span aria-label="Ayurvedic · Satvic · Homemade" style={{ position: "relative", display: "block", height: 13, minWidth: 96, fontSize: 9.5, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--accent)", whiteSpace: "nowrap" }}>
-            <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "0s" }}>Ayurvedic</span>
-            <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "2.5s" }}>Satvic</span>
-            <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "5s" }}>Homemade</span>
+          <span aria-label="Ayurvedic · Satvic · Homemade" style={{ position: "relative", display: "block", width: 150, height: 19 }}>
+            <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "0s" }}><span className="ms-tagpill">Ayurvedic</span></span>
+            <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "2.5s" }}><span className="ms-tagpill">Satvic</span></span>
+            <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "5s" }}><span className="ms-tagpill">Homemade</span></span>
           </span>
         </a>
         <nav className="shop-nav" style={{ display: "flex", alignItems: "center", gap: 30 }}>

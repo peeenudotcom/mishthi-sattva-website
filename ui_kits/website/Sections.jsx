@@ -159,13 +159,13 @@ function Header({ active = "home" }) {
   return (
     <header style={{ position: "sticky", top: 0, zIndex: 40, borderBottom: "1px solid color-mix(in oklab, var(--cream) 12%, transparent)", background: "var(--primary)", boxShadow: "0 8px 24px -12px color-mix(in oklab, var(--forest-deep) 60%, transparent)" }}>
       <div className="ms-container" style={{ display: "flex", height: 88, alignItems: "center", justifyContent: "space-between", gap: 16 }}>
-        <a href="index.html" style={{ display: "inline-flex", flexDirection: "column", alignItems: "flex-start", gap: 4, textDecoration: "none" }}>
-          {/* mark + wordmark; the tagline words rotate one at a time below it */}
+        <a href="index.html" style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 6, textDecoration: "none" }}>
+          {/* mark + wordmark; the gold-pill tagline words rotate one at a time, centred below */}
           <img src={`${ASSET}/mishthi-logo-mark-white.png`} alt="Mishthi Sattva" style={{ height: 54, width: "auto", objectFit: "contain", display: "block" }} />
-          <span aria-label="Ayurvedic · Satvic · Homemade" style={{ position: "relative", display: "block", height: 13, minWidth: 96, fontSize: 9.5, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--accent)", whiteSpace: "nowrap" }}>
-            <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "0s" }}>Ayurvedic</span>
-            <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "2.5s" }}>Satvic</span>
-            <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "5s" }}>Homemade</span>
+          <span aria-label="Ayurvedic · Satvic · Homemade" style={{ position: "relative", display: "block", width: 150, height: 19 }}>
+            <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "0s" }}><span className="ms-tagpill">Ayurvedic</span></span>
+            <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "2.5s" }}><span className="ms-tagpill">Satvic</span></span>
+            <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "5s" }}><span className="ms-tagpill">Homemade</span></span>
           </span>
         </a>
         <nav className="ms-nav" style={{ display: "flex", alignItems: "center", gap: 34 }}>

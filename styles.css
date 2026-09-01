@@ -30,9 +30,11 @@
   34%  { opacity: 0; transform: translateY(-4px); }
   100% { opacity: 0; transform: translateY(-4px); }
 }
-.ms-tagcycle { position: absolute; left: 0; top: 0; opacity: 0; animation: msTagCycle 7.5s infinite var(--ease-standard, ease); }
-/* Respect reduced motion: show the full tagline as one static line instead. */
+.ms-tagcycle { position: absolute; left: 0; right: 0; top: 0; text-align: center; opacity: 0; animation: msTagCycle 7.5s infinite var(--ease-standard, ease); }
+/* Each word keeps the original lockup look: green text in a gold "tube" pill. */
+.ms-tagpill { display: inline-block; background: var(--gold); color: var(--forest-deep); padding: 3px 13px; border-radius: var(--radius-pill); font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; white-space: nowrap; }
+/* Respect reduced motion: no cycling — show the first word's pill, static. */
 @media (prefers-reduced-motion: reduce) {
-  .ms-tagcycle { position: static; opacity: 1; transform: none; animation: none; }
-  .ms-tagcycle + .ms-tagcycle::before { content: "·"; margin: 0 5px; }
+  .ms-tagcycle { animation: none; opacity: 0; }
+  .ms-tagcycle:first-child { opacity: 1; }
 }
