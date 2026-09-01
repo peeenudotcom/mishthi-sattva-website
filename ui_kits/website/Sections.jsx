@@ -743,18 +743,10 @@ function ProductModal({ p, onClose }) {
           {showPicker && !added && (
             <div style={{ marginTop: 16 }}>
               <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--accent)" }}>Choose size</p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                {variants.map((v, i) => {
-                  const on = i === vi;
-                  return (
-                    <button key={v.weight + i} type="button" onClick={() => setVi(i)} aria-pressed={on}
-                      style={{ padding: "8px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer", borderRadius: "var(--radius-pill)", transition: "all .15s",
-                        border: `1px solid ${on ? "var(--primary)" : "var(--border)"}`, background: on ? "var(--primary)" : "var(--white)", color: on ? "var(--primary-foreground)" : "var(--primary)" }}>
-                      {v.weight}
-                    </button>
-                  );
-                })}
-              </div>
+              <select value={vi} aria-label="Choose size" onChange={(e) => setVi(Number(e.target.value))}
+                style={{ width: "100%", padding: "11px 14px", fontSize: 14, fontWeight: 600, fontFamily: "var(--font-sans)", color: "var(--primary)", background: "var(--white)", border: "1px solid var(--border)", borderRadius: "var(--radius-pill)", cursor: "pointer" }}>
+                {variants.map((v, i) => <option key={v.weight + i} value={i}>{v.weight}{v.price != null ? " · ₹" + Number(v.price).toLocaleString("en-IN") : ""}</option>)}
+              </select>
             </div>
           )}
           {added ? (

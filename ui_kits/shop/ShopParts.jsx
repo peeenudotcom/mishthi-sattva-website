@@ -75,24 +75,20 @@ function TagPill({ tag }) {
 }
 
 /* ---------------- size (weight variant) picker ---------------- */
+/* A dropdown — compact on a narrow card and scales to any number of sizes.
+   Each option shows its own price so shoppers can compare without selecting. */
 function SizePicker({ variants, index, onPick, size }) {
   const big = size === "lg";
+  const label = (v) => v.weight + (v.price != null ? " · ₹" + Number(v.price).toLocaleString("en-IN") : "");
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-      {variants.map((v, i) => {
-        const on = i === index;
-        return (
-          <button key={v.weight + i} onClick={(e) => { e.stopPropagation(); onPick(i); }} type="button" aria-pressed={on}
-            style={{ padding: big ? "8px 14px" : "4px 11px", fontSize: big ? 13 : 12, fontWeight: 600, cursor: "pointer",
-              borderRadius: "var(--radius-pill)", transition: "all .15s",
-              border: `1px solid ${on ? "var(--primary)" : "var(--border)"}`,
-              background: on ? "var(--primary)" : "var(--card)",
-              color: on ? "var(--primary-foreground)" : "var(--primary)" }}>
-            {v.weight}
-          </button>
-        );
-      })}
-    </div>
+    <select value={index} aria-label="Choose size" onClick={(e) => e.stopPropagation()}
+      onChange={(e) => onPick(Number(e.target.value))}
+      style={{ width: big ? "auto" : "100%", minWidth: big ? 180 : 0, maxWidth: "100%",
+        padding: big ? "11px 14px" : "9px 12px", fontSize: big ? 14 : 13, fontWeight: 600,
+        fontFamily: "var(--font-sans)", color: "var(--primary)", background: "var(--card)",
+        border: "1px solid var(--border)", borderRadius: "var(--radius-pill)", cursor: "pointer" }}>
+      {variants.map((v, i) => <option key={v.weight + i} value={i}>{label(v)}</option>)}
+    </select>
   );
 }
 
