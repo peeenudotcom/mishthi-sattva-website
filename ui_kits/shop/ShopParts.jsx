@@ -74,10 +74,36 @@ function TagPill({ tag }) {
   return <Badge tone={m.tone}>{m.t}</Badge>;
 }
 
+/* ---------------- size (weight variant) picker ---------------- */
+function SizePicker({ variants, index, onPick, size }) {
+  const big = size === "lg";
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+      {variants.map((v, i) => {
+        const on = i === index;
+        return (
+          <button key={v.weight + i} onClick={(e) => { e.stopPropagation(); onPick(i); }} type="button" aria-pressed={on}
+            style={{ padding: big ? "8px 14px" : "4px 11px", fontSize: big ? 13 : 12, fontWeight: 600, cursor: "pointer",
+              borderRadius: "var(--radius-pill)", transition: "all .15s",
+              border: `1px solid ${on ? "var(--primary)" : "var(--border)"}`,
+              background: on ? "var(--primary)" : "var(--card)",
+              color: on ? "var(--primary-foreground)" : "var(--primary)" }}>
+            {v.weight}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ---------------- product card ---------------- */
 function ProductCard({ product, onOpen, onAdd, onToggleWish, wished }) {
   const [h, setH] = React.useState(false);
-  const off = hasPrice(product.price) && hasPrice(product.mrp) && product.mrp > product.price ? Math.round((1 - product.price / product.mrp) * 100) : 0;
+  const variants = product.variants || [];
+  const hasVar = variants.length > 0;
+  const [vi, setVi] = React.useState(0);
+  const sel = hasVar ? (variants[vi] || variants[0]) : { weight: product.weight, price: product.price, mrp: product.mrp };
+  const off = hasPrice(sel.price) && hasPrice(sel.mrp) && sel.mrp > sel.price ? Math.round((1 - sel.price / sel.mrp) * 100) : 0;
   return (
     <div onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
       style={{ display: "flex", flexDirection: "column", background: "var(--card)", border: `1px solid ${h ? "var(--accent)" : "var(--border)"}`,
@@ -100,14 +126,15 @@ function ProductCard({ product, onOpen, onAdd, onToggleWish, wished }) {
         <h3 onClick={() => onOpen(product)} style={{ margin: "4px 0 0", fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 19, lineHeight: 1.15, color: "var(--primary)", cursor: "pointer" }}>{product.name}</h3>
         <div style={{ marginTop: 6 }}><Stars value={product.rating} count={product.reviews} /></div>
         <p style={{ margin: "8px 0 0", fontSize: 13, lineHeight: 1.5, color: "var(--muted-foreground)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{product.desc}</p>
-        <div style={{ marginTop: "auto", paddingTop: 14, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+        {hasVar && <div style={{ marginTop: "auto", paddingTop: 14 }}><SizePicker variants={variants} index={vi} onPick={setVi} /></div>}
+        <div style={{ marginTop: hasVar ? 10 : "auto", paddingTop: hasVar ? 0 : 14, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
-            <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 22, color: "var(--primary)" }}>{money(product.price)}</span>
-            {off > 0 && <span style={{ fontSize: 13, color: "var(--muted-foreground)", textDecoration: "line-through" }}>{money(product.mrp)}</span>}
-            <span style={{ fontSize: 12, color: "var(--muted-foreground)" }}>· {product.weight}</span>
+            <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 22, color: "var(--primary)" }}>{money(sel.price)}</span>
+            {off > 0 && <span style={{ fontSize: 13, color: "var(--muted-foreground)", textDecoration: "line-through" }}>{money(sel.mrp)}</span>}
+            <span style={{ fontSize: 12, color: "var(--muted-foreground)" }}>· {sel.weight}</span>
           </div>
         </div>
-        <button onClick={() => onAdd(product, 1)}
+        <button onClick={() => onAdd(product, 1, hasVar ? sel : null)}
           style={{ marginTop: 12, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", padding: "10px 14px",
             borderRadius: "var(--radius-pill)", border: "1px solid transparent", background: h ? "var(--forest-deep)" : "var(--primary)", color: "var(--primary-foreground)",
             fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 14, cursor: "pointer", transition: "background .2s" }}>
@@ -134,9 +161,13 @@ function Stepper({ value, onChange, size = "md" }) {
 /* ---------------- quick-view modal ---------------- */
 function QuickView({ product, onClose, onAdd, onToggleWish, wished }) {
   const [qty, setQty] = React.useState(1);
-  React.useEffect(() => { setQty(1); }, [product && product.id]);
+  const [vi, setVi] = React.useState(0);
+  React.useEffect(() => { setQty(1); setVi(0); }, [product && product.id]);
   if (!product) return null;
-  const off = hasPrice(product.price) && hasPrice(product.mrp) && product.mrp > product.price ? Math.round((1 - product.price / product.mrp) * 100) : 0;
+  const variants = product.variants || [];
+  const hasVar = variants.length > 0;
+  const sel = hasVar ? (variants[vi] || variants[0]) : { weight: product.weight, price: product.price, mrp: product.mrp };
+  const off = hasPrice(sel.price) && hasPrice(sel.mrp) && sel.mrp > sel.price ? Math.round((1 - sel.price / sel.mrp) * 100) : 0;
   return (
     <Overlay onClose={onClose} align="center">
       <div onClick={(e) => e.stopPropagation()} style={{ width: "min(880px, 94vw)", maxHeight: "90vh", overflow: "auto", background: "var(--card)", borderRadius: "var(--radius-3xl)", boxShadow: "var(--shadow-xl)", border: "1px solid var(--border)" }}>
@@ -148,10 +179,17 @@ function QuickView({ product, onClose, onAdd, onToggleWish, wished }) {
             <h2 style={{ margin: "8px 0 0", fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 34, lineHeight: 1.05, color: "var(--primary)" }}>{product.name}</h2>
             <div style={{ marginTop: 10 }}><Stars value={product.rating} count={product.reviews} size={16} /></div>
             <div style={{ marginTop: 16, display: "flex", alignItems: "baseline", gap: 10 }}>
-              <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 30, color: "var(--primary)" }}>{money(product.price)}</span>
-              {off > 0 && <span style={{ fontSize: 16, color: "var(--muted-foreground)", textDecoration: "line-through" }}>{money(product.mrp)}</span>}
+              <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 30, color: "var(--primary)" }}>{money(sel.price)}</span>
+              {off > 0 && <span style={{ fontSize: 16, color: "var(--muted-foreground)", textDecoration: "line-through" }}>{money(sel.mrp)}</span>}
               {off > 0 && <span style={{ fontSize: 13, fontWeight: 700, color: "var(--destructive)" }}>Save {off}%</span>}
+              <span style={{ fontSize: 14, color: "var(--muted-foreground)" }}>· {sel.weight}</span>
             </div>
+            {hasVar && (
+              <div style={{ marginTop: 18 }}>
+                <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--accent)" }}>Choose size</p>
+                <SizePicker variants={variants} index={vi} onPick={setVi} size="lg" />
+              </div>
+            )}
             <p style={{ marginTop: 16, fontSize: 15, lineHeight: 1.65, color: "color-mix(in oklab, var(--foreground) 82%, transparent)" }}>{product.desc}</p>
             <div style={{ marginTop: 16, display: "flex", flexWrap: "wrap", gap: 8 }}>
               {product.facts.map((f) => (
@@ -162,8 +200,8 @@ function QuickView({ product, onClose, onAdd, onToggleWish, wished }) {
             </div>
             <div style={{ marginTop: 24, display: "flex", alignItems: "center", gap: 12 }}>
               <Stepper value={qty} onChange={setQty} />
-              <button onClick={() => { onAdd(product, qty); onClose(); }} style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "13px 18px", borderRadius: "var(--radius-pill)", border: "none", background: "var(--primary)", color: "var(--primary-foreground)", fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 15, cursor: "pointer" }}>
-                <I.bag s={19} /> Add {qty}{hasPrice(product.price) ? ` · ${money(product.price * qty)}` : ""}
+              <button onClick={() => { onAdd(product, qty, hasVar ? sel : null); onClose(); }} style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "13px 18px", borderRadius: "var(--radius-pill)", border: "none", background: "var(--primary)", color: "var(--primary-foreground)", fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 15, cursor: "pointer" }}>
+                <I.bag s={19} /> Add {qty}{hasPrice(sel.price) ? ` · ${money(sel.price * qty)}` : ""}
               </button>
               <button onClick={() => onToggleWish(product.id)} aria-label="Wishlist" style={{ height: 48, width: 48, flexShrink: 0, display: "grid", placeItems: "center", borderRadius: "var(--radius-pill)", border: "1px solid var(--border)", background: "var(--card)", color: wished ? "var(--destructive)" : "var(--ink-500)", cursor: "pointer" }}>
                 <I.heart s={20} fill={wished ? "currentColor" : "none"} />

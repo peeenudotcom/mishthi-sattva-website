@@ -110,6 +110,13 @@ function toEntry(row, prev) {
     facts,
   };
   if (prev.badge) entry.badge = prev.badge;
+  if (Array.isArray(row.variants) && row.variants.length) {
+    entry.variants = row.variants.map((v) => ({
+      weight: String(v.weight || ""),
+      price: v.price == null || v.price === "" ? null : Number(v.price),
+      mrp: v.mrp == null || v.mrp === "" ? null : Number(v.mrp),
+    }));
+  }
   return entry;
 }
 
@@ -145,7 +152,9 @@ function render(categories, products) {
     ];
     if (p.badge) head.push(`badge: ${S(p.badge)}`);
     head.push(`photo: ${S(p.photo)}`);
-    lines.push(`  { ${head.join(", ")},\n    desc: ${S(p.desc)},\n    facts: ${S(p.facts)} },`);
+    const tail = [`desc: ${S(p.desc)}`, `facts: ${S(p.facts)}`];
+    if (p.variants && p.variants.length) tail.push(`variants: ${S(p.variants)}`);
+    lines.push(`  { ${head.join(", ")},\n    ${tail.join(",\n    ")} },`);
   }
 
   return `/* Mishthi Sattva — Shop catalogue (instant-load snapshot).

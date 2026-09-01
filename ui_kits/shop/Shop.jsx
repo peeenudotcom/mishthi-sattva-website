@@ -46,6 +46,18 @@ const REMAP_CAT = {
 function normaliseCat(slug, cat) {
   return (LEGACY_CATS[cat] && REMAP_CAT[slug]) ? REMAP_CAT[slug] : cat;
 }
+/* Normalise a product's weight variants (each: {weight, price, mrp}). Ordered —
+   the first is the default shown on the card. Empty ⇒ single-price product. */
+function normVariants(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((v) => v && v.weight)
+    .map((v) => ({
+      weight: String(v.weight),
+      price: v.price == null || v.price === "" ? null : Number(v.price),
+      mrp: v.mrp == null || v.mrp === "" ? null : Number(v.mrp),
+    }));
+}
 function mergeFromDb(rows) {
   if (!rows || !rows.length) return null;
   const local = {};
@@ -58,13 +70,18 @@ function mergeFromDb(rows) {
       // DB stores root-relative paths ("/assets/x.png"); the shop lives two
       // levels down, so normalise to a relative path that works either way.
       if (photo && photo.indexOf("/assets/") === 0) photo = ".." + "/.." + photo;
+      const variants = normVariants(r.variants);
+      const def = variants[0];
       return {
         id: r.slug,
         name: r.name,
         cat: normaliseCat(r.slug, r.category),
-        price: r.price == null ? null : Number(r.price),
-        mrp: r.mrp == null ? null : Number(r.mrp),
-        weight: r.weight || base.weight || "",
+        variants: variants,
+        // With variants, the default (first) size drives the card's headline
+        // price/weight; sorting & "from" use it too.
+        price: variants.length ? def.price : (r.price == null ? null : Number(r.price)),
+        mrp: variants.length ? def.mrp : (r.mrp == null ? null : Number(r.mrp)),
+        weight: variants.length ? def.weight : (r.weight || base.weight || ""),
         desc: r.short_desc || base.desc || "",
         facts: (r.benefits && r.benefits.length ? r.benefits : base.facts) || [],
         photo: photo,
@@ -296,14 +313,14 @@ function CartDrawer({ items, onClose, onQty, onRemove, onCheckout, subtotal }) {
             </div>
             <div style={{ flex: 1, overflow: "auto", padding: "8px 22px" }}>
               {items.map((it) => (
-                <div key={it.id} style={{ display: "flex", gap: 12, padding: "14px 0", borderBottom: "1px solid var(--border)" }}>
+                <div key={it.key || it.id} style={{ display: "flex", gap: 12, padding: "14px 0", borderBottom: "1px solid var(--border)" }}>
                   <div style={{ width: 72, flexShrink: 0 }}><ProductMedia product={it} height={72} round={12} /></div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 16, color: "var(--primary)", lineHeight: 1.2 }}>{it.name}</p>
                     <p style={{ marginTop: 2, fontSize: 12, color: "var(--muted-foreground)" }}>{it.weight} · {money(it.price)}</p>
                     <div style={{ marginTop: 8, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                      <Stepper value={it.qty} onChange={(q) => onQty(it.id, q)} size="sm" />
-                      <button onClick={() => onRemove(it.id)} aria-label="Remove" style={{ display: "inline-flex", alignItems: "center", gap: 4, border: "none", background: "transparent", color: "var(--ink-300)", fontSize: 12, cursor: "pointer" }}><I.trash s={15} /></button>
+                      <Stepper value={it.qty} onChange={(q) => onQty(it.key || it.id, q)} size="sm" />
+                      <button onClick={() => onRemove(it.key || it.id)} aria-label="Remove" style={{ display: "inline-flex", alignItems: "center", gap: 4, border: "none", background: "transparent", color: "var(--ink-300)", fontSize: 12, cursor: "pointer" }}><I.trash s={15} /></button>
                     </div>
                   </div>
                   <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 17, color: "var(--primary)" }}>{it.price == null ? "Ask for price" : money(it.price * it.qty)}</span>
@@ -582,17 +599,23 @@ function Shop() {
     setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 2200);
   };
 
-  const addToCart = (product, qty = 1) => {
+  /* A chosen size (variant) becomes its own cart line, so 250 g and 500 g of the
+     same product don't merge. `key` = id (+"|weight" when a size is picked);
+     older carts without a key fall back to id. */
+  const addToCart = (product, qty = 1, variant = null) => {
+    const weight = variant ? variant.weight : product.weight;
+    const price = variant ? (variant.price == null ? null : Number(variant.price)) : product.price;
+    const mrp = variant ? variant.mrp : product.mrp;
+    const key = product.id + (variant ? "|" + weight : "");
     setCart((c) => {
-      const ex = c.find((i) => i.id === product.id);
-      if (ex) return c.map((i) => i.id === product.id ? { ...i, qty: i.qty + qty } : i);
-      const { id, name, price, weight, cat, photo, mrp } = product;
-      return [...c, { id, name, price, weight, cat, photo, mrp, qty }];
+      const ex = c.find((i) => (i.key || i.id) === key);
+      if (ex) return c.map((i) => (i.key || i.id) === key ? { ...i, qty: i.qty + qty } : i);
+      return [...c, { id: product.id, key, name: product.name, price, weight, cat: product.cat, photo: product.photo, mrp, qty }];
     });
-    toast(`${product.name} added to cart`);
+    toast(`${product.name}${variant ? " · " + weight : ""} added to cart`);
   };
-  const setQty = (id, qty) => setCart((c) => c.map((i) => i.id === id ? { ...i, qty } : i));
-  const removeItem = (id) => setCart((c) => c.filter((i) => i.id !== id));
+  const setQty = (key, qty) => setCart((c) => c.map((i) => (i.key || i.id) === key ? { ...i, qty } : i));
+  const removeItem = (key) => setCart((c) => c.filter((i) => (i.key || i.id) !== key));
   const toggleWish = (id) => setWish((w) => w.includes(id) ? w.filter((x) => x !== id) : [...w, id]);
 
   /* Items with an unconfirmed price contribute 0 here, so the subtotal only

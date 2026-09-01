@@ -111,12 +111,78 @@ function NewProduct({ onAdded, cats }) {
   );
 }
 
+/* Weight-variant editor (opened per product from the "Sizes" button).
+   Saving also syncs the product's single price/weight to the first (default)
+   size, so the table + sorting stay sensible. Empty ⇒ single-size product. */
+function VariantsEditor({ product, onClose, onSaved }) {
+  const init = Array.isArray(product.variants) && product.variants.length
+    ? product.variants.map((v) => ({ weight: v.weight || "", price: v.price == null ? "" : v.price, mrp: v.mrp == null ? "" : v.mrp }))
+    : [];
+  const [rows, setRows] = React.useState(init);
+  const [busy, setBusy] = React.useState(false);
+  const [err, setErr] = React.useState("");
+  const addRow = () => setRows((r) => [...r, { weight: "", price: "", mrp: "" }]);
+  const upd = (i, k, v) => setRows((r) => r.map((x, j) => (j === i ? { ...x, [k]: v } : x)));
+  const del = (i) => setRows((r) => r.filter((_, j) => j !== i));
+
+  const save = () => {
+    const clean = rows.filter((x) => String(x.weight).trim()).map((x) => ({
+      weight: String(x.weight).trim(),
+      price: x.price === "" || x.price == null ? null : Number(x.price),
+      mrp: x.mrp === "" || x.mrp == null ? null : Number(x.mrp),
+    }));
+    setBusy(true); setErr("");
+    const patch = { variants: clean };
+    if (clean.length) { patch.price = clean[0].price; patch.mrp = clean[0].mrp; patch.weight = clean[0].weight; }
+    D.updateProductFields(product.id, patch)
+      .then(() => { setBusy(false); onSaved(product.id, patch); onClose(); })
+      .catch((e) => { setBusy(false); setErr(e.message); });
+  };
+
+  const cell = { padding: "8px 10px" };
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 200, background: "color-mix(in oklab, #10231c 55%, transparent)", display: "grid", placeItems: "center", padding: 20 }}>
+      <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: "min(580px, 96vw)", maxHeight: "90vh", overflow: "auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <b style={{ color: "var(--primary)", fontSize: 17 }}>Sizes — {product.name}</b>
+          <button className="btn ghost" onClick={onClose}>Close</button>
+        </div>
+        <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>
+          Add each weight this product is sold in, with its own price. The <b>first</b> size is the default shown on the shop card.
+          Leave empty to sell it as a single size (uses the Price/Weight from the table).
+        </p>
+        <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr auto", gap: 8, fontSize: 11, fontWeight: 700, color: "var(--muted-foreground)", textTransform: "uppercase", letterSpacing: ".05em" }}>
+            <span style={cell}>Weight</span><span style={cell}>Price ₹</span><span style={cell}>MRP ₹</span><span></span>
+          </div>
+          {rows.length === 0 && <p className="muted" style={{ fontSize: 13, margin: 0 }}>No sizes yet — this product uses its single price. Click “+ Add size”.</p>}
+          {rows.map((x, i) => (
+            <div key={i} style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr 1fr auto", gap: 8, alignItems: "center" }}>
+              <input value={x.weight} placeholder="250 g" onChange={(e) => upd(i, "weight", e.target.value)} />
+              <input type="number" value={x.price} placeholder="450" onChange={(e) => upd(i, "price", e.target.value)} />
+              <input type="number" value={x.mrp} placeholder="600" onChange={(e) => upd(i, "mrp", e.target.value)} />
+              <button className="btn ghost" style={{ padding: "6px 10px" }} onClick={() => del(i)} title="Remove size">✕</button>
+            </div>
+          ))}
+          <div><button className="btn ghost" onClick={addRow}>+ Add size</button></div>
+        </div>
+        {err && <p style={{ color: "var(--destructive)", fontSize: 13 }}>{err}</p>}
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
+          <button className="btn ghost" onClick={onClose}>Cancel</button>
+          <button className="btn" onClick={save} disabled={busy}>{busy ? "Saving…" : "Save sizes"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Products({ cats }) {
   const [rows, setRows] = React.useState(null);
   const [saving, setSaving] = React.useState({});
   const [saved, setSaved] = React.useState({});
   const [drafts, setDrafts] = React.useState({});
   const [err, setErr] = React.useState("");
+  const [editingSizes, setEditingSizes] = React.useState(null); // product row whose sizes are open
 
   const load = () => D.adminProducts().then((r) => { setRows(r); setDrafts({}); }).catch((e) => setErr(e.message));
   React.useEffect(() => { load(); }, []);
@@ -221,8 +287,16 @@ function Products({ cats }) {
                       placeholder="Ask" onChange={(e) => edit(r.id, "price", e.target.value)} /></td>
                 <td><input className="num" type="number" value={cur(r, "mrp") == null ? "" : cur(r, "mrp")}
                       placeholder="—" onChange={(e) => edit(r.id, "mrp", e.target.value)} /></td>
-                <td><input className="num" type="text" value={cur(r, "weight") || ""}
-                      placeholder="500 g" onChange={(e) => edit(r.id, "weight", e.target.value)} /></td>
+                <td>
+                  <input className="num" type="text" value={cur(r, "weight") || ""}
+                    placeholder="500 g" onChange={(e) => edit(r.id, "weight", e.target.value)} />
+                  <div style={{ marginTop: 6 }}>
+                    <button className="btn ghost" style={{ padding: "3px 9px", fontSize: 11 }} onClick={() => setEditingSizes(r)}
+                      title="Sell this product in multiple weights, each with its own price">
+                      {r.variants && r.variants.length ? `Sizes (${r.variants.length})` : "+ Sizes"}
+                    </button>
+                  </div>
+                </td>
                 <td>
                   <input type="checkbox" style={{ width: 18, height: 18 }} checked={cur(r, "in_stock") !== false}
                     onChange={(e) => edit(r.id, "in_stock", e.target.checked)} />
@@ -259,6 +333,8 @@ function Products({ cats }) {
           </tbody>
         </table>
       </div>
+      {editingSizes && <VariantsEditor product={editingSizes} onClose={() => setEditingSizes(null)}
+        onSaved={(id, patch) => setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch } : r)))} />}
     </div>
   );
 }
