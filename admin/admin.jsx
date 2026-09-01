@@ -403,13 +403,52 @@ function Reviews() {
 /* ---------------- categories ---------------- */
 /* Owner-managed shop categories. Needs the `categories` table (supabase/categories.sql).
    `onChange` refreshes the shared list so the product dropdowns update immediately. */
+/* Preset accent colours for categories — the owner picks by name, no CSS needed.
+   Values use the brand tokens (defined via styles.css) so they match the site. */
+const CAT_TINTS = [
+  ["var(--gold)", "Gold"],
+  ["var(--gold-soft)", "Soft Gold"],
+  ["var(--forest)", "Forest Green"],
+  ["var(--forest-deep)", "Deep Forest"],
+  ["color-mix(in oklab, var(--forest) 55%, var(--gold))", "Green-Gold"],
+  ["#B45309", "Saffron"],
+  ["#C0492F", "Terracotta"],
+  ["#6D2E5B", "Plum"],
+  ["#2C7A7B", "Teal"],
+  ["#9B2D6B", "Berry"],
+];
+/* Colour dropdown with a live swatch. Falls back to a "Current" option if the
+   stored value isn't one of the presets (e.g. an older hand-typed colour). */
+function TintSelect({ value, onChange }) {
+  const v = value || "var(--gold)";
+  const known = CAT_TINTS.some(([val]) => val === v);
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <span aria-hidden="true" style={{ width: 22, height: 22, borderRadius: 6, flexShrink: 0, background: v, border: "1px solid var(--border)" }} />
+      <select value={known ? v : "__custom"} onChange={(e) => { if (e.target.value !== "__custom") onChange(e.target.value); }}
+        style={{ fontSize: 13, padding: "6px 8px", minWidth: 148 }}>
+        {CAT_TINTS.map(([val, name]) => <option key={val} value={val}>{name}</option>)}
+        {!known && <option value="__custom">Current (custom)</option>}
+      </select>
+    </div>
+  );
+}
+
 function Categories({ cats, onChange }) {
   const [drafts, setDrafts] = React.useState({});
   const [saving, setSaving] = React.useState({});
   const [saved, setSaved] = React.useState({});
   const [err, setErr] = React.useState("");
-  const [nu, setNu] = React.useState({ name: "", tint: "var(--forest)" });
+  const [nu, setNu] = React.useState({ name: "", tint: "var(--gold)" });
   const [adding, setAdding] = React.useState(false);
+  // Product count per category slug — so the owner can see which categories are
+  // populated (and which are hidden on the shop because they're still empty).
+  const [counts, setCounts] = React.useState(null);
+  React.useEffect(() => {
+    D.adminProducts().then((rows) => {
+      const m = {}; (rows || []).forEach((r) => { m[r.category] = (m[r.category] || 0) + 1; }); setCounts(m);
+    }).catch(() => setCounts({}));
+  }, []);
 
   const cur = (c, f) => (drafts[c.id] && f in drafts[c.id]) ? drafts[c.id][f] : c[f];
   const edit = (id, f, v) => setDrafts((d) => ({ ...d, [id]: { ...d[id], [f]: v } }));
@@ -461,6 +500,7 @@ function Categories({ cats, onChange }) {
       <p className="muted" style={{ marginBottom: 14 }}>
         These are the category cards shown on the shop, left to right by <b>order</b>. Add, rename, recolour or remove them here —
         then use the <b>Products</b> tab to file each product into a category.
+        <br /><b>A category only appears on the shop once it has at least one product</b> — empty categories stay hidden from customers (so nobody lands on a blank page). The “On shop” column below shows which are live.
         {!cats.length && <><br /><b style={{ color: "var(--destructive)" }}>No categories found.</b> Run <code>supabase/categories.sql</code> once in Supabase, then reload.</>}
       </p>
 
@@ -468,10 +508,10 @@ function Categories({ cats, onChange }) {
         <b style={{ color: "var(--primary)", fontSize: 16 }}>New category</b>
         <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr auto", gap: 12, alignItems: "end" }}>
           <label style={lbl}>Category name<input value={nu.name} onChange={(e) => setNu((o) => ({ ...o, name: e.target.value }))} placeholder="e.g. Festive Hampers" /></label>
-          <label style={lbl}>Accent colour<input value={nu.tint} onChange={(e) => setNu((o) => ({ ...o, tint: e.target.value }))} placeholder="var(--gold)" /></label>
+          <label style={lbl}>Accent colour<TintSelect value={nu.tint} onChange={(v) => setNu((o) => ({ ...o, tint: v }))} /></label>
           <button className="btn" type="submit" disabled={adding}>{adding ? "Adding…" : "+ Add"}</button>
         </div>
-        <p className="muted" style={{ margin: 0, fontSize: 11 }}>Accent colour accepts any CSS colour — e.g. <code>var(--gold)</code>, <code>var(--forest)</code>, or <code>#c79a3b</code>.</p>
+        <p className="muted" style={{ margin: 0, fontSize: 11 }}>Pick an accent colour from the list — it tints the category card on the shop. Remember to assign products in the <b>Products</b> tab, or the new category stays hidden.</p>
       </form>
 
       {err && <p style={{ color: "var(--destructive)", marginBottom: 12 }}>{err}</p>}
@@ -479,7 +519,7 @@ function Categories({ cats, onChange }) {
       {!!cats.length && (
         <div className="card" style={{ overflowX: "auto" }}>
           <table>
-            <thead><tr><th>Order</th><th>Category name</th><th>Accent</th><th>Slug</th><th></th></tr></thead>
+            <thead><tr><th>Order</th><th>Category name</th><th>Accent</th><th>On shop</th><th>Slug</th><th></th></tr></thead>
             <tbody>
               {cats.map((c) => (
                 <tr key={c.id} style={dirty(c.id) ? { background: "color-mix(in oklab, var(--accent) 8%, transparent)" } : null}>
@@ -488,10 +528,13 @@ function Categories({ cats, onChange }) {
                   <td><input type="text" value={cur(c, "name") || ""} onChange={(e) => edit(c.id, "name", e.target.value)}
                         style={{ fontWeight: 700, color: "var(--primary)", minWidth: 200 }} /></td>
                   <td>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ width: 18, height: 18, borderRadius: 5, flexShrink: 0, background: cur(c, "tint") || "var(--forest)", border: "1px solid var(--border)" }} />
-                      <input type="text" value={cur(c, "tint") || ""} onChange={(e) => edit(c.id, "tint", e.target.value)} style={{ width: 150, fontSize: 12 }} />
-                    </div>
+                    <TintSelect value={cur(c, "tint")} onChange={(v) => edit(c.id, "tint", v)} />
+                  </td>
+                  <td style={{ fontSize: 12 }}>
+                    {counts == null ? <span className="muted">…</span>
+                      : (counts[c.slug] || 0) > 0
+                        ? <span style={{ color: "var(--primary)", fontWeight: 600 }}>{counts[c.slug]} product{counts[c.slug] > 1 ? "s" : ""}</span>
+                        : <span style={{ color: "var(--destructive)" }}>0 — hidden</span>}
                   </td>
                   <td className="muted" style={{ fontSize: 12 }}>{c.slug}</td>
                   <td style={{ whiteSpace: "nowrap" }}>
