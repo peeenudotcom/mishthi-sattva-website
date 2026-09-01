@@ -19,3 +19,20 @@
   .ms-fab { display: none !important; }
   main { padding-bottom: 76px; }
 }
+
+/* Header tagline — the three words rotate one at a time under the logo, so it
+   stays compact (a long static line looked unbalanced under the small mark).
+   Words are stacked absolutely and cross-fade; only one shows at a time. */
+@keyframes msTagCycle {
+  0%   { opacity: 0; transform: translateY(4px); }
+  5%   { opacity: 1; transform: translateY(0); }
+  28%  { opacity: 1; transform: translateY(0); }
+  34%  { opacity: 0; transform: translateY(-4px); }
+  100% { opacity: 0; transform: translateY(-4px); }
+}
+.ms-tagcycle { position: absolute; left: 0; top: 0; opacity: 0; animation: msTagCycle 7.5s infinite var(--ease-standard, ease); }
+/* Respect reduced motion: show the full tagline as one static line instead. */
+@media (prefers-reduced-motion: reduce) {
+  .ms-tagcycle { position: static; opacity: 1; transform: none; animation: none; }
+  .ms-tagcycle + .ms-tagcycle::before { content: "·"; margin: 0 5px; }
+}

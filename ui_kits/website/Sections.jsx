@@ -160,9 +160,13 @@ function Header({ active = "home" }) {
     <header style={{ position: "sticky", top: 0, zIndex: 40, borderBottom: "1px solid color-mix(in oklab, var(--cream) 12%, transparent)", background: "var(--primary)", boxShadow: "0 8px 24px -12px color-mix(in oklab, var(--forest-deep) 60%, transparent)" }}>
       <div className="ms-container" style={{ display: "flex", height: 88, alignItems: "center", justifyContent: "space-between", gap: 16 }}>
         <a href="index.html" style={{ display: "inline-flex", flexDirection: "column", alignItems: "flex-start", gap: 4, textDecoration: "none" }}>
-          {/* mark + wordmark; tagline rendered as crisp text below (baked-in pill was unreadable at header size) */}
+          {/* mark + wordmark; the tagline words rotate one at a time below it */}
           <img src={`${ASSET}/mishthi-logo-mark-white.png`} alt="Mishthi Sattva" style={{ height: 54, width: "auto", objectFit: "contain", display: "block" }} />
-          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--accent)", whiteSpace: "nowrap" }}>Ayurvedic · Satvic · Homemade</span>
+          <span aria-label="Ayurvedic · Satvic · Homemade" style={{ position: "relative", display: "block", height: 13, minWidth: 96, fontSize: 9.5, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--accent)", whiteSpace: "nowrap" }}>
+            <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "0s" }}>Ayurvedic</span>
+            <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "2.5s" }}>Satvic</span>
+            <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "5s" }}>Homemade</span>
+          </span>
         </a>
         <nav className="ms-nav" style={{ display: "flex", alignItems: "center", gap: 34 }}>
           {nav.map((n) => {

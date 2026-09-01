@@ -140,9 +140,13 @@ function Header({ count, wishCount, onCart, onSearch, search, onWish, onHome, on
       {/* Single-tier bar matching the website header: logo left, nav centre, actions right. */}
       <div className="shop-head" style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", minHeight: 88, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 20 }}>
         <a href="../website/index.html" title="Back to Mishthi Sattva home" style={{ display: "inline-flex", flexDirection: "column", alignItems: "flex-start", gap: 4, cursor: "pointer", textDecoration: "none" }}>
-          {/* mark + wordmark only; the tagline is crisp text below (was an unreadable baked-in pill) */}
+          {/* mark + wordmark; the tagline words rotate one at a time below it */}
           <img src="../../assets/mishthi-logo-mark-white.png" alt="Mishthi Sattva" style={{ height: 54, width: "auto", objectFit: "contain", display: "block" }} />
-          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--accent)", whiteSpace: "nowrap" }}>Ayurvedic · Satvic · Homemade</span>
+          <span aria-label="Ayurvedic · Satvic · Homemade" style={{ position: "relative", display: "block", height: 13, minWidth: 96, fontSize: 9.5, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--accent)", whiteSpace: "nowrap" }}>
+            <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "0s" }}>Ayurvedic</span>
+            <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "2.5s" }}>Satvic</span>
+            <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "5s" }}>Homemade</span>
+          </span>
         </a>
         <nav className="shop-nav" style={{ display: "flex", alignItems: "center", gap: 30 }}>
           {[["Home", "../website/index.html"], ["Story", "../website/about.html"], ["Shop", "../shop/index.html"], ["Contact", "../website/contact.html"]].map(([t, h]) => {
