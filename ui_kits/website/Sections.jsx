@@ -980,7 +980,7 @@ function FounderTeaser() {
     <section style={{ background: "color-mix(in oklab, var(--secondary) 60%, var(--background))", padding: "84px 0" }}>
       <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "0.85fr 1.15fr", gap: 48, alignItems: "center" }}>
         <div style={{ overflow: "hidden", borderRadius: 28, border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", aspectRatio: "4 / 5" }}>
-          <img src={`${ASSET}/founder-kiran.jpg`} alt="Cherry Bansal shaping laddu by hand in her Kotkapura kitchen" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 32%", display: "block" }} />
+          <img src={`${ASSET}/founder-cherry-laddu.png`} alt="Cherry Bansal holding a tray of homemade Shakti Laddu in her Kotkapura kitchen" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 22%", display: "block" }} />
         </div>
         <div>
           <GoldDivider>From Cherry's Kitchen</GoldDivider>
