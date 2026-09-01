@@ -25,10 +25,24 @@ function toggleFav(id) {
 const CART_KEY = "ms_shop_cart";
 function addToShopCart(item, qty) {
   let cart; try { cart = JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch (e) { cart = []; }
-  const ex = cart.find((i) => i.id === item.id);
+  // Dedupe by key (id + "|weight" for a chosen size) so a size is its own line,
+  // matching the shop's cart. Non-variant items fall back to id.
+  const k = item.key || item.id;
+  const ex = cart.find((i) => (i.key || i.id) === k);
   if (ex) ex.qty += qty; else cart.push({ ...item, qty: qty });
   try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch (e) {}
   return cart.reduce((n, i) => n + i.qty, 0);
+}
+
+/* Normalise a product's weight variants (each {weight, price, mrp}); first is default. */
+function normVar(raw) {
+  return Array.isArray(raw)
+    ? raw.filter((v) => v && v.weight).map((v) => ({
+        weight: String(v.weight),
+        price: v.price == null || v.price === "" ? null : Number(v.price),
+        mrp: v.mrp == null || v.mrp === "" ? null : Number(v.mrp),
+      }))
+    : [];
 }
 function HeartIcon({ filled, size = 20 }) {
   return (
@@ -663,7 +677,7 @@ function HomeProductCard({ p, onView }) {
         <div style={{ marginTop: 14, display: "flex", alignItems: "baseline", gap: 10 }}>
           <span style={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)" }}>{p.size}</span>
           <span style={{ color: "var(--accent)" }}>·</span>
-          <PriceTag p={p} />
+          <PriceTag p={p} />{p.variants && p.variants.length > 1 ? <span style={{ fontSize: 12, color: "var(--muted-foreground)" }}>· {p.variants.length} sizes</span> : null}
         </div>
         <div style={{ marginTop: "auto", paddingTop: 18, display: "flex", alignItems: "center", gap: 10 }}>
           {/* opens this product's details in a popup on THIS page — no navigation to the shop */}
@@ -687,6 +701,10 @@ function HomeProductCard({ p, onView }) {
 function ProductModal({ p, onClose }) {
   const [qty, setQty] = React.useState(1);
   const [added, setAdded] = React.useState(false);
+  const variants = Array.isArray(p.variants) ? p.variants : [];
+  const hasVar = variants.length > 0;
+  const [vi, setVi] = React.useState(0);
+  const sel = hasVar ? (variants[vi] || variants[0]) : { weight: p.size, price: p.price, mrp: p.mrp };
   React.useEffect(() => {
     const onKey = (e) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", onKey);
@@ -694,11 +712,12 @@ function ProductModal({ p, onClose }) {
     document.body.style.overflow = "hidden";
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
   }, [onClose]);
-  const waMsg = `Namaste! I have a question about ${p.name}${p.size ? " (" + p.size + ")" : ""}.`;
+  const waMsg = `Namaste! I have a question about ${p.name}${sel.weight ? " (" + sel.weight + ")" : ""}.`;
   const imgSrc = p.photo || `${ASSET}/${p.img}`;
   const shareHref = shareToWhatsApp(`You have to try the ${p.name} from Mishthi Sattva 🌿 — homemade & preservative-free. See it here: {site}/shop`);
   const add = () => {
-    addToShopCart({ id: p.id, name: p.name, price: p.price != null ? p.price : null, weight: p.size, cat: p.cat || null, photo: imgSrc, mrp: p.mrp != null ? p.mrp : null }, qty);
+    const key = p.id + (hasVar ? "|" + sel.weight : "");
+    addToShopCart({ id: p.id, key: key, name: p.name, price: sel.price != null ? sel.price : null, weight: sel.weight, cat: p.cat || null, photo: imgSrc, mrp: sel.mrp != null ? sel.mrp : null }, qty);
     setAdded(true);
   };
   const stepBtn = { height: 38, width: 38, display: "grid", placeItems: "center", borderRadius: "var(--radius-pill)", border: "1px solid var(--border)", background: "var(--card)", color: "var(--primary)", cursor: "pointer", fontSize: 18, lineHeight: 1 };
@@ -716,10 +735,27 @@ function ProductModal({ p, onClose }) {
           <h3 style={{ margin: 0, fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 28, lineHeight: 1.1, color: "var(--primary)" }}>{p.name}</h3>
           <p style={{ margin: "12px 0 0", fontSize: 15.5, lineHeight: 1.6, color: "var(--muted-foreground)" }}>{p.desc || p.benefit}</p>
           <div style={{ marginTop: 16, display: "flex", alignItems: "baseline", gap: 10 }}>
-            <span style={{ fontSize: 14, fontWeight: 600, color: "var(--foreground)" }}>{p.size}</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: "var(--foreground)" }}>{sel.weight}</span>
             <span style={{ color: "var(--accent)" }}>·</span>
-            <PriceTag p={p} big />
+            <PriceTag p={{ ...p, price: sel.price, mrp: sel.mrp }} big />
           </div>
+          {hasVar && !added && (
+            <div style={{ marginTop: 16 }}>
+              <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--accent)" }}>Choose size</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {variants.map((v, i) => {
+                  const on = i === vi;
+                  return (
+                    <button key={v.weight + i} type="button" onClick={() => setVi(i)} aria-pressed={on}
+                      style={{ padding: "8px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer", borderRadius: "var(--radius-pill)", transition: "all .15s",
+                        border: `1px solid ${on ? "var(--primary)" : "var(--border)"}`, background: on ? "var(--primary)" : "var(--white)", color: on ? "var(--primary-foreground)" : "var(--primary)" }}>
+                      {v.weight}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           {added ? (
             <div style={{ marginTop: 22 }}>
               <p style={{ margin: "0 0 14px", display: "flex", alignItems: "center", gap: 8, fontWeight: 600, color: "var(--primary)" }}>
@@ -784,7 +820,7 @@ function ProductFinder({ onClose }) {
     } else { setBySlug({}); }
     return () => { alive = false; };
   }, []);
-  const toP = (r) => ({ id: r.slug, name: r.name, size: r.weight, desc: r.short_desc, photo: r.photo, price: r.price == null ? null : Number(r.price), mrp: r.mrp == null ? null : Number(r.mrp), badge: r.badge || undefined, cat: r.category });
+  const toP = (r) => ({ id: r.slug, name: r.name, size: r.weight, desc: r.short_desc, photo: r.photo, price: r.price == null ? null : Number(r.price), mrp: r.mrp == null ? null : Number(r.mrp), badge: r.badge || undefined, cat: r.category, variants: normVar(r.variants) });
   const g = FINDER_GOALS.find((x) => x.id === goal);
   const recs = g && bySlug ? g.slugs.map((s) => bySlug[s]).filter(Boolean).map(toP) : [];
   const waHelp = `https://wa.me/${WA}?text=` + encodeURIComponent("Namaste! I'm looking for a Mishthi Sattva product for my family. Please help me choose the right option.");
@@ -835,7 +871,7 @@ function ProductFinder({ onClose }) {
                       <span style={{ minWidth: 0 }}>
                         <span style={{ display: "block", fontWeight: 700, fontSize: 15.5, color: "var(--primary)" }}>{p.name}</span>
                         {p.size ? <span style={{ display: "block", fontSize: 12.5, color: "var(--muted-foreground)", marginBottom: 3 }}>{p.size}</span> : null}
-                        <PriceTag p={p} />
+                        <PriceTag p={p} />{p.variants && p.variants.length > 1 ? <span style={{ fontSize: 12, color: "var(--muted-foreground)" }}>· {p.variants.length} sizes</span> : null}
                       </span>
                       <span style={{ marginLeft: "auto", flex: "0 0 auto", color: "var(--accent)", fontSize: 13, fontWeight: 600 }}>View →</span>
                     </button>
@@ -881,7 +917,7 @@ function HomeProducts() {
   const list = (() => {
     if (!rows || !rows.length) return picks;
     const bySlug = {}; rows.forEach((r) => { bySlug[r.slug] = r; });
-    const live = (r, fb) => ({ id: r.slug, name: r.name, benefit: (fb && fb.benefit) || r.short_desc || "", desc: r.short_desc || (fb && fb.desc) || "", photo: r.photo, size: r.weight, price: r.price == null ? null : Number(r.price), mrp: r.mrp == null ? null : Number(r.mrp), badge: r.badge || (fb && fb.badge) || undefined, cat: r.category });
+    const live = (r, fb) => ({ id: r.slug, name: r.name, benefit: (fb && fb.benefit) || r.short_desc || "", desc: r.short_desc || (fb && fb.desc) || "", photo: r.photo, size: r.weight, price: r.price == null ? null : Number(r.price), mrp: r.mrp == null ? null : Number(r.mrp), badge: r.badge || (fb && fb.badge) || undefined, cat: r.category, variants: normVar(r.variants) });
     const curated = picks.map((pk) => (bySlug[pk.id] && bySlug[pk.id].in_stock !== false) ? live(bySlug[pk.id], pk) : null).filter(Boolean);
     const curIds = new Set(curated.map((p) => p.id));
     const feat = rows.filter((r) => r.featured === true && r.in_stock !== false && !curIds.has(r.slug)).map((r) => live(r));
