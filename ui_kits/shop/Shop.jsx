@@ -183,7 +183,9 @@ function IconBtn({ children, onClick, label, badge, highlight }) {
 }
 
 /* ===================== HERO ===================== */
-function Hero({ onShopAll, onCategory, products }) {
+function Hero({ onShopAll, onCategory, products, cats }) {
+  // Point the secondary CTA at a real, current category (never a stale slug).
+  const flagship = (cats && cats.length ? cats : MS_CATEGORIES)[0] || { id: "all", name: "Products" };
   return (
     <section style={{ position: "relative", overflow: "hidden" }}>
       <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "radial-gradient(55% 60% at 82% 8%, color-mix(in oklab, var(--gold) 20%, transparent), transparent), radial-gradient(50% 60% at -5% 100%, color-mix(in oklab, var(--forest) 14%, transparent), transparent)" }} />
@@ -198,7 +200,7 @@ function Hero({ onShopAll, onCategory, products }) {
           </p>
           <div style={{ marginTop: 26, display: "flex", flexWrap: "wrap", gap: 12 }}>
             <Button variant="forest" size="lg" onClick={onShopAll}>Shop All Products →</Button>
-            <Button variant="outline" size="lg" onClick={() => onCategory("ayurvedic")}>Explore Ayurvedic</Button>
+            <Button variant="outline" size="lg" onClick={() => onCategory(flagship.id)}>Explore {flagship.name}</Button>
           </div>
           <div style={{ marginTop: 30, display: "flex", flexWrap: "wrap", gap: "10px 26px" }}>
             {[["truck","Home delivery"],["shield","100% homemade"],["leaf","No preservatives"]].map(([ic,t]) => (
@@ -221,12 +223,18 @@ function Hero({ onShopAll, onCategory, products }) {
 
 /* ===================== CATEGORY RAIL ===================== */
 function CategoryRail({ active, onCategory, products, cats }) {
-  const list = cats && cats.length ? cats : MS_CATEGORIES;
+  const src = cats && cats.length ? cats : MS_CATEGORIES;
+  // Only show categories that actually have products — an empty category card
+  // (e.g. a brand-new one from admin) would lead a shopper to a blank grid.
+  const list = src
+    .map((c) => ({ ...c, _count: products.filter((p) => p.cat === c.id).length }))
+    .filter((c) => c._count > 0);
   return (
     <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
+      <p style={{ margin: "0 0 14px", fontFamily: "var(--font-display)", fontSize: 13, textTransform: "uppercase", letterSpacing: "0.18em", color: "var(--accent)" }}>Shop by Category</p>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(148px, 1fr))", gap: 12 }}>
         <CatChip label="All Products" on={active === "all"} onClick={() => onCategory("all")} tint="var(--forest)" total={products.length} />
-        {list.map((c) => <CatChip key={c.id} label={c.name} on={active === c.id} onClick={() => onCategory(c.id)} tint={c.tint} count={products.filter((p) => p.cat === c.id).length} />)}
+        {list.map((c) => <CatChip key={c.id} label={c.name} on={active === c.id} onClick={() => onCategory(c.id)} tint={c.tint} count={c._count} />)}
       </div>
     </div>
   );
@@ -625,8 +633,8 @@ function Shop() {
       </a>
       <Header count={count} wishCount={wish.length} search={search} onSearch={setSearch} onCart={() => setView("cart")} onWish={() => setView("wishlist")} onHome={shopAll} onShopAll={shopAll}
         products={catalogue} onPick={(p) => { setQuick(p); setSearch(""); }} />
-      <Hero onShopAll={shopAll} onCategory={goCategory} products={catalogue} />
-      <section style={{ padding: "8px 0 4px" }}><CategoryRail active={cat} onCategory={goCategory} products={catalogue} cats={cats} /></section>
+      <section style={{ padding: "22px 0 6px" }}><CategoryRail active={cat} onCategory={goCategory} products={catalogue} cats={cats} /></section>
+      <Hero onShopAll={shopAll} onCategory={goCategory} products={catalogue} cats={cats} />
       <section ref={gridRef} style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 24px 0" }}>
         <Toolbar count={list.length} sort={sort} onSort={setSort} title={title} />
         {list.length === 0 ? (
