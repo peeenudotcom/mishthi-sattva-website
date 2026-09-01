@@ -703,6 +703,7 @@ function ProductModal({ p, onClose }) {
   const [added, setAdded] = React.useState(false);
   const variants = Array.isArray(p.variants) ? p.variants : [];
   const hasVar = variants.length > 0;
+  const showPicker = variants.length > 1;
   const [vi, setVi] = React.useState(0);
   const sel = hasVar ? (variants[vi] || variants[0]) : { weight: p.size, price: p.price, mrp: p.mrp };
   React.useEffect(() => {
@@ -739,7 +740,7 @@ function ProductModal({ p, onClose }) {
             <span style={{ color: "var(--accent)" }}>·</span>
             <PriceTag p={{ ...p, price: sel.price, mrp: sel.mrp }} big />
           </div>
-          {hasVar && !added && (
+          {showPicker && !added && (
             <div style={{ marginTop: 16 }}>
               <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--accent)" }}>Choose size</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>

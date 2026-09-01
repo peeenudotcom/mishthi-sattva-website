@@ -101,6 +101,7 @@ function ProductCard({ product, onOpen, onAdd, onToggleWish, wished }) {
   const [h, setH] = React.useState(false);
   const variants = product.variants || [];
   const hasVar = variants.length > 0;
+  const showPicker = variants.length > 1; // only offer a selector when there's a real choice
   const [vi, setVi] = React.useState(0);
   const sel = hasVar ? (variants[vi] || variants[0]) : { weight: product.weight, price: product.price, mrp: product.mrp };
   const off = hasPrice(sel.price) && hasPrice(sel.mrp) && sel.mrp > sel.price ? Math.round((1 - sel.price / sel.mrp) * 100) : 0;
@@ -126,8 +127,8 @@ function ProductCard({ product, onOpen, onAdd, onToggleWish, wished }) {
         <h3 onClick={() => onOpen(product)} style={{ margin: "4px 0 0", fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 19, lineHeight: 1.15, color: "var(--primary)", cursor: "pointer" }}>{product.name}</h3>
         <div style={{ marginTop: 6 }}><Stars value={product.rating} count={product.reviews} /></div>
         <p style={{ margin: "8px 0 0", fontSize: 13, lineHeight: 1.5, color: "var(--muted-foreground)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{product.desc}</p>
-        {hasVar && <div style={{ marginTop: "auto", paddingTop: 14 }}><SizePicker variants={variants} index={vi} onPick={setVi} /></div>}
-        <div style={{ marginTop: hasVar ? 10 : "auto", paddingTop: hasVar ? 0 : 14, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+        {showPicker && <div style={{ marginTop: "auto", paddingTop: 14 }}><SizePicker variants={variants} index={vi} onPick={setVi} /></div>}
+        <div style={{ marginTop: showPicker ? 10 : "auto", paddingTop: showPicker ? 0 : 14, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
             <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 22, color: "var(--primary)" }}>{money(sel.price)}</span>
             {off > 0 && <span style={{ fontSize: 13, color: "var(--muted-foreground)", textDecoration: "line-through" }}>{money(sel.mrp)}</span>}
@@ -166,6 +167,7 @@ function QuickView({ product, onClose, onAdd, onToggleWish, wished }) {
   if (!product) return null;
   const variants = product.variants || [];
   const hasVar = variants.length > 0;
+  const showPicker = variants.length > 1;
   const sel = hasVar ? (variants[vi] || variants[0]) : { weight: product.weight, price: product.price, mrp: product.mrp };
   const off = hasPrice(sel.price) && hasPrice(sel.mrp) && sel.mrp > sel.price ? Math.round((1 - sel.price / sel.mrp) * 100) : 0;
   return (
@@ -184,7 +186,7 @@ function QuickView({ product, onClose, onAdd, onToggleWish, wished }) {
               {off > 0 && <span style={{ fontSize: 13, fontWeight: 700, color: "var(--destructive)" }}>Save {off}%</span>}
               <span style={{ fontSize: 14, color: "var(--muted-foreground)" }}>· {sel.weight}</span>
             </div>
-            {hasVar && (
+            {showPicker && (
               <div style={{ marginTop: 18 }}>
                 <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--accent)" }}>Choose size</p>
                 <SizePicker variants={variants} index={vi} onPick={setVi} size="lg" />
