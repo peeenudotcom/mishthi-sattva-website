@@ -266,7 +266,7 @@ function About() {
     <section id="about" style={{ background: "var(--white)", padding: "84px 0", scrollMarginTop: 84 }}>
       <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "0.82fr 1.18fr", gap: 52, alignItems: "center" }}>
         <div style={{ overflow: "hidden", borderRadius: 28, border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)", aspectRatio: "4 / 5" }}>
-          <img src={`${ASSET}/story-serving-green.png`} alt="Cherry Bansal serving homemade laddu and herbal tea to her family" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", display: "block" }} />
+          <img src={`${ASSET}/story-cherry-tea.png`} alt="Cherry Bansal serving homemade laddu and herbal tea to her family" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 28%", display: "block" }} />
         </div>
         <div>
           <GoldDivider>Our Story</GoldDivider>
