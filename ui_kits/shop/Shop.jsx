@@ -183,38 +183,29 @@ function IconBtn({ children, onClick, label, badge, highlight }) {
 }
 
 /* ===================== HERO ===================== */
-function Hero({ onShopAll, onCategory, products, cats }) {
-  // Point the secondary CTA at a real, current category (never a stale slug).
-  const flagship = (cats && cats.length ? cats : MS_CATEGORIES)[0] || { id: "all", name: "Products" };
+/* Slim brand band for the shop — /shop is shop-first, so the founder hero from
+   the home page is condensed to a one-line promise + trust badges that sit just
+   above the product grid (the trust cues are useful right before browsing).
+   The full founder story lives on the Home/Story pages. */
+function Hero({ products }) {
   return (
     <section style={{ position: "relative", overflow: "hidden" }}>
-      <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "radial-gradient(55% 60% at 82% 8%, color-mix(in oklab, var(--gold) 20%, transparent), transparent), radial-gradient(50% 60% at -5% 100%, color-mix(in oklab, var(--forest) 14%, transparent), transparent)" }} />
-      <div className="shop-hero" style={{ position: "relative", maxWidth: 1280, margin: "0 auto", alignItems: "center" }}>
+      <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "radial-gradient(60% 140% at 92% 0%, color-mix(in oklab, var(--gold) 15%, transparent), transparent)" }} />
+      <div style={{ position: "relative", maxWidth: 1280, margin: "0 auto", padding: "18px 24px 6px", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: "12px 32px" }}>
         <div style={{ minWidth: 0 }}>
-          <GoldDivider>Ayurvedic · Satvic · Homemade</GoldDivider>
-          <h1 style={{ margin: "18px 0 0", fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "clamp(38px, 5.9vw, 62px)", lineHeight: 1.08, letterSpacing: "-0.01em", color: "var(--primary)" }}>
-            The Homemade<br />Wellness Shop.<br /><span style={{ fontStyle: "italic", color: "var(--accent)" }}>Pure, by nature.</span>
+          <h1 style={{ margin: 0, fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "clamp(24px, 3.2vw, 34px)", lineHeight: 1.12, letterSpacing: "-0.01em", color: "var(--primary)" }}>
+            The Homemade Wellness Shop <span style={{ fontStyle: "italic", color: "var(--accent)" }}>— pure, by nature.</span>
           </h1>
-          <p style={{ margin: "18px 0 0", maxWidth: 520, fontSize: 17, lineHeight: 1.6, color: "var(--muted-foreground)" }}>
-            {products.length} small-batch products from our home kitchen in Kotkapura — laddu, sugar-free chyawanprash, masalas, hair care & skincare. No refined sugar, no preservatives.
+          <p style={{ margin: "6px 0 0", maxWidth: 640, fontSize: 14.5, lineHeight: 1.5, color: "var(--muted-foreground)" }}>
+            {products.length} small-batch products from our home kitchen in Kotkapura — no refined sugar, no preservatives.
           </p>
-          <div style={{ marginTop: 26, display: "flex", flexWrap: "wrap", gap: 12 }}>
-            <Button variant="forest" size="lg" onClick={onShopAll}>Shop All Products →</Button>
-            <Button variant="outline" size="lg" onClick={() => onCategory(flagship.id)}>Explore {flagship.name}</Button>
-          </div>
-          <div style={{ marginTop: 30, display: "flex", flexWrap: "wrap", gap: "10px 26px" }}>
-            {[["truck","Home delivery"],["shield","100% homemade"],["leaf","No preservatives"]].map(([ic,t]) => (
-              <span key={t} style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, color: "var(--primary)" }}>
-                <span style={{ color: "var(--accent)" }}>{I[ic]({ s: 18 })}</span>{t}
-              </span>
-            ))}
-          </div>
         </div>
-        <div style={{ position: "relative", minWidth: 0 }}>
-          <div aria-hidden="true" style={{ position: "absolute", inset: -20, borderRadius: 32, background: "linear-gradient(135deg, color-mix(in oklab, var(--gold) 22%, transparent), color-mix(in oklab, var(--forest) 12%, transparent))", filter: "blur(38px)" }} />
-          <div style={{ position: "relative", overflow: "hidden", borderRadius: 32, aspectRatio: "4 / 5", border: "1px solid var(--border)", boxShadow: "var(--shadow-xl)" }}>
-            <img src="../../assets/shop-hero-packing.png" alt="Cherry Bansal packing a Mishthi Sattva gift box of homemade laddu and wellness products" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%", display: "block" }} />
-          </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 22px" }}>
+          {[["truck","Home delivery"],["shield","100% homemade"],["leaf","No preservatives"]].map(([ic,t]) => (
+            <span key={t} style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600, color: "var(--primary)" }}>
+              <span style={{ color: "var(--accent)" }}>{I[ic]({ s: 18 })}</span>{t}
+            </span>
+          ))}
         </div>
       </div>
     </section>
@@ -634,7 +625,7 @@ function Shop() {
       <Header count={count} wishCount={wish.length} search={search} onSearch={setSearch} onCart={() => setView("cart")} onWish={() => setView("wishlist")} onHome={shopAll} onShopAll={shopAll}
         products={catalogue} onPick={(p) => { setQuick(p); setSearch(""); }} />
       <section style={{ padding: "22px 0 6px" }}><CategoryRail active={cat} onCategory={goCategory} products={catalogue} cats={cats} /></section>
-      <Hero onShopAll={shopAll} onCategory={goCategory} products={catalogue} cats={cats} />
+      <Hero products={catalogue} />
       <section ref={gridRef} style={{ maxWidth: 1280, margin: "0 auto", padding: "40px 24px 0" }}>
         <Toolbar count={list.length} sort={sort} onSort={setSort} title={title} />
         {list.length === 0 ? (
