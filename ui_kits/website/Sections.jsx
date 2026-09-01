@@ -749,7 +749,7 @@ function ProductModal({ p, onClose }) {
             <div style={{ marginTop: 16 }}>
               <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--accent)" }}>Choose size</p>
               <select value={vi} aria-label="Choose size" onChange={(e) => setVi(Number(e.target.value))}
-                style={{ width: "100%", padding: "11px 14px", fontSize: 14, fontWeight: 600, fontFamily: "var(--font-sans)", color: "var(--primary)", background: "var(--white)", border: "1px solid var(--border)", borderRadius: "var(--radius-pill)", cursor: "pointer" }}>
+                className="ms-sizesel ms-sizesel--lg" style={{ width: "100%" }}>
                 {variants.map((v, i) => <option key={v.weight + i} value={i}>{v.weight}{v.price != null ? " · ₹" + Number(v.price).toLocaleString("en-IN") : ""}</option>)}
               </select>
             </div>

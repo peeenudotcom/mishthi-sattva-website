@@ -83,10 +83,8 @@ function SizePicker({ variants, index, onPick, size }) {
   return (
     <select value={index} aria-label="Choose size" onClick={(e) => e.stopPropagation()}
       onChange={(e) => onPick(Number(e.target.value))}
-      style={{ width: big ? "auto" : "100%", minWidth: big ? 180 : 0, maxWidth: "100%",
-        padding: big ? "11px 14px" : "9px 12px", fontSize: big ? 14 : 13, fontWeight: 600,
-        fontFamily: "var(--font-sans)", color: "var(--primary)", background: "var(--card)",
-        border: "1px solid var(--border)", borderRadius: "var(--radius-pill)", cursor: "pointer" }}>
+      className={"ms-sizesel" + (big ? " ms-sizesel--lg" : "")}
+      style={{ width: big ? "auto" : "100%", minWidth: big ? 180 : 0, maxWidth: "100%", fontSize: big ? 14 : 13 }}>
       {variants.map((v, i) => <option key={v.weight + i} value={i}>{label(v)}</option>)}
     </select>
   );
