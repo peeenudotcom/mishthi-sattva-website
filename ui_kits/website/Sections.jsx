@@ -535,7 +535,18 @@ function IcoFB({ size = 15 }) {
 const socialIcon = (label) => label === "Instagram" ? <IcoIG /> : label === "Facebook" ? <IcoFB /> : <WAicon size={15} />;
 
 function Footer() {
-  const cats = PRODUCT_CATS.map((c) => c.name);
+  // Live categories from the DB so newly-added ones show up automatically;
+  // falls back to the built-in list if the DB is unreachable.
+  const [cats, setCats] = React.useState(PRODUCT_CATS.map((c) => ({ slug: c.id, name: c.name })));
+  React.useEffect(() => {
+    if (!window.MSData || !window.MSData.configured) return;
+    let cancelled = false;
+    window.MSData.getCategories().then((rows) => {
+      if (cancelled || !rows || !rows.length) return;
+      setCats(rows.map((r) => ({ slug: r.slug, name: r.name })));
+    });
+    return () => { cancelled = true; };
+  }, []);
   const link = { fontSize: 14, color: "color-mix(in oklab, var(--cream) 80%, transparent)" };
   const heading = { fontFamily: "var(--font-display)", fontSize: 13, textTransform: "uppercase", letterSpacing: "0.22em", color: "var(--accent)" };
   return (
@@ -556,7 +567,7 @@ function Footer() {
         <div>
           <p style={heading}>Shop</p>
           <ul style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 9, listStyle: "none", padding: 0 }}>
-            {cats.map((c) => <li key={c}><a href="../shop/index.html" style={link}>{c}</a></li>)}
+            {cats.map((c) => <li key={c.slug}><a href={`../shop/index.html?cat=${encodeURIComponent(c.slug)}`} style={link}>{c.name}</a></li>)}
           </ul>
         </div>
         <div>

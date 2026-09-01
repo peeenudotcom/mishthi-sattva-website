@@ -502,7 +502,7 @@ function Footer({ cats }) {
         <div>
           <p style={heading}>Shop</p>
           <ul style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 9, listStyle: "none", padding: 0 }}>
-            {catList.map((c) => <li key={c.id} style={link}>{c.name}</li>)}
+            {catList.map((c) => <li key={c.id}><a href={`?cat=${encodeURIComponent(c.id)}`} style={{ ...link, textDecoration: "none" }}>{c.name}</a></li>)}
           </ul>
         </div>
         <div>
@@ -589,6 +589,13 @@ function Shop() {
     const found = catalogue.find((x) => x.id === id);
     if (found) setQuick(found);
   }, [catalogue]);
+
+  /* Deep-link: /shop?cat=<slug> (from the footer category links) opens the shop
+     pre-filtered to that category. Applied once on mount. */
+  React.useEffect(() => {
+    const c = new URLSearchParams(window.location.search).get("cat");
+    if (c) setCat(c);
+  }, []);
 
   React.useEffect(() => { localStorage.setItem(LS_CART, JSON.stringify(cart)); }, [cart]);
   React.useEffect(() => { localStorage.setItem(LS_WISH, JSON.stringify(wish)); }, [wish]);
