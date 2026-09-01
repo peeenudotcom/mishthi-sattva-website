@@ -232,16 +232,21 @@ function Products({ cats }) {
                     onChange={(e) => edit(r.id, "featured", e.target.checked)} />
                 </td>
                 <td>
-                  <select title="Badge shown on the product card" value={cur(r, "badge") || ""} onChange={(e) => edit(r.id, "badge", e.target.value)}
-                    style={{ fontFamily: "inherit", fontSize: 13, padding: "5px 6px" }}>
-                    <option value="">— none —</option>
-                    <option value="Bestseller">Bestseller</option>
-                    <option value="New">New</option>
-                    <option value="Special Offer">Special Offer</option>
-                    <option value="Limited">Limited</option>
-                    <option value="Festive Special">Festive Special</option>
-                    <option value="Combo Offer">Combo Offer</option>
-                  </select>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-start" }}>
+                    <select title="Badge shown on the product card" value={cur(r, "badge") || ""} onChange={(e) => edit(r.id, "badge", e.target.value)}
+                      style={{ fontFamily: "inherit", fontSize: 13, padding: "5px 6px" }}>
+                      <option value="">— none —</option>
+                      <option value="Bestseller">Bestseller</option>
+                      <option value="New">New</option>
+                      <option value="Special Offer">Special Offer</option>
+                      <option value="Limited">Limited</option>
+                      <option value="Festive Special">Festive Special</option>
+                      <option value="Combo Offer">Combo Offer</option>
+                    </select>
+                    {cur(r, "badge") && (() => { const b = window.msBadgeStyle(cur(r, "badge")); return (
+                      <span title="How this badge looks on the shop" style={{ background: b.bg, color: b.fg, fontSize: 11, fontWeight: 700, letterSpacing: "0.02em", padding: "3px 9px", borderRadius: 999 }}>{cur(r, "badge")}</span>
+                    ); })()}
+                  </div>
                 </td>
                 <td style={{ whiteSpace: "nowrap" }}>
                   <button className="btn" style={{ padding: "6px 14px", fontSize: 13 }} disabled={!dirty(r.id) || saving[r.id]} onClick={() => save(r)}>
