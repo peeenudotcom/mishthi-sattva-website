@@ -610,7 +610,7 @@ function Footer() {
           {/* Only render links we actually have. Add the real profile URLs to
               SOCIAL below and they'll appear; a dead href="#" is worse than
               no button at all. */}
-          <div style={{ marginTop: 16, display: "flex", gap: 10 }}>
+          <div style={{ marginTop: 16, display: "flex", flexWrap: "wrap", gap: 10 }}>
             {SOCIAL.filter((s) => s.href).map((s) => (
               <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}
                  style={{ display: "inline-flex", alignItems: "center", gap: 7, borderRadius: "var(--radius-pill)", border: "1px solid color-mix(in oklab, var(--cream) 20%, transparent)", padding: "7px 14px", fontSize: 12, fontWeight: 600 }}>{socialIcon(s.label)}{s.label}</a>
