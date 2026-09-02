@@ -20,6 +20,18 @@
   main { padding-bottom: 76px; }
 }
 
+/* Compact site header on phones so the logo + Account + Shop button never
+   overflow the viewport (Account becomes icon-only, tighter Shop button). */
+@media (max-width: 600px) {
+  header .ms-container { gap: 8px; }
+  .ms-headacts { gap: 8px !important; }
+  .ms-logo-tag { width: 112px !important; }
+  .ms-acct-label { display: none !important; }
+  .ms-head-divider { display: none !important; }
+  .ms-headacts a[href*="account"] { padding: 0.45rem 0.5rem !important; }
+  .ms-headacts a[href*="shop/index.html"], .ms-shopbtn { padding: 0.5rem 0.85rem !important; font-size: 13px !important; }
+}
+
 /* Product badge glow — a soft pulsing halo in the badge's own colour so tags
    like Bestseller / Limited / Special Offer catch the eye. --glow is set inline
    to each badge's background colour. */

@@ -162,7 +162,7 @@ function Header({ active = "home" }) {
         <a href="index.html" style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 3, textDecoration: "none" }}>
           {/* mark + wordmark; the gold-pill tagline words rotate one at a time, centred below */}
           <img src={`${ASSET}/mishthi-logo-mark-white.png`} alt="Mishthi Sattva" style={{ height: 46, width: "auto", objectFit: "contain", display: "block" }} />
-          <span aria-label="Ayurvedic · Satvic · Homemade" style={{ position: "relative", display: "block", width: 150, height: 16, fontSize: 0, lineHeight: 0 }}>
+          <span className="ms-logo-tag" aria-label="Ayurvedic · Satvic · Homemade" style={{ position: "relative", display: "block", width: 150, height: 16, fontSize: 0, lineHeight: 0 }}>
             <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "0s" }}><span className="ms-tagpill">Ayurvedic</span></span>
             <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "2.5s" }}><span className="ms-tagpill">Satvic</span></span>
             <span className="ms-tagcycle" aria-hidden="true" style={{ animationDelay: "5s" }}><span className="ms-tagpill">Homemade</span></span>
@@ -176,7 +176,7 @@ function Header({ active = "home" }) {
             );
           })}
         </nav>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div className="ms-headacts" style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <a href="account.html" title={acct ? "Signed in as " + acct.name : "My account"} aria-label={acct ? "My account — signed in as " + acct.name : "My account"} aria-current={active === "account" ? "page" : undefined}
              style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: acct ? "0.4rem 0.9rem 0.4rem 0.4rem" : "0.55rem 0.95rem", borderRadius: "var(--radius-pill)", fontWeight: 600, fontSize: 15,
                color: active === "account" ? "var(--forest-deep)" : "var(--cream)",
@@ -185,10 +185,10 @@ function Header({ active = "home" }) {
             {acct
               ? <span aria-hidden="true" style={{ display: "grid", placeItems: "center", height: 26, width: 26, borderRadius: "var(--radius-pill)", background: "var(--accent)", color: "var(--forest-deep)", fontWeight: 700, fontSize: 13.5, flexShrink: 0 }}>{acct.initial}</span>
               : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" /></svg>}
-            {acct ? acct.first : "Account"}
+            <span className="ms-acct-label">{acct ? acct.first : "Account"}</span>
           </a>
-          <span aria-hidden="true" style={{ width: 1, height: 26, background: "color-mix(in oklab, var(--cream) 22%, transparent)" }} />
-          <Button variant="gold" as="a" href="../shop/index.html">Shop Products</Button>
+          <span className="ms-head-divider" aria-hidden="true" style={{ width: 1, height: 26, background: "color-mix(in oklab, var(--cream) 22%, transparent)" }} />
+          <Button variant="gold" as="a" href="../shop/index.html" className="ms-shopbtn">Shop Products</Button>
         </div>
       </div>
     </header>
