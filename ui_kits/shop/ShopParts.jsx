@@ -108,7 +108,7 @@ function ProductCard({ product, onOpen, onAdd, onToggleWish, wished }) {
         <ProductMedia product={product} height={188} />
         <div style={{ position: "absolute", top: 10, left: 10, display: "flex", gap: 6 }}>
           {off > 0 && <span style={{ background: "var(--destructive)", color: "#fff", fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: "var(--radius-pill)" }}>-{off}%</span>}
-          {product.badge && <span style={{ background: window.msBadgeStyle(product.badge).bg, color: window.msBadgeStyle(product.badge).fg, fontSize: 11, fontWeight: 700, letterSpacing: "0.02em", padding: "3px 9px", borderRadius: "var(--radius-pill)" }}>{product.badge}</span>}
+          {product.badge && <span className="ms-badge-glow" style={{ background: window.msBadgeStyle(product.badge).bg, color: window.msBadgeStyle(product.badge).fg, "--glow": window.msBadgeStyle(product.badge).bg, fontSize: 11, fontWeight: 700, letterSpacing: "0.02em", padding: "3px 9px", borderRadius: "var(--radius-pill)" }}>{product.badge}</span>}
         </div>
         <button onClick={(e) => { e.stopPropagation(); onToggleWish(product.id); }} aria-label="Wishlist"
           style={{ position: "absolute", top: 8, right: 8, height: 34, width: 34, display: "grid", placeItems: "center", borderRadius: "var(--radius-pill)",

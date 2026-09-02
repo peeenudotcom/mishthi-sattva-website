@@ -20,6 +20,16 @@
   main { padding-bottom: 76px; }
 }
 
+/* Product badge glow — a soft pulsing halo in the badge's own colour so tags
+   like Bestseller / Limited / Special Offer catch the eye. --glow is set inline
+   to each badge's background colour. */
+@keyframes msBadgePulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--glow, var(--accent)) 0%, transparent); }
+  50%      { box-shadow: 0 0 10px 1px color-mix(in oklab, var(--glow, var(--accent)) 70%, transparent); }
+}
+.ms-badge-glow { animation: msBadgePulse 1.9s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .ms-badge-glow { animation: none; } }
+
 /* Size (weight variant) dropdown — a clean form select with a custom chevron,
    instead of the browser's default pill+arrow which looked like an odd lozenge. */
 .ms-sizesel {

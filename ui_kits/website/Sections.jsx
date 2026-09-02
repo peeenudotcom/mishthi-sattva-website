@@ -674,7 +674,7 @@ function HomeProductCard({ p, onView }) {
       style={{ display: "flex", flexDirection: "column", background: "var(--card)", border: `1px solid ${h ? "var(--accent)" : "var(--border)"}`, borderRadius: "var(--radius-2xl)", overflow: "hidden", boxShadow: h ? "var(--shadow-lg)" : "var(--shadow-sm)", transform: h ? "translateY(-4px)" : "none", transition: "all .2s var(--ease-standard)" }}>
       <div style={{ position: "relative", aspectRatio: "4 / 3", background: "var(--cream)", overflow: "hidden", borderBottom: "1px solid color-mix(in oklab, var(--accent) 20%, transparent)" }}>
         <img src={p.photo || `${ASSET}/${p.img}`} alt={p.name} loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-        {p.badge && <span style={{ position: "absolute", top: 12, left: 12, background: window.msBadgeStyle(p.badge).bg, color: window.msBadgeStyle(p.badge).fg, fontSize: 11, fontWeight: 700, letterSpacing: "0.02em", padding: "4px 10px", borderRadius: "var(--radius-pill)" }}>{p.badge}</span>}
+        {p.badge && <span className="ms-badge-glow" style={{ position: "absolute", top: 12, left: 12, background: window.msBadgeStyle(p.badge).bg, color: window.msBadgeStyle(p.badge).fg, "--glow": window.msBadgeStyle(p.badge).bg, fontSize: 11, fontWeight: 700, letterSpacing: "0.02em", padding: "4px 10px", borderRadius: "var(--radius-pill)" }}>{p.badge}</span>}
       </div>
       <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "20px 20px 22px" }}>
         <h3 style={{ margin: 0, fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 23, lineHeight: 1.12, color: "var(--primary)" }}>{p.name}</h3>
@@ -734,7 +734,7 @@ function ProductModal({ p, onClose }) {
         style={{ width: "min(440px, 96vw)", maxHeight: "92vh", overflow: "auto", background: "var(--white)", borderRadius: "var(--radius-3xl)", boxShadow: "var(--shadow-xl)", border: "1px solid var(--border)" }}>
         <div style={{ position: "relative", aspectRatio: "4 / 3", background: "var(--cream)", overflow: "hidden", borderTopLeftRadius: "var(--radius-3xl)", borderTopRightRadius: "var(--radius-3xl)" }}>
           <img src={imgSrc} alt={p.name} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-          {p.badge && <span style={{ position: "absolute", top: 14, left: 14, background: window.msBadgeStyle(p.badge).bg, color: window.msBadgeStyle(p.badge).fg, fontSize: 11, fontWeight: 700, letterSpacing: "0.02em", padding: "4px 10px", borderRadius: "var(--radius-pill)" }}>{p.badge}</span>}
+          {p.badge && <span className="ms-badge-glow" style={{ position: "absolute", top: 14, left: 14, background: window.msBadgeStyle(p.badge).bg, color: window.msBadgeStyle(p.badge).fg, "--glow": window.msBadgeStyle(p.badge).bg, fontSize: 11, fontWeight: 700, letterSpacing: "0.02em", padding: "4px 10px", borderRadius: "var(--radius-pill)" }}>{p.badge}</span>}
           <button onClick={onClose} aria-label="Close" style={{ position: "absolute", top: 12, right: 12, height: 36, width: 36, display: "grid", placeItems: "center", borderRadius: "var(--radius-pill)", border: "none", background: "color-mix(in oklab, var(--forest-deep) 55%, transparent)", color: "var(--cream)", cursor: "pointer", fontSize: 20, lineHeight: 1 }}>×</button>
         </div>
         <div style={{ padding: "26px 26px 28px" }}>
