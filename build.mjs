@@ -373,6 +373,9 @@ async function buildPage({ src, out }) {
   // Global brand cursor (desktop only; the script self-disables on touch / reduced-motion). Not on the admin panel.
   if (out !== "admin/index.html") html = html.replace("</head>", '  <script src="/js/cursor.js" defer></script>\n</head>');
 
+  // Ambient background music + toggle (self-hides if the track is missing). Not on the admin panel.
+  if (out !== "admin/index.html") html = html.replace("</head>", '  <script src="/js/music.js" defer></script>\n</head>');
+
   const dest = path.join(OUT, out);
   await fs.mkdir(path.dirname(dest), { recursive: true });
   await fs.writeFile(dest, html);
