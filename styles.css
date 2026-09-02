@@ -24,10 +24,10 @@
    like Bestseller / Limited / Special Offer catch the eye. --glow is set inline
    to each badge's background colour. */
 @keyframes msBadgePulse {
-  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--glow, var(--accent)) 0%, transparent); }
-  50%      { box-shadow: 0 0 10px 1px color-mix(in oklab, var(--glow, var(--accent)) 70%, transparent); }
+  0%, 100% { box-shadow: 0 0 5px 0 color-mix(in oklab, var(--glow, var(--accent)) 45%, transparent); transform: scale(1); }
+  50%      { box-shadow: 0 0 18px 4px color-mix(in oklab, var(--glow, var(--accent)) 95%, transparent); transform: scale(1.07); }
 }
-.ms-badge-glow { animation: msBadgePulse 1.9s ease-in-out infinite; }
+.ms-badge-glow { animation: msBadgePulse 1.6s ease-in-out infinite; transform-origin: center; }
 @media (prefers-reduced-motion: reduce) { .ms-badge-glow { animation: none; } }
 
 /* Size (weight variant) dropdown — a clean form select with a custom chevron,
