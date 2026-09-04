@@ -62,6 +62,7 @@ const SOCIAL = [
   { label: "WhatsApp", href: "https://wa.me/918557942246" },
   { label: "Instagram", href: "https://www.instagram.com/mishthisattva" },
   { label: "Facebook", href: "https://www.facebook.com/p/Mishthi-Sattva-61585174464292/" },
+  { label: "YouTube", href: "https://www.youtube.com/@mishthisattva" },
 ];
 
 /* name -> product photo (from the brand's uploaded catalogue) */
@@ -551,7 +552,14 @@ function IcoFB({ size = 15 }) {
     </svg>
   );
 }
-const socialIcon = (label) => label === "Instagram" ? <IcoIG /> : label === "Facebook" ? <IcoFB /> : <WAicon size={15} />;
+function IcoYT({ size = 15 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={{ flexShrink: 0 }}>
+      <path d="M23 12s0-3.2-.4-4.7a2.5 2.5 0 0 0-1.77-1.77C19.33 5.1 12 5.1 12 5.1s-7.33 0-8.83.43A2.5 2.5 0 0 0 1.4 7.3C1 8.8 1 12 1 12s0 3.2.4 4.7a2.5 2.5 0 0 0 1.77 1.77c1.5.43 8.83.43 8.83.43s7.33 0 8.83-.43a2.5 2.5 0 0 0 1.77-1.77C23 15.2 23 12 23 12zM9.75 15.02V8.98L15.5 12l-5.75 3.02z" />
+    </svg>
+  );
+}
+const socialIcon = (label) => label === "Instagram" ? <IcoIG /> : label === "Facebook" ? <IcoFB /> : label === "YouTube" ? <IcoYT /> : <WAicon size={15} />;
 
 function Footer() {
   // Live categories from the DB so newly-added ones show up automatically;
