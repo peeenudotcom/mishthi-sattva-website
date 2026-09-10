@@ -8,6 +8,18 @@ window.MS_CONFIG = {
   WHATSAPP: "918557942246",
 };
 
+/* "Our Promise" — the brand-wide pledge shown on every product page when a
+   product doesn't carry its own list. Keep these to things that are true of
+   the whole kitchen; anything product-specific belongs in that product's own
+   Promise field in the admin panel. */
+window.MS_PROMISE = [
+  "Handmade in small batches in our own kitchen",
+  "No preservatives, no artificial colours or flavours",
+  "No refined sugar in our sweet range",
+  "Whole ingredients, sourced and ground by us",
+  "Packed fresh only after you order",
+];
+
 /* Product badge colours — one source of truth for every page (shop cards,
    website cards, admin preview). Each badge gets a distinct, meaningful hue so
    shoppers can tell them apart at a glance. bg = pill background, fg = text. */

@@ -176,6 +176,150 @@ function VariantsEditor({ product, onClose, onSaved }) {
   );
 }
 
+/* Full product-detail editor (the "Details" button on each product row).
+   Fills the seven sections every product page shows, in the same order:
+   Description → Wellness Benefits → Ingredients → Nutritional Information →
+   Storage & Shelf Life → Our Promise → (Customer Reviews come from the
+   Reviews tab). Anything left blank simply doesn't show on the site. */
+function DetailsEditor({ product, onClose, onSaved }) {
+  const lines = (a) => (Array.isArray(a) ? a.join("\n") : "");
+  const toArr = (s) => String(s || "").split("\n").map((x) => x.trim()).filter(Boolean);
+
+  const initBenefits = Array.isArray(product.wellness_benefits) && product.wellness_benefits.length
+    ? product.wellness_benefits.map((b) => (typeof b === "string" ? { title: b, text: "" } : { title: b.title || "", text: b.text || "" }))
+    : [];
+  const initNutri = (product.nutrition && Array.isArray(product.nutrition.rows)) ? product.nutrition.rows : [];
+
+  const [f, setF] = React.useState({
+    long_desc: product.long_desc || product.short_desc || "",
+    usage_info: product.usage_info || "",
+    ingredients: lines(product.ingredients),
+    allergens: product.allergens || "",
+    serving: (product.nutrition && product.nutrition.serving) || "",
+    nutriNote: (product.nutrition && product.nutrition.note) || "",
+    storage_info: product.storage_info || "",
+    shelf_life: product.shelf_life || "",
+    promise: lines(product.promise),
+  });
+  const [benefits, setBenefits] = React.useState(initBenefits);
+  const [nutri, setNutri] = React.useState(initNutri);
+  const [busy, setBusy] = React.useState(false);
+  const [err, setErr] = React.useState("");
+
+  const set = (k) => (e) => setF((o) => ({ ...o, [k]: e.target.value }));
+  const updB = (i, k, v) => setBenefits((r) => r.map((x, j) => (j === i ? { ...x, [k]: v } : x)));
+  const updN = (i, k, v) => setNutri((r) => r.map((x, j) => (j === i ? { ...x, [k]: v } : x)));
+
+  const save = () => {
+    const rows = nutri.filter((r) => String(r.label).trim() && String(r.value).trim())
+      .map((r) => ({ label: String(r.label).trim(), value: String(r.value).trim() }));
+    const nutrition = rows.length
+      ? { serving: f.serving.trim(), rows, note: f.nutriNote.trim() }
+      : {};
+    const patch = {
+      long_desc: f.long_desc.trim(),
+      usage_info: f.usage_info.trim(),
+      wellness_benefits: benefits.filter((b) => String(b.title).trim())
+        .map((b) => ({ title: String(b.title).trim(), text: String(b.text || "").trim() })),
+      ingredients: toArr(f.ingredients),
+      allergens: f.allergens.trim(),
+      nutrition: nutrition,
+      storage_info: f.storage_info.trim(),
+      shelf_life: f.shelf_life.trim(),
+      promise: toArr(f.promise),
+    };
+    setBusy(true); setErr("");
+    D.updateProductFields(product.id, patch)
+      .then(() => { setBusy(false); onSaved(product.id, patch); onClose(); })
+      .catch((e) => { setBusy(false); setErr(e.message); });
+  };
+
+  const H = ({ n, children, hint }) => (
+    <div style={{ marginTop: 22 }}>
+      <b style={{ color: "var(--primary)", fontSize: 14 }}>{n}. {children}</b>
+      {hint && <p className="muted" style={{ fontSize: 12, margin: "4px 0 8px" }}>{hint}</p>}
+    </div>
+  );
+  const ta = { width: "100%", minHeight: 74, fontFamily: "inherit", fontSize: 13.5, lineHeight: 1.55 };
+
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 200, background: "color-mix(in oklab, #10231c 55%, transparent)", display: "grid", placeItems: "center", padding: 20 }}>
+      <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: "min(720px, 96vw)", maxHeight: "92vh", overflow: "auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, background: "var(--card, #fff)", paddingBottom: 8 }}>
+          <b style={{ color: "var(--primary)", fontSize: 17 }}>Details — {product.name}</b>
+          <button className="btn ghost" onClick={onClose}>Close</button>
+        </div>
+        <p className="muted" style={{ fontSize: 12, marginTop: 4 }}>
+          These fill the product page on the shop. Leave anything blank and that section is hidden.
+          <b> Ingredients, allergens and nutrition are legally declarable — enter your real figures, never estimates.</b>
+        </p>
+
+        <H n="1" hint="The full story of this product — 2 to 5 sentences.">Product Description</H>
+        <textarea style={ta} value={f.long_desc} onChange={set("long_desc")} placeholder="Slow-cooked in small batches with amla, ghee and 40+ herbs…" />
+        <p className="muted" style={{ fontSize: 12, margin: "10px 0 4px" }}>How to use (optional)</p>
+        <textarea style={{ ...ta, minHeight: 54 }} value={f.usage_info} onChange={set("usage_info")} placeholder="One teaspoon each morning, with warm milk or water." />
+
+        <H n="2" hint="A short title plus one line explaining it.">Wellness Benefits</H>
+        <div style={{ display: "grid", gap: 8 }}>
+          {benefits.length === 0 && <p className="muted" style={{ fontSize: 13, margin: 0 }}>None yet — the product's short “facts” will show instead.</p>}
+          {benefits.map((b, i) => (
+            <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr auto", gap: 8, alignItems: "center" }}>
+              <input value={b.title} placeholder="Supports immunity" onChange={(e) => updB(i, "title", e.target.value)} />
+              <input value={b.text} placeholder="Amla gives 20× the vitamin C of an orange." onChange={(e) => updB(i, "text", e.target.value)} />
+              <button className="btn ghost" style={{ padding: "6px 10px" }} onClick={() => setBenefits((r) => r.filter((_, j) => j !== i))}>✕</button>
+            </div>
+          ))}
+          <div><button className="btn ghost" onClick={() => setBenefits((r) => [...r, { title: "", text: "" }])}>+ Add benefit</button></div>
+        </div>
+
+        <H n="3" hint="One ingredient per line, in descending order of quantity (FSSAI rule).">Ingredients</H>
+        <textarea style={ta} value={f.ingredients} onChange={set("ingredients")} placeholder={"Amla\nDesi ghee\nJaggery\nAshwagandha"} />
+        <p className="muted" style={{ fontSize: 12, margin: "10px 0 4px" }}>Allergen declaration (optional)</p>
+        <input style={{ width: "100%" }} value={f.allergens} onChange={set("allergens")} placeholder="Contains tree nuts and milk. Made in a kitchen that also handles wheat." />
+
+        <H n="4" hint="Per serving or per 100 g — whatever your label states.">Nutritional Information</H>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          <input value={f.serving} onChange={set("serving")} placeholder="Serving size, e.g. 100 g" />
+          <input value={f.nutriNote} onChange={set("nutriNote")} placeholder="Note, e.g. Approximate values" />
+        </div>
+        <div style={{ display: "grid", gap: 8, marginTop: 8 }}>
+          {nutri.map((r, i) => (
+            <div key={i} style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr auto", gap: 8, alignItems: "center" }}>
+              <input value={r.label} placeholder="Protein" onChange={(e) => updN(i, "label", e.target.value)} />
+              <input value={r.value} placeholder="12 g" onChange={(e) => updN(i, "value", e.target.value)} />
+              <button className="btn ghost" style={{ padding: "6px 10px" }} onClick={() => setNutri((x) => x.filter((_, j) => j !== i))}>✕</button>
+            </div>
+          ))}
+          <div style={{ display: "flex", gap: 8 }}>
+            <button className="btn ghost" onClick={() => setNutri((r) => [...r, { label: "", value: "" }])}>+ Add row</button>
+            {nutri.length === 0 && (
+              <button className="btn ghost" onClick={() => setNutri(
+                ["Energy", "Protein", "Total Fat", "Carbohydrates", "Total Sugars", "Dietary Fibre"].map((label) => ({ label, value: "" }))
+              )}>Use standard rows</button>
+            )}
+          </div>
+        </div>
+
+        <H n="5">Storage &amp; Shelf Life</H>
+        <textarea style={{ ...ta, minHeight: 54 }} value={f.storage_info} onChange={set("storage_info")} placeholder="Store in a cool, dry place away from sunlight. Always use a clean, dry spoon." />
+        <p className="muted" style={{ fontSize: 12, margin: "10px 0 4px" }}>Best before</p>
+        <input style={{ width: "100%" }} value={f.shelf_life} onChange={set("shelf_life")} placeholder="6 months from the date of packing" />
+
+        <H n="6" hint="One promise per line. Leave blank to use the standard Mishthi Sattva promise.">Our Promise</H>
+        <textarea style={ta} value={f.promise} onChange={set("promise")} placeholder={"Handmade in small batches\nNo preservatives"} />
+
+        <H n="7" hint="Reviews come from the Reviews tab — approve them there and they appear on this product's page automatically (matched by product name).">Customer Reviews</H>
+
+        {err && <p style={{ color: "var(--destructive)", fontSize: 13 }}>{err}</p>}
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 18 }}>
+          <button className="btn ghost" onClick={onClose}>Cancel</button>
+          <button className="btn" onClick={save} disabled={busy}>{busy ? "Saving…" : "Save details"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Products({ cats }) {
   const [rows, setRows] = React.useState(null);
   const [saving, setSaving] = React.useState({});
@@ -183,6 +327,12 @@ function Products({ cats }) {
   const [drafts, setDrafts] = React.useState({});
   const [err, setErr] = React.useState("");
   const [editingSizes, setEditingSizes] = React.useState(null); // product row whose sizes are open
+  const [editingDetails, setEditingDetails] = React.useState(null); // product row whose detail sections are open
+
+  // A product counts as "described" once the three sections shoppers ask about
+  // most — description, ingredients and nutrition — are filled in.
+  const detailsDone = (r) => !!(r.long_desc && r.ingredients && r.ingredients.length &&
+    r.nutrition && Array.isArray(r.nutrition.rows) && r.nutrition.rows.length);
 
   const load = () => D.adminProducts().then((r) => { setRows(r); setDrafts({}); }).catch((e) => setErr(e.message));
   React.useEffect(() => { load(); }, []);
@@ -280,6 +430,10 @@ function Products({ cats }) {
                       </select>
                       <textarea value={cur(r, "short_desc") || ""} onChange={(e) => edit(r.id, "short_desc", e.target.value)} rows={2}
                         placeholder="Short description shown on the product…" style={{ width: "100%", fontSize: 12, resize: "vertical" }} />
+                      <button className="btn ghost" style={{ marginTop: 6, padding: "3px 9px", fontSize: 11 }} onClick={() => setEditingDetails(r)}
+                        title="Description, benefits, ingredients, nutrition, storage and promise">
+                        {detailsDone(r) ? "✓ Details" : "+ Details"}
+                      </button>
                     </div>
                   </div>
                 </td>
@@ -334,6 +488,8 @@ function Products({ cats }) {
         </table>
       </div>
       {editingSizes && <VariantsEditor product={editingSizes} onClose={() => setEditingSizes(null)}
+        onSaved={(id, patch) => setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch } : r)))} />}
+      {editingDetails && <DetailsEditor product={editingDetails} onClose={() => setEditingDetails(null)}
         onSaved={(id, patch) => setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch } : r)))} />}
     </div>
   );

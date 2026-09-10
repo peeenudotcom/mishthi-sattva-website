@@ -785,6 +785,13 @@ function ProductModal({ p, onClose }) {
               <div style={{ marginTop: 10 }}>
                 <Button variant="outline" fullWidth as="a" href={`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`} target="_blank" rel="noopener noreferrer">Questions? Chat with Us</Button>
               </div>
+              {/* Ingredients, nutrition, storage & reviews live on the shop's
+                  full product view — one place, so they never drift apart. */}
+              <div style={{ marginTop: 16, textAlign: "center" }}>
+                <a href={`../shop/index.html?p=${p.id}`} style={{ fontSize: 13.5, fontWeight: 700, color: "var(--primary)", textDecoration: "none", borderBottom: "1px solid color-mix(in oklab, var(--accent) 60%, transparent)", paddingBottom: 2 }}>
+                  Ingredients, nutrition &amp; reviews →
+                </a>
+              </div>
               <div style={{ marginTop: 14, textAlign: "center" }}>
                 <a href={shareHref} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13.5, fontWeight: 600, color: "var(--whatsapp, #128C4B)", textDecoration: "none" }}>
                   <WAicon size={16} /> Share this with a friend

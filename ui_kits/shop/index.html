@@ -19,7 +19,10 @@
 
   @media (max-width: 900px) {
     .shop-quick { grid-template-columns: 1fr; }
-    .shop-quick-media { padding: 18px 18px 0 !important; }
+    .shop-quick-media { padding: 18px 18px 0 !important; position: static !important; }
+    /* Single column: the info pane needs symmetric padding (its 8px left edge
+       is only correct beside the image), or the detail sections run wide. */
+    .shop-quick-info { padding: 22px 18px 26px !important; }
   }
   @media (max-width: 860px) {
     .shop-hero { grid-template-columns: 1fr; gap: 28px; padding: 40px 20px; }

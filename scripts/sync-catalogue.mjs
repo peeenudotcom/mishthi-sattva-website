@@ -110,6 +110,26 @@ function toEntry(row, prev) {
     facts,
   };
   if (prev.badge) entry.badge = prev.badge;
+
+  // ---- rich detail sections: the DB is the source of truth (the admin panel
+  // writes them), falling back to whatever the snapshot already carried. ----
+  const detail = (key, dbVal) => {
+    const v = dbVal != null && dbVal !== "" ? dbVal : prev[key];
+    if (v == null || v === "") return;
+    if (Array.isArray(v) && !v.length) return;
+    if (typeof v === "object" && !Array.isArray(v) && !Object.keys(v).length) return;
+    entry[key] = v;
+  };
+  detail("long_desc", row.long_desc);
+  detail("wellness_benefits", row.wellness_benefits);
+  detail("ingredients", row.ingredients);
+  detail("allergens", row.allergens);
+  detail("nutrition", row.nutrition);
+  detail("storage_info", row.storage_info);
+  detail("shelf_life", row.shelf_life);
+  detail("promise", row.promise);
+  detail("usage_info", row.usage_info);
+
   if (Array.isArray(row.variants) && row.variants.length) {
     entry.variants = row.variants.map((v) => ({
       weight: String(v.weight || ""),
@@ -154,6 +174,10 @@ function render(categories, products) {
     head.push(`photo: ${S(p.photo)}`);
     const tail = [`desc: ${S(p.desc)}`, `facts: ${S(p.facts)}`];
     if (p.variants && p.variants.length) tail.push(`variants: ${S(p.variants)}`);
+    for (const k of ["long_desc", "wellness_benefits", "ingredients", "allergens",
+                     "nutrition", "storage_info", "shelf_life", "promise", "usage_info"]) {
+      if (p[k] !== undefined) tail.push(`${k}: ${S(p[k])}`);
+    }
     lines.push(`  { ${head.join(", ")},\n    ${tail.join(",\n    ")} },`);
   }
 

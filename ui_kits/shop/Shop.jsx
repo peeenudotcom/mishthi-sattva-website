@@ -89,6 +89,16 @@ function mergeFromDb(rows) {
         tags: base.tags || [],
         rating: base.rating || 4.8,
         reviews: base.reviews || 0,
+        // ---- rich detail sections (supabase/product-details.sql) ----
+        long_desc: r.long_desc || base.long_desc || "",
+        wellness_benefits: r.wellness_benefits || base.wellness_benefits || [],
+        ingredients: r.ingredients || base.ingredients || [],
+        allergens: r.allergens || base.allergens || "",
+        nutrition: r.nutrition || base.nutrition || {},
+        storage_info: r.storage_info || base.storage_info || "",
+        shelf_life: r.shelf_life || base.shelf_life || "",
+        promise: r.promise || base.promise || [],
+        usage_info: r.usage_info || base.usage_info || "",
       };
     });
 }
