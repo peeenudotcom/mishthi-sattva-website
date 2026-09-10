@@ -498,6 +498,26 @@ function Products({ cats }) {
 /* ---------------- orders ---------------- */
 const ORDER_STATUS = ["new", "confirmed", "packed", "delivered", "cancelled"];
 
+/* Whether the money has actually arrived — the single most important thing to
+   see at a glance before packing an order. "Paid" only ever comes from the
+   server's signature check, never from the customer's browser. */
+function PaymentCell({ order }) {
+  const method = order.payment_method || "whatsapp";
+  const status = order.payment_status || "pending";
+  const paid = status === "paid";
+  const label = method === "online" ? "Online" : method === "cod" ? "Cash on delivery" : "WhatsApp";
+  const tone = paid ? "#1B7F4B" : method === "cod" ? "#8A6D1F" : "#6B7280";
+  return (
+    <div style={{ fontSize: 12, lineHeight: 1.5 }}>
+      <span style={{ display: "inline-block", padding: "2px 8px", borderRadius: 999, background: tone, color: "#fff", fontWeight: 700, fontSize: 11 }}>
+        {paid ? "PAID" : status.toUpperCase()}
+      </span>
+      <div className="muted" style={{ marginTop: 3 }}>{label}</div>
+      {order.razorpay_payment_id && <div className="muted" style={{ fontSize: 10.5, wordBreak: "break-all" }}>{order.razorpay_payment_id}</div>}
+    </div>
+  );
+}
+
 function Orders() {
   const [rows, setRows] = React.useState(null);
   const [err, setErr] = React.useState("");
@@ -516,7 +536,7 @@ function Orders() {
     <div className="card" style={{ overflowX: "auto" }}>
       <table>
         <thead><tr>
-          <th>#</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th className="hide-sm">Placed</th>
+          <th>#</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th className="hide-sm">Placed</th>
         </tr></thead>
         <tbody>
           {rows.map((r) => (
@@ -527,12 +547,14 @@ function Orders() {
                 <div className="muted" style={{ fontSize: 12 }}>
                   <a href={"https://wa.me/91" + String(r.phone).replace(/\D/g, "").slice(-10)} target="_blank" rel="noopener noreferrer">{r.phone}</a>
                 </div>
-                {r.address && <div className="muted" style={{ fontSize: 12 }}>{r.address}, {r.city}</div>}
+                {r.address && <div className="muted" style={{ fontSize: 12 }}>{r.address}, {r.city}{r.pincode ? " – " + r.pincode : ""}</div>}
+                {r.email && <div className="muted" style={{ fontSize: 12 }}>{r.email}</div>}
               </td>
               <td className="muted" style={{ fontSize: 13, maxWidth: 260 }}>
                 {(r.items || []).map((i) => `${i.name} ×${i.qty}`).join(", ") || "—"}
               </td>
               <td><b>{money(r.total)}</b></td>
+              <td><PaymentCell order={r} /></td>
               <td>
                 <select value={r.status} onChange={(e) => setStatus(r, e.target.value)} style={{ maxWidth: 140 }}>
                   {ORDER_STATUS.map((s) => <option key={s} value={s}>{s}</option>)}

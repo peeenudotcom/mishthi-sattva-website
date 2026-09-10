@@ -1241,20 +1241,30 @@ const POLICIES = {
   },
   shipping: {
     title: "Shipping & Returns",
-    updated: "21 July 2026",
+    updated: "10 September 2026",
     blocks: [
       { h: "Where we deliver", p: [
-        "We deliver to homes in Kotkapura and nearby areas. For other locations in India we send orders through trusted courier services — we will confirm availability and any charges on WhatsApp before dispatch.",
+        "We deliver to homes in Kotkapura and nearby areas, and across India through trusted courier services.",
+      ]},
+      { h: "Delivery charges", p: [
+        "Delivery is free on every order above ₹999.",
+        "Below that: free within Kotkapura (PIN 151204), ₹49 elsewhere in Punjab and Chandigarh, and ₹99 for the rest of India. The exact charge is shown on the checkout page before you pay — you will never be charged more than the total you confirmed.",
+      ]},
+      { h: "How you can pay", p: [
+        "You can pay online by UPI, card, netbanking or wallet through Razorpay, our payment partner. We never see or store your card or UPI details.",
+        "You can also choose cash on delivery, or send your order to us on WhatsApp and settle it with us directly.",
       ]},
       { h: "Dispatch and delivery time", p: [
-        "Because everything is made in small batches, orders are usually prepared and dispatched within a few days. Local deliveries typically arrive within 1–3 days. We will confirm the timing for your order on WhatsApp.",
+        "Because everything is made in small batches, orders are usually prepared and dispatched within a few days. Local deliveries typically arrive within 1–3 days, and courier deliveries elsewhere in India within 3–7 days.",
+        "We message you on WhatsApp when your order is dispatched.",
       ]},
       { h: "Returns", p: [
         "Food products are perishable and prepared to order, so for hygiene and safety reasons we cannot accept returns on opened or used items.",
         "If your order arrives damaged, incorrect or spoiled, message us on WhatsApp within 48 hours with a photo and we will replace it or refund you.",
       ]},
-      { h: "Cancellations", p: [
+      { h: "Cancellations and refunds", p: [
         "You can cancel before your order has been prepared or dispatched — just message us on WhatsApp as soon as possible.",
+        "Where a refund is due on an order paid online, we return it to the same payment method you used. Refunds are initiated within 3 working days and usually reach your account within 5–7 working days, depending on your bank.",
       ]},
     ],
   },
@@ -1438,7 +1448,12 @@ function Account() {
                     <p style={{ fontWeight: 700, color: "var(--primary)" }}>Order #{o.order_no}</p>
                     <p style={{ fontSize: 13, color: "var(--muted-foreground)" }}>{new Date(o.created_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}</p>
                   </div>
-                  <p style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--primary)" }}>₹{Number(o.total).toLocaleString("en-IN")}</p>
+                  <div style={{ textAlign: "right" }}>
+                    <p style={{ fontFamily: "var(--font-display)", fontSize: 22, color: "var(--primary)" }}>₹{Number(o.total).toLocaleString("en-IN")}</p>
+                    <p style={{ marginTop: 2, fontSize: 12, fontWeight: 700, color: o.payment_status === "paid" ? "var(--success, #2e7d32)" : "var(--muted-foreground)" }}>
+                      {o.payment_status === "paid" ? "✓ Paid online" : o.payment_method === "cod" ? "Pay on delivery" : "Payment on confirmation"}
+                    </p>
+                  </div>
                 </div>
                 <p style={{ marginTop: 8, fontSize: 13.5, color: "var(--muted-foreground)" }}>{(o.items || []).map((i) => `${i.name} ×${i.qty}`).join(", ") || "—"}</p>
                 <OrderTracker status={o.status} />

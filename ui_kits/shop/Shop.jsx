@@ -359,27 +359,141 @@ function CartDrawer({ items, onClose, onQty, onRemove, onCheckout, subtotal }) {
 }
 
 /* ===================== CHECKOUT ===================== */
+
+/* What the shop is allowed to offer right now. The server answers this from its
+   own environment: until the Razorpay keys are in place, "Pay online" simply
+   isn't shown rather than being shown and failing. */
+function useShopConfig() {
+  const [cfg, setCfg] = React.useState({ loading: true, online: false, cod: false, keyId: null, shipping: null });
+  React.useEffect(() => {
+    let alive = true;
+    fetch("/api/shop-config")
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => alive && setCfg({ loading: false, ...d }))
+      .catch(() => alive && setCfg({ loading: false, online: false, cod: false, keyId: null, shipping: null }));
+    return () => { alive = false; };
+  }, []);
+  return cfg;
+}
+
+/* Razorpay's widget is loaded only when a customer actually chooses to pay
+   online — no third-party script on the page for everyone else. */
+function loadRazorpay() {
+  if (window.Razorpay) return Promise.resolve(true);
+  return new Promise((resolve) => {
+    const s = document.createElement("script");
+    s.src = "https://checkout.razorpay.com/v1/checkout.js";
+    s.onload = () => resolve(true);
+    s.onerror = () => resolve(false);
+    document.head.appendChild(s);
+  });
+}
+
+/* Delivery estimate for the summary. The server recomputes this before charging
+   anything — this is only so the customer sees the number before they commit. */
+function estimateShipping(subtotal, pincode, ship) {
+  if (!ship || subtotal <= 0) return subtotal >= FREE_SHIP || subtotal === 0 ? 0 : 49;
+  if (subtotal >= ship.freeAbove) return 0;
+  const pin = String(pincode || "").trim();
+  if (pin === "151204") return ship.local;
+  if (/^(14|15|16)/.test(pin)) return ship.punjab;
+  if (pin.length === 6) return ship.india;
+  return ship.india;
+}
+
 function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
   // Pre-fill from the customer's last order (saved on this device) so repeat buyers don't retype everything.
-  const [form, setForm] = React.useState(() => { const s = load(LS_DELIVERY, {}); return { name: s.name || "", phone: s.phone || "", address: s.address || "", city: s.city || "Kotkapura", note: "" }; });
+  const [form, setForm] = React.useState(() => { const s = load(LS_DELIVERY, {}); return { name: s.name || "", phone: s.phone || "", email: s.email || "", address: s.address || "", city: s.city || "Kotkapura", pincode: s.pincode || "", note: "" }; });
   const prefilled = React.useMemo(() => { const s = load(LS_DELIVERY, {}); return !!(s.name && s.address); }, []);
   const [done, setDone] = React.useState(false);
   const [sent, setSent] = React.useState(false); // true only once the customer confirms they pressed Send in WhatsApp
   const [waHref, setWaHref] = React.useState("");
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
-  const ship = subtotal >= FREE_SHIP || subtotal === 0 ? 0 : 49;
+
+  const cfg = useShopConfig();
+  const askPrice = items.some((i) => i.price == null);   // "price on request" items can't be paid for online
+  const [pay, setPay] = React.useState(null);            // "online" | "cod" | "whatsapp"
+  const [busy, setBusy] = React.useState(false);
+  const [err, setErr] = React.useState("");
+  const [placed, setPlaced] = React.useState(null);      // {orderNo, total, paid}
+
+  const ship = estimateShipping(subtotal, form.pincode, cfg.shipping);
   const total = subtotal + ship;
-  const valid = form.name.trim() && form.phone.trim().length >= 10 && form.address.trim();
+  const valid = form.name.trim() && form.phone.replace(/\D/g, "").length >= 10 && form.address.trim().length >= 8 && /^[1-9][0-9]{5}$/.test(form.pincode.trim());
+
+  // Default to the best option available once we know what the server allows.
+  React.useEffect(() => {
+    if (cfg.loading || pay) return;
+    setPay(cfg.online && !askPrice ? "online" : cfg.cod && !askPrice ? "cod" : "whatsapp");
+  }, [cfg.loading, cfg.online, cfg.cod, askPrice]);
+
+  const remember = () => {
+    try { localStorage.setItem(LS_DELIVERY, JSON.stringify({ name: form.name, phone: form.phone, email: form.email, address: form.address, city: form.city, pincode: form.pincode })); } catch (e) {}
+  };
+
+  const payload = () => ({
+    items: items.map((it) => ({ id: it.id, weight: it.weight, qty: it.qty })),
+    customer: { name: form.name, phone: form.phone, email: form.email, address: form.address, city: form.city, pincode: form.pincode, note: form.note },
+  });
+
+  /* Cash on delivery: one call, the server prices it and records the order. */
+  const placeCod = () => {
+    setBusy(true); setErr(""); remember();
+    fetch("/api/order-create", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...payload(), payment_method: "cod" }) })
+      .then((r) => r.json().then((d) => (r.ok ? d : Promise.reject(new Error(d.error || "Could not place the order.")))))
+      .then((d) => { setBusy(false); setPlaced({ orderNo: d.orderNo, total: d.total, paid: false }); })
+      .catch((e) => { setBusy(false); setErr(e.message); });
+  };
+
+  /* Online payment: create the order, open Razorpay, then let the SERVER decide
+     whether it was really paid — the browser's word counts for nothing. */
+  const payOnline = async () => {
+    setBusy(true); setErr(""); remember();
+    try {
+      const r = await fetch("/api/order-create", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...payload(), payment_method: "online" }) });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || "Could not start the payment.");
+
+      const ok = await loadRazorpay();
+      if (!ok) throw new Error("Couldn't load the payment window. Please check your connection and try again.");
+
+      const rzp = new window.Razorpay({
+        key: d.razorpay.keyId,
+        order_id: d.razorpay.orderId,
+        amount: d.razorpay.amount,
+        currency: d.razorpay.currency,
+        name: "Mishthi Sattva",
+        description: `Order #${d.orderNo}`,
+        image: "/assets/mishthi-logo-mark-white.png",
+        prefill: { name: form.name, contact: form.phone, email: form.email || undefined },
+        notes: { address: form.address },
+        theme: { color: "#1F3D31" },
+        modal: { ondismiss: () => { setBusy(false); setErr("Payment cancelled — your cart is still here."); } },
+        handler: function (resp) {
+          fetch("/api/order-verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(resp) })
+            .then((v) => v.json().then((vd) => (v.ok ? vd : Promise.reject(new Error(vd.error || "Payment could not be verified.")))))
+            .then((vd) => { setBusy(false); setPlaced({ orderNo: vd.orderNo, total: vd.total, paid: true }); })
+            .catch((e) => { setBusy(false); setErr(e.message); });
+        },
+      });
+      rzp.on("payment.failed", function (e) {
+        setBusy(false);
+        setErr((e && e.error && e.error.description) || "That payment didn't go through. Please try again or choose Cash on Delivery.");
+      });
+      rzp.open();
+    } catch (e) {
+      setBusy(false); setErr(e.message);
+    }
+  };
 
   // Step 1: open the WhatsApp draft. We deliberately do NOT save the order yet —
   // WhatsApp can't tell us whether the customer actually pressed Send, so recording
   // it here would create "ghost" orders the customer never sent (shown as Placed).
   const openWhatsApp = () => {
     const lines = items.map((it) => `• ${it.name} (${it.weight}) × ${it.qty} — ${it.price == null ? "Ask for price" : money(it.price * it.qty)}`).join("\n");
-    const msg = `Namaste Mishthi Sattva! 🌿 I'd like to place an order:\n\n${lines}\n\nSubtotal: ${money(subtotal)}\nDelivery: ${ship === 0 ? "Free" : money(ship)}\nTotal: ${money(total)}\n\nName: ${form.name}\nPhone: ${form.phone}\nAddress: ${form.address}, ${form.city}${form.note ? `\nNote: ${form.note}` : ""}`;
+    const msg = `Namaste Mishthi Sattva! 🌿 I'd like to place an order:\n\n${lines}\n\nSubtotal: ${money(subtotal)}\nDelivery: ${ship === 0 ? "Free" : money(ship)}\nTotal: ${money(total)}\n\nName: ${form.name}\nPhone: ${form.phone}\nAddress: ${form.address}, ${form.city} ${form.pincode}${form.note ? `\nNote: ${form.note}` : ""}`;
     const href = `https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`;
-    // Remember delivery details on this device so the next checkout is pre-filled.
-    try { localStorage.setItem(LS_DELIVERY, JSON.stringify({ name: form.name, phone: form.phone, address: form.address, city: form.city })); } catch (e) {}
+    remember(); // pre-fill the next checkout on this device
     setWaHref(href);
     window.open(href, "_blank");
     setDone(true);
@@ -387,29 +501,38 @@ function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
 
   // Step 2: the customer confirms they sent it — only NOW do we record the order.
   const confirmSent = () => {
-    if (window.MSData && window.MSData.configured) {
-      window.MSData.createOrder({
-        customer_name: form.name,
-        phone: form.phone,
-        address: form.address,
-        city: form.city,
-        note: form.note || null,
-        items: items.map((it) => ({ id: it.id, name: it.name, qty: it.qty, price: it.price, weight: it.weight })),
-        subtotal: subtotal,
-        delivery_fee: ship,
-        total: total,
-        source: "website",
-      }).catch(function (err) {
-        console.warn("[order] could not be saved to the database:", err.message);
-      });
-    }
+    // Recorded by the server like every other order, so the admin sees one
+    // consistent list. If it fails we still thank them — the order is safely
+    // in the WhatsApp chat either way.
+    fetch("/api/order-create", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...payload(), payment_method: "whatsapp" }) })
+      .catch(function (err) { console.warn("[order] could not be recorded:", err.message); });
     setSent(true);
   };
 
   return (
     <Overlay onClose={onClose} align="center">
       <div onClick={(e) => e.stopPropagation()} style={{ width: "min(820px, 95vw)", maxHeight: "92vh", overflow: "auto", background: "var(--background)", borderRadius: "var(--radius-3xl)", boxShadow: "var(--shadow-xl)", border: "1px solid var(--border)" }}>
-        {done ? (
+        {placed ? (
+          <div style={{ padding: "56px 40px", textAlign: "center" }}>
+            <div style={{ display: "grid", placeItems: "center", height: 84, width: 84, margin: "0 auto", borderRadius: "var(--radius-pill)", background: "var(--success)", color: "#fff" }}><I.check s={42} /></div>
+            <h2 style={{ marginTop: 22, fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 36, color: "var(--primary)" }}>
+              {placed.paid ? "Payment received — thank you! 🙏" : "Order placed — thank you! 🙏"}
+            </h2>
+            <p style={{ marginTop: 10, fontSize: 15, color: "var(--muted-foreground)" }}>
+              Your order number is <b style={{ color: "var(--primary)" }}>#{placed.orderNo}</b>{placed.total != null ? <React.Fragment> · {money(placed.total)}{placed.paid ? " paid" : " to pay on delivery"}</React.Fragment> : null}
+            </p>
+            <p style={{ marginTop: 12, maxWidth: 470, marginInline: "auto", fontSize: 15, lineHeight: 1.6, color: "var(--muted-foreground)" }}>
+              We're packing it fresh. You'll get a WhatsApp message from us with the dispatch details. Dhanyavaad!
+            </p>
+            <div style={{ marginTop: 26, display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+              <Button variant="forest" size="lg" onClick={onPlaced}>Continue Shopping</Button>
+              <a href={`https://wa.me/${PHONE}?text=${encodeURIComponent(`Hi! I've just placed order #${placed.orderNo} on the website.`)}`} target="_blank" rel="noopener noreferrer"
+                 style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "13px 22px", borderRadius: "var(--radius-pill)", border: "1px solid var(--border)", background: "var(--card)", color: "var(--primary)", fontWeight: 600, fontSize: 15, textDecoration: "none" }}>
+                <I.wa s={18} /> Message us about this order
+              </a>
+            </div>
+          </div>
+        ) : done ? (
           sent ? (
             <div style={{ padding: "56px 40px", textAlign: "center" }}>
               <div style={{ display: "grid", placeItems: "center", height: 84, width: 84, margin: "0 auto", borderRadius: "var(--radius-pill)", background: "var(--success)", color: "#fff" }}><I.check s={42} /></div>
@@ -435,13 +558,17 @@ function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
               <button onClick={onBack} style={{ display: "inline-flex", alignItems: "center", gap: 6, border: "none", background: "transparent", color: "var(--muted-foreground)", fontSize: 13, cursor: "pointer", marginBottom: 8 }}>← Back to cart</button>
               <GoldDivider>Checkout</GoldDivider>
               <h2 style={{ margin: "14px 0 0", fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 30, color: "var(--primary)" }}>Delivery details</h2>
-              <p style={{ marginTop: 6, fontSize: 14, color: "var(--muted-foreground)" }}>We confirm every order personally on WhatsApp — no online payment needed now.</p>
+              <p style={{ marginTop: 6, fontSize: 14, color: "var(--muted-foreground)" }}>Pay securely online, or on delivery — whichever you prefer.</p>
               {prefilled && <p style={{ marginTop: 8, fontSize: 13, fontWeight: 600, color: "var(--primary)", display: "flex", alignItems: "center", gap: 6 }}>✓ Filled in from your last order — just check and edit anything that changed.</p>}
               <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 14 }}>
                 <Input label="Full Name" placeholder="Your name" value={form.name} onChange={set("name")} />
                 <Input label="WhatsApp Number" type="tel" placeholder="10-digit mobile" value={form.phone} onChange={set("phone")} />
+                <Input label="Email (for your receipt)" type="email" placeholder="you@example.com" value={form.email} onChange={set("email")} />
                 <Input label="Delivery Address" multiline rows={2} placeholder="House / street / area" value={form.address} onChange={set("address")} />
-                <Input label="City" value={form.city} onChange={set("city")} />
+                <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 12 }}>
+                  <Input label="City" value={form.city} onChange={set("city")} />
+                  <Input label="PIN Code" inputMode="numeric" maxLength={6} placeholder="151204" value={form.pincode} onChange={set("pincode")} />
+                </div>
                 <Input label="Order Note (optional)" placeholder="Any preferences or gift message" value={form.note} onChange={set("note")} />
               </div>
             </div>
@@ -468,10 +595,41 @@ function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
                   </p>
                 )}
               </div>
-              <button onClick={openWhatsApp} disabled={!valid} style={{ marginTop: 18, width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, padding: "15px", borderRadius: "var(--radius-pill)", border: "none", background: valid ? "var(--primary)" : "var(--muted)", color: valid ? "var(--primary-foreground)" : "var(--muted-foreground)", fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 15, cursor: valid ? "pointer" : "not-allowed", boxShadow: valid ? "var(--shadow-lg)" : "none" }}>
-                <I.wa s={20} /> Place Order on WhatsApp
+              {/* ---- how would you like to pay? ---- */}
+              <div style={{ marginTop: 18, display: "grid", gap: 8 }}>
+                <p style={{ margin: 0, fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--accent)" }}>Payment</p>
+                {cfg.online && !askPrice && (
+                  <PayOption id="online" cur={pay} onPick={setPay} title="Pay online" sub="UPI · Card · Netbanking · Wallet — secured by Razorpay" />
+                )}
+                {cfg.cod && !askPrice && (
+                  <PayOption id="cod" cur={pay} onPick={setPay} title="Cash on delivery" sub="Pay the delivery person when your order arrives" />
+                )}
+                <PayOption id="whatsapp" cur={pay} onPick={setPay} title="Order on WhatsApp" sub="Send us the order and we'll confirm it personally" />
+                {askPrice && (
+                  <p style={{ margin: 0, fontSize: 12, lineHeight: 1.5, color: "var(--accent)" }}>
+                    Your cart has an item priced on request, so it has to go through WhatsApp — we'll quote it there.
+                  </p>
+                )}
+              </div>
+
+              {err && (
+                <p style={{ marginTop: 12, padding: "10px 12px", borderRadius: "var(--radius-md)", background: "color-mix(in oklab, var(--destructive) 10%, transparent)", color: "var(--destructive)", fontSize: 13, lineHeight: 1.5 }}>{err}</p>
+              )}
+
+              <button
+                onClick={() => { if (pay === "online") payOnline(); else if (pay === "cod") placeCod(); else openWhatsApp(); }}
+                disabled={!valid || busy || cfg.loading}
+                style={{ marginTop: 14, width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, padding: "15px", borderRadius: "var(--radius-pill)", border: "none", background: valid && !busy ? "var(--primary)" : "var(--muted)", color: valid && !busy ? "var(--primary-foreground)" : "var(--muted-foreground)", fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 15, cursor: valid && !busy ? "pointer" : "not-allowed", boxShadow: valid && !busy ? "var(--shadow-lg)" : "none" }}>
+                {busy ? "Please wait…"
+                  : pay === "online" ? <React.Fragment>Pay {money(total)} securely</React.Fragment>
+                  : pay === "cod" ? <React.Fragment>Place order · Pay {money(total)} on delivery</React.Fragment>
+                  : <React.Fragment><I.wa s={20} /> Place Order on WhatsApp</React.Fragment>}
               </button>
-              <p style={{ marginTop: 10, fontSize: 11.5, textAlign: "center", color: "var(--muted-foreground)" }}>By placing the order you'll be taken to WhatsApp to confirm.</p>
+              <p style={{ marginTop: 10, fontSize: 11.5, textAlign: "center", lineHeight: 1.5, color: "var(--muted-foreground)" }}>
+                {pay === "online" ? "You'll pay on Razorpay's secure page. We never see your card details."
+                  : pay === "cod" ? "Keep the exact amount ready for the delivery person."
+                  : "You'll be taken to WhatsApp to send the order."}
+              </p>
             </div>
           </div>
         )}
@@ -479,6 +637,23 @@ function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
     </Overlay>
   );
 }
+/* One payment choice — a radio row that's big enough to tap on a phone. */
+function PayOption({ id, cur, onPick, title, sub }) {
+  const on = cur === id;
+  return (
+    <button type="button" onClick={() => onPick(id)} aria-pressed={on}
+      style={{ display: "flex", alignItems: "flex-start", gap: 11, width: "100%", textAlign: "left", padding: "12px 14px", borderRadius: "var(--radius-md)", cursor: "pointer",
+        border: on ? "1.5px solid var(--primary)" : "1px solid var(--border)",
+        background: on ? "color-mix(in oklab, var(--primary) 6%, var(--card))" : "var(--card)" }}>
+      <span style={{ marginTop: 2, height: 17, width: 17, flexShrink: 0, borderRadius: "var(--radius-pill)", border: on ? "5px solid var(--primary)" : "1.5px solid var(--border)", background: "var(--card)" }} />
+      <span>
+        <span style={{ display: "block", fontSize: 14, fontWeight: 700, color: "var(--primary)" }}>{title}</span>
+        <span style={{ display: "block", marginTop: 2, fontSize: 12, lineHeight: 1.45, color: "var(--muted-foreground)" }}>{sub}</span>
+      </span>
+    </button>
+  );
+}
+
 function Row({ k, v, accent }) {
   return <div style={{ display: "flex", justifyContent: "space-between" }}><span style={{ color: "var(--muted-foreground)" }}>{k}</span><span style={{ fontWeight: 600, color: accent ? "var(--success)" : "var(--primary)" }}>{v}</span></div>;
 }
