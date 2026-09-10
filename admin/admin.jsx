@@ -244,11 +244,16 @@ function DetailsEditor({ product, onClose, onSaved }) {
 
   return (
     <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 200, background: "color-mix(in oklab, #10231c 55%, transparent)", display: "grid", placeItems: "center", padding: 20 }}>
-      <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: "min(720px, 96vw)", maxHeight: "92vh", overflow: "auto" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, background: "var(--card, #fff)", paddingBottom: 8 }}>
+      {/* The card carries no padding of its own: the sticky title bar sits flush
+          against the scroll container's top edge, so nothing slides above it.
+          The body below supplies the padding instead. */}
+      <div onClick={(e) => e.stopPropagation()} className="card" style={{ width: "min(720px, 96vw)", maxHeight: "92vh", overflow: "auto", padding: 0 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 2,
+                      padding: "18px 22px", background: "var(--card, #fff)", borderBottom: "1px solid var(--border)" }}>
           <b style={{ color: "var(--primary)", fontSize: 17 }}>Details — {product.name}</b>
           <button className="btn ghost" onClick={onClose}>Close</button>
         </div>
+        <div style={{ padding: "18px 22px 22px" }}>
         <p className="muted" style={{ fontSize: 12, marginTop: 4 }}>
           These fill the product page on the shop. Leave anything blank and that section is hidden.
           <b> Ingredients, allergens and nutrition are legally declarable — enter your real figures, never estimates.</b>
@@ -314,6 +319,7 @@ function DetailsEditor({ product, onClose, onSaved }) {
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 18 }}>
           <button className="btn ghost" onClick={onClose}>Cancel</button>
           <button className="btn" onClick={save} disabled={busy}>{busy ? "Saving…" : "Save details"}</button>
+        </div>
         </div>
       </div>
     </div>
