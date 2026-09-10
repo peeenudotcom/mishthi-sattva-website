@@ -347,7 +347,8 @@ function Products({ cats }) {
     Object.keys(d).forEach((f) => {
       let v = d[f];
       if (f === "in_stock" || f === "featured") v = !!v;
-      else if (f === "price" || f === "mrp") v = (v === "" || v == null) ? null : Number(v);
+      // Blank stock means "don't track it" (null), which is different from 0.
+      else if (f === "price" || f === "mrp" || f === "stock") v = (v === "" || v == null) ? null : Number(v);
       else v = String(v).trim() === "" ? (f === "name" ? row.name : null) : String(v).trim();
       patch[f] = v;
     });
@@ -454,6 +455,12 @@ function Products({ cats }) {
                 <td>
                   <input type="checkbox" style={{ width: 18, height: 18 }} checked={cur(r, "in_stock") !== false}
                     onChange={(e) => edit(r.id, "in_stock", e.target.checked)} />
+                  {/* Optional count. Blank = don't count, just on/off. When set,
+                      the server refuses orders bigger than what's left. */}
+                  <input className="num" type="number" min="0" title="How many are left. Leave blank if you don't want to count."
+                    placeholder="qty" style={{ marginTop: 6, width: 62, fontSize: 12 }}
+                    value={cur(r, "stock") == null ? "" : cur(r, "stock")}
+                    onChange={(e) => edit(r.id, "stock", e.target.value)} />
                 </td>
                 <td>
                   <input type="checkbox" title="Show in the home-page Bestsellers row" style={{ width: 18, height: 18 }} checked={cur(r, "featured") === true}

@@ -7,7 +7,7 @@
  * returns what the checkout widget needs. The order is only marked paid later,
  * by /api/order-verify, after the signature checks out.
  */
-import { json, readBody, config, db, priceCart, cleanCustomer, deliveryFee, createRazorpayOrder } from "./_lib.mjs";
+import { json, readBody, config, db, priceCart, cleanCustomer, deliveryFee, createRazorpayOrder, decrementStock } from "./_lib.mjs";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return json(res, 405, { error: "Method not allowed" });
@@ -56,6 +56,11 @@ export default async function handler(req, res) {
     }
 
     const saved = (await db.insertOrder(row))?.[0] || {};
+
+    // COD and WhatsApp orders are committed the moment they're placed. Online
+    // orders wait for /api/order-verify — the stock isn't spoken for until the
+    // money actually arrives.
+    if (method !== "online") await decrementStock(items);
 
     return json(res, 200, {
       ok: true,

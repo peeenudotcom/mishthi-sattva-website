@@ -6,7 +6,7 @@
  * knows that secret, so recomputing the HMAC here is what actually proves the
  * money arrived — the browser saying "payment succeeded" proves nothing.
  */
-import { json, readBody, config, db, verifySignature } from "./_lib.mjs";
+import { json, readBody, config, db, verifySignature, decrementStock } from "./_lib.mjs";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return json(res, 405, { error: "Method not allowed" });
@@ -41,6 +41,9 @@ export default async function handler(req, res) {
       paid_at: new Date().toISOString(),
       status: "confirmed",
     }))?.[0] || order;
+
+    // Payment confirmed — now the stock is genuinely spoken for.
+    await decrementStock(order.items || updated.items || []);
 
     return json(res, 200, { ok: true, orderNo: updated.order_no, total: updated.total });
   } catch (err) {

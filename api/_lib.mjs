@@ -58,7 +58,7 @@ async function sb(path, opts = {}) {
 export const db = {
   products: () => sb("products?select=slug,name,price,mrp,weight,variants,in_stock,stock"),
   insertOrder: (row) => sb("orders", { method: "POST", body: row, headers: { Prefer: "return=representation" } }),
-  findOrderByRzp: (id) => sb(`orders?razorpay_order_id=eq.${encodeURIComponent(id)}&select=id,order_no,total,payment_status`),
+  findOrderByRzp: (id) => sb(`orders?razorpay_order_id=eq.${encodeURIComponent(id)}&select=id,order_no,total,payment_status,items`),
   markPaid: (id, patch) => sb(`orders?id=eq.${encodeURIComponent(id)}`, { method: "PATCH", body: patch, headers: { Prefer: "return=representation" } }),
 };
 
@@ -131,6 +131,30 @@ export async function priceCart(lines, { allowAskPrice = false } = {}) {
   }
 
   return { items, subtotal };
+}
+
+/* ---------- stock ----------
+   Only products with a counted stock are touched; everything else is left
+   alone. This is a read-then-write, not a database-level atomic decrement — at
+   this shop's order volume that's fine, and priceCart has already refused
+   anything that exceeds what's on hand. Never let a stock failure lose an
+   order: the order is already recorded, so we log and move on. */
+export async function decrementStock(items) {
+  try {
+    const rows = await db.products();
+    const bySlug = new Map(rows.map((r) => [r.slug, r]));
+    for (const it of items) {
+      const p = bySlug.get(it.id);
+      if (!p || p.stock == null) continue;
+      const left = Math.max(0, Number(p.stock) - Number(it.qty));
+      await sb(`products?slug=eq.${encodeURIComponent(it.id)}`, {
+        method: "PATCH",
+        body: left === 0 ? { stock: 0, in_stock: false } : { stock: left },
+      });
+    }
+  } catch (e) {
+    console.error("[stock] could not be updated:", e?.message);
+  }
 }
 
 /* ---------- customer details ---------- */
