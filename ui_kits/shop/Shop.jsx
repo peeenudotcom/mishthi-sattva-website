@@ -324,7 +324,10 @@ function CartDrawer({ items, onClose, onQty, onRemove, onCheckout, subtotal }) {
                 {remaining > 0 ? <span>Add <b style={{ color: "var(--primary)" }}>{money(remaining)}</b> more for free delivery</span> : <span style={{ color: "var(--success)", fontWeight: 600 }}>You've unlocked free delivery!</span>}
               </p>
               <div style={{ marginTop: 8, height: 6, borderRadius: 99, background: "var(--secondary)", overflow: "hidden" }}>
-                <div style={{ height: "100%", width: pct + "%", background: "linear-gradient(90deg, var(--gold), var(--primary))", transition: "width .3s" }} />
+                {/* Grows with transform, not width: animating width relayouts
+                    the drawer on every cart change. scaleX from the left edge
+                    looks identical (the gradient scales with the bar). */}
+                <div style={{ height: "100%", width: "100%", transformOrigin: "left center", transform: `scaleX(${pct / 100})`, background: "linear-gradient(90deg, var(--gold), var(--primary))", transition: "transform .3s var(--ease-out, ease)" }} />
               </div>
             </div>
             <div style={{ flex: 1, overflow: "auto", padding: "8px 22px" }}>
@@ -348,7 +351,7 @@ function CartDrawer({ items, onClose, onQty, onRemove, onCheckout, subtotal }) {
                 <span style={{ color: "var(--muted-foreground)", fontSize: 14 }}>Subtotal</span>
                 <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 24, color: "var(--primary)" }}>{money(subtotal)}</span>
               </div>
-              <p style={{ fontSize: 12, color: "var(--muted-foreground)", marginBottom: 14 }}>Delivery & taxes confirmed on WhatsApp.</p>
+              <p style={{ fontSize: 12, color: "var(--muted-foreground)", marginBottom: 14 }}>Delivery is calculated at checkout, once you enter your PIN code.</p>
               <button onClick={onCheckout} style={{ width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px", borderRadius: "var(--radius-pill)", border: "none", background: "var(--primary)", color: "var(--primary-foreground)", fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 15, cursor: "pointer" }}>Checkout →</button>
             </div>
           </React.Fragment>
