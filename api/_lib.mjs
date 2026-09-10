@@ -17,6 +17,9 @@ const RZP_SECRET = process.env.RAZORPAY_KEY_SECRET || "";
 export const config = {
   hasDb: !!SERVICE_KEY,
   hasRazorpay: !!(RZP_KEY_ID && RZP_SECRET),
+  // Cash on delivery is a business decision, not a side effect of the database
+  // key being present — the owner turns it on with ENABLE_COD=true in Vercel.
+  hasCod: !!SERVICE_KEY && String(process.env.ENABLE_COD || "").toLowerCase() === "true",
   rzpKeyId: RZP_KEY_ID,
 };
 

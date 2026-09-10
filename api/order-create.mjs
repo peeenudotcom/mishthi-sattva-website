@@ -21,7 +21,10 @@ export default async function handler(req, res) {
     const allowed = ["online", "cod", "whatsapp"];
     const method = allowed.includes(body.payment_method) ? body.payment_method : "cod";
     if (method === "online" && !config.hasRazorpay) {
-      return json(res, 503, { error: "Online payment isn't available right now — please choose Cash on Delivery or WhatsApp." });
+      return json(res, 503, { error: "Online payment isn't available right now — please send your order on WhatsApp." });
+    }
+    if (method === "cod" && !config.hasCod) {
+      return json(res, 503, { error: "Cash on delivery isn't available right now — please send your order on WhatsApp." });
     }
 
     const customer = cleanCustomer(body.customer);

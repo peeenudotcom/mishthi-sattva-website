@@ -10,7 +10,7 @@ import { json, config, SHIPPING } from "./_lib.mjs";
 export default async function handler(req, res) {
   return json(res, 200, {
     online: config.hasRazorpay && config.hasDb,
-    cod: config.hasDb,
+    cod: config.hasCod,
     keyId: config.hasRazorpay ? config.rzpKeyId : null,
     shipping: { freeAbove: SHIPPING.freeAbove, local: SHIPPING.local, punjab: SHIPPING.punjab, india: SHIPPING.india },
   });
