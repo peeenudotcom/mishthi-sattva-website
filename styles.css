@@ -125,3 +125,101 @@
   .ms-ss-panel, .ms-ss-opt, .ms-ss-tick { animation: none; }
   .ms-ss-caret, .ms-ss-btn { transition: none; }
 }
+
+/* ============================================================
+   PRODUCT PAGE — /product/<slug>  (ui_kits/shared/ProductPage.jsx)
+   ============================================================ */
+.ms-pp-crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; padding: 18px 24px 0; font-size: 12.5px; color: var(--muted-foreground); }
+.ms-pp-crumbs a { color: var(--muted-foreground); text-decoration: none; }
+.ms-pp-crumbs a:hover { color: var(--primary); }
+.ms-pp-crumbs b { color: var(--primary); font-weight: 600; }
+
+.ms-pp-top { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; padding: 26px 24px 56px; align-items: start; }
+@media (max-width: 900px) { .ms-pp-top { grid-template-columns: 1fr; gap: 28px; padding: 18px 18px 40px; } }
+
+/* ---- gallery ---- */
+.ms-pp-gallery { position: sticky; top: 96px; }
+@media (max-width: 900px) { .ms-pp-gallery { position: static; } }
+.ms-pp-shot { position: relative; aspect-ratio: 1 / 1; border-radius: var(--radius-2xl); overflow: hidden; background: var(--cream); display: grid; place-items: center; }
+.ms-pp-shot img { width: 100%; height: 100%; object-fit: contain; padding: 16px; box-sizing: border-box; }
+.ms-pp-noshot { font-family: var(--font-display); font-size: 28px; color: var(--primary); opacity: .35; padding: 24px; text-align: center; }
+.ms-pp-badge { position: absolute; top: 14px; left: 14px; font-size: 11px; font-weight: 700; padding: 4px 11px; border-radius: var(--radius-pill); }
+.ms-pp-arrow { position: absolute; top: 50%; transform: translateY(-50%); height: 38px; width: 38px; border-radius: var(--radius-pill); border: 1px solid var(--border); background: color-mix(in oklab, var(--card) 88%, transparent); color: var(--primary); font-size: 22px; line-height: 1; cursor: pointer; }
+.ms-pp-arrow.is-prev { left: 10px; } .ms-pp-arrow.is-next { right: 10px; }
+.ms-pp-thumbs { display: flex; gap: 10px; margin-top: 12px; overflow-x: auto; padding-bottom: 4px; }
+.ms-pp-thumb { flex: 0 0 72px; height: 72px; padding: 4px; border-radius: var(--radius-md); border: 1.5px solid var(--border); background: var(--cream); cursor: pointer; }
+.ms-pp-thumb.is-on { border-color: var(--accent); }
+.ms-pp-thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+/* ---- buy box ---- */
+.ms-pp-eyebrow { margin: 0; font-size: 11.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.ms-pp-buy h1 { margin: 8px 0 0; font-family: var(--font-display); font-weight: 600; font-size: clamp(30px, 4vw, 42px); line-height: 1.06; color: var(--primary); }
+.ms-pp-rating { display: flex; align-items: center; gap: 8px; margin-top: 10px; color: var(--accent); font-size: 15px; }
+.ms-pp-rating small { color: var(--muted-foreground); font-size: 12.5px; }
+.ms-pp-price { display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.ms-pp-price b { font-family: var(--font-display); font-weight: 600; font-size: 32px; color: var(--primary); }
+.ms-pp-price s { color: var(--muted-foreground); font-size: 17px; }
+.ms-pp-price em { font-style: normal; font-size: 13px; font-weight: 700; color: var(--destructive); }
+.ms-pp-tagline { margin: 14px 0 0; font-size: 13.5px; font-weight: 700; color: var(--primary); }
+.ms-pp-blurb { margin: 10px 0 0; font-size: 15px; line-height: 1.65; color: color-mix(in oklab, var(--foreground) 82%, transparent); }
+.ms-pp-ticks { margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 7px; }
+.ms-pp-ticks li { position: relative; padding-left: 22px; font-size: 13.5px; line-height: 1.5; color: color-mix(in oklab, var(--foreground) 80%, transparent); }
+.ms-pp-ticks li::before { content: "✔"; position: absolute; left: 0; color: var(--accent); font-size: 12px; }
+.ms-pp-ship { margin: 16px 0 0; font-size: 13px; font-weight: 700; color: var(--primary); }
+
+.ms-pp-pin { margin-top: 18px; }
+.ms-pp-pin label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--accent); margin-bottom: 7px; }
+.ms-pp-pinrow { display: flex; gap: 8px; }
+.ms-pp-pinrow input { flex: 1; min-width: 0; padding: 11px 13px; font-family: var(--font-sans); font-size: 14px; color: var(--primary); background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius-md); }
+.ms-pp-pinrow input:focus-visible { outline: none; border-color: var(--accent); }
+.ms-pp-pinrow button { flex-shrink: 0; padding: 11px 18px; border: none; border-radius: var(--radius-md); background: var(--secondary); color: var(--primary); font-family: var(--font-sans); font-weight: 700; font-size: 14px; cursor: pointer; }
+.ms-pp-pinsaid { margin: 8px 0 0; font-size: 13px; font-weight: 600; }
+.ms-pp-pinsaid.is-ok { color: var(--success, #2e7d32); } .ms-pp-pinsaid.is-bad { color: var(--destructive); }
+
+.ms-pp-size { margin-top: 18px; }
+.ms-pp-size label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--accent); margin-bottom: 7px; }
+
+.ms-pp-low { margin: 16px 0 0; font-size: 13px; font-weight: 700; color: var(--destructive); }
+.ms-pp-sold { margin: 20px 0 0; padding: 13px 15px; border-radius: var(--radius-md); background: var(--secondary); font-size: 14px; line-height: 1.55; color: var(--primary); }
+.ms-pp-actions { display: flex; align-items: center; gap: 12px; margin-top: 18px; }
+.ms-pp-qty { display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: var(--radius-pill); background: var(--card); flex-shrink: 0; }
+.ms-pp-qty button { height: 46px; width: 42px; border: none; background: transparent; color: var(--primary); font-size: 19px; cursor: pointer; }
+.ms-pp-qty span { min-width: 26px; text-align: center; font-weight: 700; color: var(--primary); }
+.ms-pp-add { flex: 1; padding: 15px; border: none; border-radius: var(--radius-pill); background: var(--primary); color: var(--primary-foreground); font-family: var(--font-sans); font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: var(--shadow-lg); }
+.ms-pp-buynow { display: block; margin-top: 10px; padding: 14px; text-align: center; border-radius: var(--radius-pill); border: 1.5px solid var(--primary); color: var(--primary); font-weight: 700; font-size: 15px; text-decoration: none; }
+.ms-pp-ask { display: block; margin-top: 16px; text-align: center; font-size: 13.5px; font-weight: 600; color: var(--whatsapp, #128C4B); text-decoration: none; }
+
+/* ---- tabs ---- */
+.ms-ptabs { margin: 8px 24px 40px; }
+.ms-ptabs-bar { display: flex; gap: 4px; overflow-x: auto; border-bottom: 1px solid var(--border); }
+.ms-ptab { flex-shrink: 0; padding: 13px 16px; border: none; background: transparent; cursor: pointer; font-family: var(--font-sans); font-size: 14px; font-weight: 600; color: var(--muted-foreground); border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+.ms-ptab:hover { color: var(--primary); }
+.ms-ptab.is-on { color: var(--primary); font-weight: 700; border-bottom-color: var(--accent); }
+.ms-ptabs-body { padding: 24px 2px 0; max-width: 760px; }
+
+/* ---- legal declarations ---- */
+.ms-pp-legal { margin: 8px 24px 56px; padding: 20px 22px; border-radius: var(--radius-2xl); background: var(--secondary); max-width: 760px; }
+.ms-pp-legal p { margin: 0 0 7px; font-size: 13px; line-height: 1.6; color: color-mix(in oklab, var(--foreground) 82%, transparent); }
+.ms-pp-legal b { color: var(--primary); }
+.ms-pp-legal a { color: inherit; }
+.ms-pp-legalnote { margin-top: 12px !important; font-size: 12.5px !important; color: var(--muted-foreground) !important; }
+
+/* ---- "you may also like" rows ---- */
+.ms-pp-row { padding: 8px 0 48px; }
+.ms-pp-row h2 { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 26px; color: var(--primary); }
+.ms-pp-rowsub { margin: 5px 0 0; font-size: 13.5px; color: var(--muted-foreground); }
+.ms-pp-rowscroll { display: flex; gap: 16px; margin-top: 18px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x proximity; }
+.ms-pp-mini { flex: 0 0 190px; scroll-snap-align: start; display: grid; gap: 6px; padding: 12px; border-radius: var(--radius-2xl); border: 1px solid var(--border); background: var(--card); text-decoration: none; transition: transform .18s ease, box-shadow .18s ease; }
+.ms-pp-mini:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.ms-pp-minishot { display: block; aspect-ratio: 1/1; border-radius: var(--radius-md); overflow: hidden; background: var(--cream); }
+.ms-pp-minishot img { width: 100%; height: 100%; object-fit: contain; padding: 8px; box-sizing: border-box; }
+.ms-pp-mininame { font-size: 14px; font-weight: 700; color: var(--primary); line-height: 1.3; }
+.ms-pp-miniprice { font-size: 13.5px; font-weight: 700; color: var(--primary); display: flex; gap: 7px; align-items: baseline; }
+.ms-pp-miniprice s { font-weight: 400; color: var(--muted-foreground); font-size: 12px; }
+.ms-pp-minicta { justify-self: start; font-size: 12px; font-weight: 700; color: var(--accent); }
+
+.ms-pp-empty { padding: 100px 24px; text-align: center; }
+.ms-pp-empty h1 { font-family: var(--font-display); font-size: 34px; color: var(--primary); }
+.ms-pp-btn { display: inline-block; margin-top: 18px; padding: 13px 24px; border-radius: var(--radius-pill); background: var(--primary); color: var(--primary-foreground); font-weight: 700; text-decoration: none; }
+
+@media (prefers-reduced-motion: reduce) { .ms-pp-mini { transition: none; } }

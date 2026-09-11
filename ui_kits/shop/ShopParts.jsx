@@ -87,6 +87,11 @@ function SizePicker({ variants, index, onPick, size }) {
 }
 
 /* ---------------- product card ---------------- */
+/* Cards lead to the product's own page rather than a popup: a real URL to
+   share, and room for the gallery, nutrition, reviews and related products.
+   onOpen is still used by the wishlist drawer's quick look. */
+const go = (product) => { window.location.href = "/product/" + product.id; };
+
 function ProductCard({ product, onOpen, onAdd, onToggleWish, wished }) {
   const [h, setH] = React.useState(false);
   const variants = product.variants || [];
@@ -100,7 +105,7 @@ function ProductCard({ product, onOpen, onAdd, onToggleWish, wished }) {
       style={{ display: "flex", flexDirection: "column", background: "var(--card)", border: `1px solid ${h ? "var(--accent)" : "var(--border)"}`,
         borderRadius: "var(--radius-2xl)", padding: 14, boxShadow: h ? "var(--shadow-lg)" : "var(--shadow-sm)",
         transform: h ? "translateY(-4px)" : "none", transition: "all .2s var(--ease-standard)" }}>
-      <div style={{ position: "relative", cursor: "pointer" }} onClick={() => onOpen(product)}>
+      <div style={{ position: "relative", cursor: "pointer" }} onClick={() => go(product)}>
         <ProductMedia product={product} height={188} />
         <div style={{ position: "absolute", top: 10, left: 10, display: "flex", gap: 6 }}>
           {off > 0 && <span style={{ background: "var(--destructive)", color: "#fff", fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: "var(--radius-pill)" }}>-{off}%</span>}
@@ -114,7 +119,7 @@ function ProductCard({ product, onOpen, onAdd, onToggleWish, wished }) {
       </div>
       <div style={{ marginTop: 12, flex: 1, display: "flex", flexDirection: "column" }}>
         <span style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--accent)" }}>{catName(product.cat)}</span>
-        <h3 onClick={() => onOpen(product)} style={{ margin: "4px 0 0", fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 19, lineHeight: 1.15, color: "var(--primary)", cursor: "pointer" }}>{product.name}</h3>
+        <h3 onClick={() => go(product)} style={{ margin: "4px 0 0", fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 19, lineHeight: 1.15, color: "var(--primary)", cursor: "pointer" }}>{product.name}</h3>
         <div style={{ marginTop: 6 }}><Stars value={product.rating} count={product.reviews} /></div>
         <p style={{ margin: "8px 0 0", fontSize: 13, lineHeight: 1.5, color: "var(--muted-foreground)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{product.desc}</p>
         {showPicker && <div style={{ marginTop: "auto", paddingTop: 14 }}><SizePicker variants={variants} index={vi} onPick={setVi} /></div>}

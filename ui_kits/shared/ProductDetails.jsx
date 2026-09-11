@@ -150,90 +150,121 @@ function ReviewList({ product }) {
   );
 }
 
-function ProductDetails({ product }) {
+/* The seven sections as data — title plus rendered content — so the accordion
+   (in the popups) and the tabs (on the full product page) show exactly the
+   same thing and can never fall out of step. Sections with nothing to say are
+   left out entirely rather than rendered empty. */
+function productSections(product) {
+  const out = [];
   const description = product.long_desc || product.desc;
   const benefits = (product.wellness_benefits && product.wellness_benefits.length)
     ? product.wellness_benefits
     : (product.facts || []);
   const ingredients = product.ingredients || [];
   const nutrition = product.nutrition || {};
-  const hasNutrition = nutrition.rows && nutrition.rows.length;
   const storage = product.storage_info;
   const shelf = product.shelf_life;
   const promise = (product.promise && product.promise.length) ? product.promise : (window.MS_PROMISE || []);
 
+  if (description) out.push({ key: "description", title: "Product Description", node: (
+    <React.Fragment>
+      <p style={bodyText}>{description}</p>
+      {product.usage_info && (
+        <React.Fragment>
+          <p style={{ margin: "16px 0 6px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--accent)" }}>How to use</p>
+          <p style={bodyText}>{product.usage_info}</p>
+        </React.Fragment>
+      )}
+    </React.Fragment>
+  ) });
+
+  if (benefits.length) out.push({ key: "benefits", title: "Wellness Benefits", node: <BenefitList items={benefits} /> });
+
+  if (ingredients.length) out.push({ key: "ingredients", title: "Ingredients", node: (
+    <React.Fragment>
+      {/* Single words sit nicely in pills; phrases ("nuts like almonds,
+          cashews, walnuts") do not — they wrap badly and look broken. So the
+          shape follows the content: pills for short entries, a list for
+          anything written out longhand. */}
+      {ingredients.some((ing) => String(ing).length > 24) ? (
+        <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 9 }}>
+          {ingredients.map((ing, i) => (
+            <li key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 14, lineHeight: 1.6, color: "color-mix(in oklab, var(--foreground) 82%, transparent)" }}>
+              <span style={{ color: "var(--accent)", marginTop: 3, flexShrink: 0 }}><Ico.leaf s={14} /></span>{ing}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {ingredients.map((ing) => (
+            <span key={ing} style={{ fontSize: 13, fontWeight: 600, color: "var(--primary)", background: "var(--secondary)", padding: "7px 12px", borderRadius: "var(--radius-pill)" }}>{ing}</span>
+          ))}
+        </div>
+      )}
+      {product.allergens && (
+        <p style={{ margin: "14px 0 0", fontSize: 13, lineHeight: 1.6, color: "var(--destructive)", fontWeight: 600 }}>Allergen information: {product.allergens}</p>
+      )}
+    </React.Fragment>
+  ) });
+
+  if (nutrition.rows && nutrition.rows.length) {
+    out.push({ key: "nutrition", title: "Nutritional Information", node: <NutritionTable nutrition={nutrition} /> });
+  }
+
+  if (storage || shelf) out.push({ key: "storage", title: "Storage & Shelf Life", node: (
+    <React.Fragment>
+      {storage && <p style={bodyText}>{storage}</p>}
+      {shelf && <p style={{ ...bodyText, marginTop: storage ? 12 : 0 }}><strong style={{ color: "var(--primary)" }}>Best before:</strong> {shelf}</p>}
+    </React.Fragment>
+  ) });
+
+  if (promise.length) out.push({ key: "promise", title: "Our Promise", node: (
+    <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 10 }}>
+      {promise.map((p) => (
+        <li key={p} style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 14, lineHeight: 1.6, color: "color-mix(in oklab, var(--foreground) 82%, transparent)" }}>
+          <span style={{ color: "var(--accent)", marginTop: 3, flexShrink: 0 }}><Ico.check s={15} /></span>{p}
+        </li>
+      ))}
+    </ul>
+  ) });
+
+  out.push({ key: "reviews", title: "Customer Reviews", node: <ReviewList product={product} /> });
+  return out;
+}
+
+/* Accordion form — used inside the quick-view and the home popup, where
+   vertical space is tight. */
+function ProductDetails({ product }) {
+  const sections = productSections(product);
   return (
     <div style={{ marginTop: 26 }}>
-      {description && (
-        <Section title="Product Description" defaultOpen>
-          <p style={bodyText}>{description}</p>
-          {product.usage_info && (
-            <React.Fragment>
-              <p style={{ margin: "16px 0 6px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--accent)" }}>How to use</p>
-              <p style={bodyText}>{product.usage_info}</p>
-            </React.Fragment>
-          )}
-        </Section>
-      )}
-
-      {benefits.length > 0 && (
-        <Section title="Wellness Benefits"><BenefitList items={benefits} /></Section>
-      )}
-
-      {ingredients.length > 0 && (
-        <Section title="Ingredients">
-          {/* Single words sit nicely in pills; phrases ("nuts like almonds,
-              cashews, walnuts") do not — they wrap badly and look broken. So the
-              shape follows the content: pills for short entries, a list for
-              anything written out longhand. */}
-          {ingredients.some((ing) => String(ing).length > 24) ? (
-            <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 9 }}>
-              {ingredients.map((ing, i) => (
-                <li key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 14, lineHeight: 1.6, color: "color-mix(in oklab, var(--foreground) 82%, transparent)" }}>
-                  <span style={{ color: "var(--accent)", marginTop: 3, flexShrink: 0 }}><Ico.leaf s={14} /></span>{ing}
-                </li>
-              ))}
-            </ul>
-          ) : (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {ingredients.map((ing) => (
-              <span key={ing} style={{ fontSize: 13, fontWeight: 600, color: "var(--primary)", background: "var(--secondary)", padding: "7px 12px", borderRadius: "var(--radius-pill)" }}>{ing}</span>
-            ))}
-          </div>
-          )}
-          {product.allergens && (
-            <p style={{ margin: "14px 0 0", fontSize: 13, lineHeight: 1.6, color: "var(--destructive)", fontWeight: 600 }}>Allergen information: {product.allergens}</p>
-          )}
-        </Section>
-      )}
-
-      {hasNutrition && (
-        <Section title="Nutritional Information"><NutritionTable nutrition={nutrition} /></Section>
-      )}
-
-      {(storage || shelf) && (
-        <Section title="Storage & Shelf Life">
-          {storage && <p style={bodyText}>{storage}</p>}
-          {shelf && <p style={{ ...bodyText, marginTop: storage ? 12 : 0 }}><strong style={{ color: "var(--primary)" }}>Best before:</strong> {shelf}</p>}
-        </Section>
-      )}
-
-      {promise.length > 0 && (
-        <Section title="Our Promise">
-          <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "grid", gap: 10 }}>
-            {promise.map((p) => (
-              <li key={p} style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 14, lineHeight: 1.6, color: "color-mix(in oklab, var(--foreground) 82%, transparent)" }}>
-                <span style={{ color: "var(--accent)", marginTop: 3, flexShrink: 0 }}><Ico.check s={15} /></span>{p}
-              </li>
-            ))}
-          </ul>
-        </Section>
-      )}
-
-      <Section title="Customer Reviews"><ReviewList product={product} /></Section>
+      {sections.map((s, i) => (
+        <Section key={s.key} title={s.title} defaultOpen={i === 0}>{s.node}</Section>
+      ))}
     </div>
   );
 }
 
-window.MSProductDetails = { ProductDetails, Section };
+/* Tab form — used on the full product page, where there is room for a row of
+   headings and readers expect to jump straight to Ingredients or Reviews. */
+function ProductTabs({ product }) {
+  const sections = productSections(product);
+  const [tab, setTab] = React.useState(sections[0] && sections[0].key);
+  const current = sections.find((s) => s.key === tab) || sections[0];
+  if (!current) return null;
+  return (
+    <div className="ms-ptabs">
+      <div className="ms-ptabs-bar" role="tablist">
+        {sections.map((s) => (
+          <button key={s.key} role="tab" type="button" aria-selected={s.key === current.key}
+            className={"ms-ptab" + (s.key === current.key ? " is-on" : "")}
+            onClick={() => setTab(s.key)}>{s.title}</button>
+        ))}
+      </div>
+      <div className="ms-ptabs-body" role="tabpanel">{current.node}</div>
+    </div>
+  );
+}
+
+window.MSProductDetails = { ProductDetails, ProductTabs, productSections, Section };
 })();

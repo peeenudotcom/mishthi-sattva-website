@@ -121,6 +121,37 @@ function localBusinessLd() {
   };
 }
 
+/* One product's own structured data. A product page that carries this can show
+   up in Google with its price and availability, which an ItemList on a listing
+   page cannot do for the individual item. */
+function oneProductLd(p) {
+  const rawPhoto = p.photo || "";
+  const img = /^https?:\/\//.test(rawPhoto) ? rawPhoto : SITE + rawPhoto.replace("../../", "/");
+  const prod = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: p.name,
+    description: p.long_desc || p.desc || "",
+    image: img,
+    category: CAT_NAME[p.cat] || p.cat,
+    brand: { "@type": "Brand", name: BIZ.name },
+    url: SITE + "/product/" + p.id,
+  };
+  if (p.ingredients && p.ingredients.length) prod.material = p.ingredients.join(", ");
+  // Only advertise a price where one is confirmed.
+  if (p.price != null) {
+    prod.offers = {
+      "@type": "Offer",
+      price: String(p.price),
+      priceCurrency: "INR",
+      availability: "https://schema.org/InStock",
+      url: SITE + "/product/" + p.id,
+      seller: { "@id": SITE + "/#business" },
+    };
+  }
+  return prod;
+}
+
 function productsLd(catalogue) {
   const items = catalogue.map((p, i) => {
     // Photos may be an already-absolute URL (Supabase storage) or a repo-relative
@@ -229,6 +260,11 @@ const LINK_MAP = [
   // broad (no quote anchor) so it also catches the template-literal deep-link
   // `../shop/index.html?p=${id}` used by the home "View Details" buttons
   [/\.\.\/shop\/index\.html/g, "/shop"],
+  /* The shop's catalogue snapshot is copied to /app/data.js, but step 6 has
+     already flattened "../shop/data.js" to "/shop/data.js" — where no file
+     exists. Point it at the real one. (Product pages load it for instant
+     first paint before the live database answers.) */
+  [/(["'])\/shop\/data\.js\1/g, '$1/app/data.js$1'],
   [/(["'])index\.html\1/g, '$1/$1'],
   [/(["'])about\.html\1/g, '$1/story$1'],
   [/(["'])products\.html\1/g, '$1/products$1'],
@@ -368,9 +404,16 @@ async function buildPage({ src, out }) {
       schemas.push(ld(localBusinessLd()));
       if (seo.faq) schemas.push(ld(faqLd()));
       if (seo.product) schemas.push(ld(productsLd(CATALOGUE)));
+      if (seo.productLd) schemas.push(ld(seo.productLd));
     }
     const inject = "\n" + headMeta(seo) + "\n" + schemas.join("\n") + "\n";
     html = html.replace("</head>", inject + "</head>");
+  }
+
+  // A generated product page needs to know which product it is before any
+  // script runs — the URL path alone isn't visible to the bundle.
+  if (seo && seo.productSlug) {
+    html = html.replace("</head>", `  <script>window.MS_PRODUCT_SLUG=${JSON.stringify(seo.productSlug)};</script>\n</head>`);
   }
 
   // Global brand cursor (desktop only; the script self-disables on touch / reduced-motion). Not on the admin panel.
@@ -453,6 +496,25 @@ async function main() {
   }
 
   await copySiblingScripts();
+
+  /* One real page per product. Each gets its own URL, title, description and
+     Product structured data, so a product can be shared, indexed and shown in
+     search with its price — none of which a popup could do. Products are read
+     from the catalogue snapshot (ui_kits/shop/data.js); run `npm run sync`
+     after adding one in /admin so it gets a page. */
+  for (const p of CATALOGUE) {
+    const out = `product/${p.id}.html`;
+    const blurb = (p.long_desc || p.desc || "").replace(/\s+/g, " ").trim();
+    SEO[out] = {
+      path: "/product/" + p.id,
+      title: `${p.name} — ${CAT_NAME[p.cat] || "Homemade"} | Mishthi Sattva`,
+      desc: (blurb || `${p.name} from Mishthi Sattva — homemade in small batches in Kotkapura.`).slice(0, 158),
+      productSlug: p.id,
+      productLd: oneProductLd(p),
+    };
+    PAGES.push({ src: "ui_kits/website/product.html", out });
+  }
+
   for (const page of PAGES) {
     await buildPage(page);
     console.log("  built ", page.out);

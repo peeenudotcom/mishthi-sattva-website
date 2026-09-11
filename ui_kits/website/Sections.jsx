@@ -693,8 +693,9 @@ function HomeProductCard({ p, onView }) {
           <PriceTag p={p} />{p.variants && p.variants.length > 1 ? <span style={{ fontSize: 12, color: "var(--muted-foreground)" }}>· {p.variants.length} sizes</span> : null}
         </div>
         <div style={{ marginTop: "auto", paddingTop: 18, display: "flex", alignItems: "center", gap: 10 }}>
-          {/* opens this product's details in a popup on THIS page — no navigation to the shop */}
-          <button type="button" onClick={() => onView && onView(p)} style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 14px", borderRadius: "var(--radius-pill)", border: "1px solid var(--primary)", background: "var(--card)", color: "var(--primary)", fontFamily: "inherit", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>View Details</button>
+          {/* Goes to the product's own page: a real URL to share, room for the
+              gallery, nutrition, reviews and related products. */}
+          <a href={`/product/${p.id}`} style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "10px 14px", borderRadius: "var(--radius-pill)", border: "1px solid var(--primary)", background: "var(--card)", color: "var(--primary)", fontFamily: "inherit", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>View Details</a>
           <button type="button" onClick={() => setFaved(toggleFav(p.id))}
             aria-label={faved ? `Remove ${p.name} from favourites` : `Add ${p.name} to favourites`} aria-pressed={faved}
             style={{ flexShrink: 0, display: "grid", placeItems: "center", height: 42, width: 42, borderRadius: "var(--radius-pill)", cursor: "pointer", transition: "all .18s",
@@ -1591,4 +1592,4 @@ function Website() {
   );
 }
 
-window.MSWebsite = { HomePage, AboutPage, ProductsPage, ContactPage, PolicyPage, AccountPage, Website };
+window.MSWebsite = { HomePage, AboutPage, ProductsPage, ContactPage, PolicyPage, AccountPage, Website, Header, Footer };

@@ -8,6 +8,16 @@ window.MS_CONFIG = {
   WHATSAPP: "918557942246",
 };
 
+/* Legal identity, shown on product pages and in the footer. The licence is
+   issued to the proprietor, Kiran Bansal — "Cherry Bansal" is the founder's
+   public name and must not replace it on anything legal. */
+window.MS_BUSINESS = {
+  legal: "Mishthi Sattva (Prop. Kiran Bansal)",
+  address: "Mishthi Sattva Enterprises, Valmiki Chowk, Kotkapura, Punjab",
+  fssai: "22126010000026",
+  phone: "918557942246",
+};
+
 /* "Our Promise" — the brand-wide pledge shown on every product page when a
    product doesn't carry its own list. Keep these to things that are true of
    the whole kitchen; anything product-specific belongs in that product's own

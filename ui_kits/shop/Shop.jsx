@@ -772,17 +772,16 @@ function Shop() {
     return function () { cancelled = true; };
   }, []);
 
-  /* Deep-link: /shop?p=<id> (from the home "View Details" buttons) opens that
-     product's detail view directly, instead of dumping the visitor on the grid.
-     Runs whenever the catalogue changes so it works with both local and DB data. */
+  /* Deep-link: /shop?p=<id> — older links (and anything shared before product
+     pages existed) land here. Send them to the product's own page rather than
+     reopening a popup, so there is one place a product is read. */
   React.useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("cart")) setView("cart");   // e.g. home "View cart" after add-to-cart
+    let params; try { params = new URLSearchParams(window.location.search); } catch (e) { return; }
+    // ?cart=1 — the "View cart & checkout" links from product pages and popups.
+    if (params.get("cart")) setView("cart");
     const id = params.get("p");
-    if (!id) return;
-    const found = catalogue.find((x) => x.id === id);
-    if (found) setQuick(found);
-  }, [catalogue]);
+    if (id) window.location.replace("/product/" + id);
+  }, []);
 
   /* Deep-link: /shop?cat=<slug> (from the footer category links) opens the shop
      pre-filtered to that category. Applied once on mount. */
