@@ -31,6 +31,7 @@ const BIZ = {
   region: "Punjab",
   postal: "151204",
   fssai: "22126010000026",
+  gstin: "03GSUPD3375M1Z6",
   founder: "Cherry Bansal",
 };
 
@@ -117,7 +118,11 @@ function localBusinessLd() {
       dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
       opens: "09:00", closes: "19:00",
     }],
-    identifier: { "@type": "PropertyValue", name: "FSSAI Registration", value: BIZ.fssai },
+    identifier: [
+      { "@type": "PropertyValue", name: "FSSAI Registration", value: BIZ.fssai },
+      { "@type": "PropertyValue", name: "GSTIN", value: BIZ.gstin },
+    ],
+    taxID: BIZ.gstin,
   };
 }
 

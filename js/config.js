@@ -15,6 +15,7 @@ window.MS_BUSINESS = {
   legal: "Mishthi Sattva (Prop. Kiran Bansal)",
   address: "Mishthi Sattva Enterprises, Valmiki Chowk, Kotkapura, Punjab",
   fssai: "22126010000026",
+  gstin: "03GSUPD3375M1Z6",   // GST REG-06, registered 07-09-2026, regular scheme
   phone: "918557942246",
 };
 

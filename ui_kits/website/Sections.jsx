@@ -1188,6 +1188,7 @@ const BUSINESS = {
   legal: "Mishthi Sattva (Prop. Kiran Bansal)",
   address: "Mishthi Sattva Enterprises, Valmiki Chowk, Kotkapura, Punjab",
   fssai: "22126010000026",
+  gstin: "03GSUPD3375M1Z6",
   phone: PHONE,
 };
 
@@ -1212,6 +1213,7 @@ function PolicySection({ title, updated, blocks }) {
             <p style={{ marginTop: 10, fontSize: 15, lineHeight: 1.7, color: "var(--muted-foreground)" }}>
               {BUSINESS.legal}<br />{BUSINESS.address}<br />
               FSSAI Reg. No. {BUSINESS.fssai}<br />
+              GSTIN {BUSINESS.gstin}<br />
               WhatsApp / Phone: <a href={`tel:+91${BUSINESS.phone}`} style={{ color: "var(--primary)" }}>+91 {BUSINESS.phone}</a>
             </p>
           </div>

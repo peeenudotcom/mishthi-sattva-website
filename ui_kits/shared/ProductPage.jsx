@@ -297,6 +297,7 @@ function ProductPage() {
         {/* Declarations a packaged food has to carry, in one place. */}
         <div className="ms-pp-legal">
           {(product.fssai_no || B.fssai) && <p><b>FSSAI Licence No:</b> {product.fssai_no || B.fssai}</p>}
+          {B.gstin && <p><b>GSTIN:</b> {B.gstin}</p>}
           {B.legal && <p><b>Manufacturer / Marketer:</b> {B.legal}{B.address ? ", " + B.address : ""}</p>}
           {B.phone && <p><b>Customer care:</b> <a href={"tel:+" + B.phone}>+{B.phone}</a></p>}
           <p><b>Country of origin:</b> India</p>
