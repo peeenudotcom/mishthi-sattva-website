@@ -745,7 +745,11 @@ function ProductModal({ p, onClose }) {
           {p.badge && <span className="ms-badge-glow" style={{ position: "absolute", top: 14, left: 14, background: window.msBadgeStyle(p.badge).bg, color: window.msBadgeStyle(p.badge).fg, "--glow": window.msBadgeStyle(p.badge).bg, fontSize: 11, fontWeight: 700, letterSpacing: "0.02em", padding: "4px 10px", borderRadius: "var(--radius-pill)" }}>{p.badge}</span>}
           <button onClick={onClose} aria-label="Close" style={{ position: "absolute", top: 12, right: 12, height: 36, width: 36, display: "grid", placeItems: "center", borderRadius: "var(--radius-pill)", border: "none", background: "color-mix(in oklab, var(--forest-deep) 55%, transparent)", color: "var(--cream)", cursor: "pointer", fontSize: 20, lineHeight: 1 }}>×</button>
         </div>
-        <div style={{ padding: "26px 26px 28px" }}>
+        {/* The popup is opened from a "View Details" button, so it reads in
+            that order: what it is, then what's in it, and the buy controls last
+            — held in a sticky bar so they stay one tap away however far down
+            the ingredients someone has scrolled. */}
+        <div style={{ padding: "26px 26px 18px" }}>
           <h3 style={{ margin: 0, fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 28, lineHeight: 1.1, color: "var(--primary)" }}>{p.name}</h3>
           {/* The full Product Description opens as the first detail section
               below, so showing the blurb too reads as a repeat. */}
@@ -766,38 +770,41 @@ function ProductModal({ p, onClose }) {
               </select>
             </div>
           )}
+
+          {/* The same sections the shop shows — one component, so the two can
+              never drift apart. */}
+          <ProductDetails product={p} />
+
+          <div style={{ marginTop: 18 }}>
+            <Button variant="outline" fullWidth as="a" href={`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`} target="_blank" rel="noopener noreferrer">Questions? Chat with Us</Button>
+          </div>
+          <div style={{ marginTop: 14, textAlign: "center" }}>
+            <a href={shareHref} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13.5, fontWeight: 600, color: "var(--whatsapp, #128C4B)", textDecoration: "none" }}>
+              <WAicon size={16} /> Share this with a friend
+            </a>
+          </div>
+        </div>
+
+        {/* Sticky buy bar: the details are long, and a customer who has read
+            them shouldn't have to scroll back up to buy. */}
+        <div style={{ position: "sticky", bottom: 0, zIndex: 2, padding: "14px 26px 18px", background: "var(--white)", borderTop: "1px solid var(--border)", boxShadow: "0 -8px 20px -18px rgba(30,60,49,.5)" }}>
           {added ? (
-            <div style={{ marginTop: 22 }}>
-              <p style={{ margin: "0 0 14px", display: "flex", alignItems: "center", gap: 8, fontWeight: 600, color: "var(--primary)" }}>
+            <React.Fragment>
+              <p style={{ margin: "0 0 12px", display: "flex", alignItems: "center", gap: 8, fontWeight: 600, color: "var(--primary)" }}>
                 <span style={{ display: "grid", placeItems: "center", height: 24, width: 24, borderRadius: "var(--radius-pill)", background: "var(--success, #2e7d32)", color: "#fff", fontSize: 15 }}>✓</span>
                 Added {qty} to your cart
               </p>
               <Button variant="forest" as="a" href="../shop/index.html?cart=1" fullWidth>View cart &amp; checkout →</Button>
               <button type="button" onClick={onClose} style={{ marginTop: 10, width: "100%", background: "transparent", border: "none", color: "var(--muted-foreground)", fontFamily: "inherit", fontSize: 14, cursor: "pointer" }}>Keep browsing</button>
-            </div>
+            </React.Fragment>
           ) : (
-            <div style={{ marginTop: 20 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: "var(--foreground)" }}>Quantity</span>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <button type="button" aria-label="Decrease quantity" onClick={() => setQty((q) => Math.max(1, q - 1))} style={stepBtn}>−</button>
-                  <span style={{ minWidth: 24, textAlign: "center", fontWeight: 600, fontSize: 16, color: "var(--primary)" }}>{qty}</span>
-                  <button type="button" aria-label="Increase quantity" onClick={() => setQty((q) => q + 1)} style={stepBtn}>+</button>
-                </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                <button type="button" aria-label="Decrease quantity" onClick={() => setQty((q) => Math.max(1, q - 1))} style={stepBtn}>−</button>
+                <span style={{ minWidth: 20, textAlign: "center", fontWeight: 600, fontSize: 16, color: "var(--primary)" }}>{qty}</span>
+                <button type="button" aria-label="Increase quantity" onClick={() => setQty((q) => q + 1)} style={stepBtn}>+</button>
               </div>
-              <Button variant="forest" onClick={add} fullWidth>Add to Cart</Button>
-              <div style={{ marginTop: 10 }}>
-                <Button variant="outline" fullWidth as="a" href={`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`} target="_blank" rel="noopener noreferrer">Questions? Chat with Us</Button>
-              </div>
-              <div style={{ marginTop: 14, textAlign: "center" }}>
-                <a href={shareHref} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13.5, fontWeight: 600, color: "var(--whatsapp, #128C4B)", textDecoration: "none" }}>
-                  <WAicon size={16} /> Share this with a friend
-                </a>
-              </div>
-              {/* The same seven sections the shop shows, rendered here rather
-                  than linked to — sending someone to /shop mid-browse replaced
-                  the page behind the popup, which read as the site jumping. */}
-              <ProductDetails product={p} />
+              <div style={{ flex: 1 }}><Button variant="forest" onClick={add} fullWidth>Add to Cart</Button></div>
             </div>
           )}
         </div>
