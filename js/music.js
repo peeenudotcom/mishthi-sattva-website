@@ -6,11 +6,16 @@
    (bottom-left) lets them toggle any time. Self-hides if the track file is
    missing, and never runs on the /admin panel.
 
-   Drop a royalty-free/licensed track at  assets/ambient.mp3  to enable it. */
+   The track is assets/ambient-bansuri-v1.mp3 (see SRC below). */
 (function () {
   try { if (location.pathname.indexOf("/admin") !== -1) return; } catch (e) { return; }
 
-  var SRC = "/assets/ambient.mp3";
+  /* Versioned filename: /assets/* is served with a one-year immutable cache, so
+     a changed track must change its name or returning visitors keep the old
+     one. "Bansuri Flute Melody" by Saseendran, via Pixabay — free for
+     commercial use, no attribution required. Trimmed, levelled and encoded
+     mono 96k for a loop that is kind to mobile data. */
+  var SRC = "/assets/ambient-bansuri-v1.mp3";
   var PREF = "ms_music";            // "on" | "off"
   var TARGET_VOL = 0.28;            // gentle
   var pref;
