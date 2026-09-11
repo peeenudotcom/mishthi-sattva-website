@@ -747,7 +747,11 @@ function ProductModal({ p, onClose }) {
         </div>
         <div style={{ padding: "26px 26px 28px" }}>
           <h3 style={{ margin: 0, fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 28, lineHeight: 1.1, color: "var(--primary)" }}>{p.name}</h3>
-          <p style={{ margin: "12px 0 0", fontSize: 15.5, lineHeight: 1.6, color: "var(--muted-foreground)" }}>{p.desc || p.benefit}</p>
+          {/* The full Product Description opens as the first detail section
+              below, so showing the blurb too reads as a repeat. */}
+          {!p.long_desc && (
+            <p style={{ margin: "12px 0 0", fontSize: 15.5, lineHeight: 1.6, color: "var(--muted-foreground)" }}>{p.desc || p.benefit}</p>
+          )}
           <div style={{ marginTop: 16, display: "flex", alignItems: "baseline", gap: 10 }}>
             <span style={{ fontSize: 14, fontWeight: 600, color: "var(--foreground)" }}>{sel.weight}</span>
             <span style={{ color: "var(--accent)" }}>·</span>
@@ -785,24 +789,29 @@ function ProductModal({ p, onClose }) {
               <div style={{ marginTop: 10 }}>
                 <Button variant="outline" fullWidth as="a" href={`https://wa.me/${WA}?text=${encodeURIComponent(waMsg)}`} target="_blank" rel="noopener noreferrer">Questions? Chat with Us</Button>
               </div>
-              {/* Ingredients, nutrition, storage & reviews live on the shop's
-                  full product view — one place, so they never drift apart. */}
-              <div style={{ marginTop: 16, textAlign: "center" }}>
-                <a href={`../shop/index.html?p=${p.id}`} style={{ fontSize: 13.5, fontWeight: 700, color: "var(--primary)", textDecoration: "none", borderBottom: "1px solid color-mix(in oklab, var(--accent) 60%, transparent)", paddingBottom: 2 }}>
-                  Ingredients, nutrition &amp; reviews →
-                </a>
-              </div>
               <div style={{ marginTop: 14, textAlign: "center" }}>
                 <a href={shareHref} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13.5, fontWeight: 600, color: "var(--whatsapp, #128C4B)", textDecoration: "none" }}>
                   <WAicon size={16} /> Share this with a friend
                 </a>
               </div>
+              {/* The same seven sections the shop shows, rendered here rather
+                  than linked to — sending someone to /shop mid-browse replaced
+                  the page behind the popup, which read as the site jumping. */}
+              <ProductDetails product={p} />
             </div>
           )}
         </div>
       </div>
     </div>
   );
+}
+
+/* The seven product-detail sections, shared with the shop so the two can never
+   drift apart. Lives in ui_kits/shared/ProductDetails.jsx; read off the window
+   at render time so script order doesn't matter. */
+function ProductDetails(props) {
+  const M = window.MSProductDetails;
+  return M ? <M.ProductDetails {...props} /> : null;
 }
 
 /* ---------- "Help Me Choose" product finder ---------- */
@@ -833,7 +842,7 @@ function ProductFinder({ onClose }) {
     } else { setBySlug({}); }
     return () => { alive = false; };
   }, []);
-  const toP = (r) => ({ id: r.slug, name: r.name, size: r.weight, desc: r.short_desc, photo: r.photo, price: r.price == null ? null : Number(r.price), mrp: r.mrp == null ? null : Number(r.mrp), badge: r.badge || undefined, cat: r.category, variants: normVar(r.variants) });
+  const toP = (r) => ({ id: r.slug, name: r.name, size: r.weight, desc: r.short_desc, photo: r.photo, price: r.price == null ? null : Number(r.price), mrp: r.mrp == null ? null : Number(r.mrp), badge: r.badge || undefined, cat: r.category, variants: normVar(r.variants), long_desc: r.long_desc, usage_info: r.usage_info, wellness_benefits: r.wellness_benefits, ingredients: r.ingredients, allergens: r.allergens, nutrition: r.nutrition, storage_info: r.storage_info, shelf_life: r.shelf_life, promise: r.promise });
   const g = FINDER_GOALS.find((x) => x.id === goal);
   const recs = g && bySlug ? g.slugs.map((s) => bySlug[s]).filter(Boolean).map(toP) : [];
   const waHelp = `https://wa.me/${WA}?text=` + encodeURIComponent("Namaste! I'm looking for a Mishthi Sattva product for my family. Please help me choose the right option.");
@@ -930,7 +939,7 @@ function HomeProducts() {
   const list = (() => {
     if (!rows || !rows.length) return picks;
     const bySlug = {}; rows.forEach((r) => { bySlug[r.slug] = r; });
-    const live = (r, fb) => ({ id: r.slug, name: r.name, benefit: (fb && fb.benefit) || r.short_desc || "", desc: r.short_desc || (fb && fb.desc) || "", photo: r.photo, size: r.weight, price: r.price == null ? null : Number(r.price), mrp: r.mrp == null ? null : Number(r.mrp), badge: r.badge || (fb && fb.badge) || undefined, cat: r.category, variants: normVar(r.variants) });
+    const live = (r, fb) => ({ id: r.slug, name: r.name, benefit: (fb && fb.benefit) || r.short_desc || "", desc: r.short_desc || (fb && fb.desc) || "", photo: r.photo, size: r.weight, price: r.price == null ? null : Number(r.price), mrp: r.mrp == null ? null : Number(r.mrp), badge: r.badge || (fb && fb.badge) || undefined, cat: r.category, variants: normVar(r.variants), long_desc: r.long_desc, usage_info: r.usage_info, wellness_benefits: r.wellness_benefits, ingredients: r.ingredients, allergens: r.allergens, nutrition: r.nutrition, storage_info: r.storage_info, shelf_life: r.shelf_life, promise: r.promise });
     const curated = picks.map((pk) => (bySlug[pk.id] && bySlug[pk.id].in_stock !== false) ? live(bySlug[pk.id], pk) : null).filter(Boolean);
     const curIds = new Set(curated.map((p) => p.id));
     const feat = rows.filter((r) => r.featured === true && r.in_stock !== false && !curIds.has(r.slug)).map((r) => live(r));

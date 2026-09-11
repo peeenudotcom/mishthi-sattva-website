@@ -305,7 +305,10 @@ async function compileJsx(srcDir, file) {
      local dev server still works) while the build emits clean public URLs. */
   let js = out.code;
   for (const [re, to] of LINK_MAP) js = js.replace(re, to);
-  const name = file.replace(/\.jsx$/, ".js");
+  /* A shared component referenced as "../shared/X.jsx" from several pages
+     must land at ONE url, or each page would fetch its own copy. Strip the
+     leading "../" so every page resolves it to the same /app/shared/X.js. */
+  const name = file.replace(/\.jsx$/, ".js").replace(/^(\.\.\/)+/, "");
   const dest = path.join(OUT, "app", name);
   await fs.mkdir(path.dirname(dest), { recursive: true });
   await fs.writeFile(dest, js);
