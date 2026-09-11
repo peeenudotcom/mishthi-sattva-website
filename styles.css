@@ -42,21 +42,6 @@
 .ms-badge-glow { animation: msBadgePulse 1.6s ease-in-out infinite; transform-origin: center; }
 @media (prefers-reduced-motion: reduce) { .ms-badge-glow { animation: none; } }
 
-/* Size (weight variant) dropdown — a clean form select with a custom chevron,
-   instead of the browser's default pill+arrow which looked like an odd lozenge. */
-.ms-sizesel {
-  -webkit-appearance: none; -moz-appearance: none; appearance: none;
-  font-family: var(--font-sans); font-weight: 600; color: var(--primary);
-  background-color: var(--card); border: 1px solid var(--border);
-  border-radius: var(--radius-md); cursor: pointer; line-height: 1.2;
-  padding: 9px 32px 9px 13px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231f3d31' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 11px center; background-size: 12px;
-  transition: border-color .15s, box-shadow .15s;
-}
-.ms-sizesel:hover { border-color: color-mix(in oklab, var(--accent) 55%, var(--border)); }
-.ms-sizesel:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 22%, transparent); }
-.ms-sizesel--lg { padding: 11px 34px 11px 15px; font-size: 14px; background-position: right 13px center; }
 
 /* Header tagline — the three words rotate one at a time under the logo, so it
    stays compact (a long static line looked unbalanced under the small mark).
@@ -75,4 +60,68 @@
 @media (prefers-reduced-motion: reduce) {
   .ms-tagcycle { animation: none; opacity: 0; }
   .ms-tagcycle:first-child { opacity: 1; }
+}
+
+/* ============================================================
+   SIZE SELECT — the weight/price picker (ui_kits/shared/SizeSelect.jsx)
+   A listbox rather than a native <select> so each size can carry its price
+   and saving, and the chosen one a tick. Colours come from the brand tokens;
+   motion is transform/opacity only and is disabled under reduced motion.
+   ============================================================ */
+.ms-ss { position: relative; width: 100%; }
+
+.ms-ss-btn {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 13px; cursor: pointer; text-align: left;
+  font-family: var(--font-sans); font-size: 13px; color: var(--primary);
+  background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius-md);
+  transition: border-color .18s ease, box-shadow .18s ease, transform .12s ease;
+}
+.ms-ss--lg .ms-ss-btn { padding: 12px 15px; font-size: 14px; }
+.ms-ss-btn:hover { border-color: color-mix(in oklab, var(--accent) 65%, var(--border)); }
+.ms-ss-btn:active { transform: scale(.995); }
+.ms-ss-btn:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 22%, transparent); }
+.ms-ss-btn.is-open { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 16%, transparent); }
+
+.ms-ss-val { display: inline-flex; align-items: baseline; gap: 8px; min-width: 0; }
+.ms-ss-weight { font-weight: 700; white-space: nowrap; }
+.ms-ss-price { color: var(--muted-foreground); font-weight: 600; white-space: nowrap; }
+.ms-ss-caret { flex-shrink: 0; transition: transform .25s var(--ease-standard, ease); }
+.ms-ss-btn.is-open .ms-ss-caret { transform: rotate(180deg); }
+
+/* The open panel. z-index clears neighbouring cards in the shop grid. */
+.ms-ss-panel {
+  position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 40;
+  margin: 0; padding: 4px; list-style: none;
+  background: var(--card); border: 1.5px solid var(--accent); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xl, 0 20px 46px -18px rgba(30, 60, 49, .42));
+  max-height: 260px; overflow-y: auto;
+  animation: msSsIn .18s var(--ease-out, ease) both;
+}
+.ms-ss-panel:focus-visible { outline: none; }
+@keyframes msSsIn { from { opacity: 0; transform: translateY(-6px) scale(.985); } to { opacity: 1; transform: none; } }
+
+.ms-ss-opt {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 12px; border-radius: calc(var(--radius-md) - 2px); cursor: pointer;
+  color: var(--primary); transition: background .14s ease, color .14s ease;
+  /* each row arrives a beat after the one above it */
+  animation: msSsOptIn .22s var(--ease-out, ease) both;
+  animation-delay: calc(var(--i, 0) * 35ms);
+}
+@keyframes msSsOptIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+
+.ms-ss-opt.is-active { background: color-mix(in oklab, var(--accent) 14%, var(--card)); }
+.ms-ss-opt.is-sel { background: color-mix(in oklab, var(--accent) 20%, var(--card)); }
+.ms-ss-opt-main { display: grid; gap: 2px; min-width: 0; }
+.ms-ss-opt-weight { font-size: 14px; font-weight: 700; }
+.ms-ss-opt-sub { font-size: 12px; color: var(--muted-foreground); }
+.ms-ss-opt.is-active .ms-ss-opt-sub, .ms-ss-opt.is-sel .ms-ss-opt-sub { color: color-mix(in oklab, var(--primary) 72%, transparent); }
+.ms-ss-save { color: var(--destructive); font-weight: 700; }
+.ms-ss-tick { display: inline-flex; flex-shrink: 0; color: var(--accent); animation: msSsTick .25s var(--ease-out, ease) both; }
+@keyframes msSsTick { from { transform: scale(0); } to { transform: scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-ss-panel, .ms-ss-opt, .ms-ss-tick { animation: none; }
+  .ms-ss-caret, .ms-ss-btn { transition: none; }
 }

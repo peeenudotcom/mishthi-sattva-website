@@ -75,18 +75,14 @@ function TagPill({ tag }) {
 }
 
 /* ---------------- size (weight variant) picker ---------------- */
-/* A dropdown — compact on a narrow card and scales to any number of sizes.
-   Each option shows its own price so shoppers can compare without selecting. */
+/* Delegates to the shared listbox in ui_kits/shared/SizeSelect.jsx, so the
+   shop cards, the quick-view and the website popup all pick sizes the same
+   way. Read off the window at render time so script order doesn't matter. */
 function SizePicker({ variants, index, onPick, size }) {
-  const big = size === "lg";
-  const label = (v) => v.weight + (v.price != null ? " · ₹" + Number(v.price).toLocaleString("en-IN") : "");
+  const S = window.MSSizeSelect;
+  if (!S) return null;
   return (
-    <select value={index} aria-label="Choose size" onClick={(e) => e.stopPropagation()}
-      onChange={(e) => onPick(Number(e.target.value))}
-      className={"ms-sizesel" + (big ? " ms-sizesel--lg" : "")}
-      style={{ width: big ? "auto" : "100%", minWidth: big ? 180 : 0, maxWidth: "100%", fontSize: big ? 14 : 13 }}>
-      {variants.map((v, i) => <option key={v.weight + i} value={i}>{label(v)}</option>)}
-    </select>
+    <S.SizeSelect variants={variants} index={index} onPick={onPick} size={size} />
   );
 }
 
@@ -213,7 +209,10 @@ function QuickView({ product, onClose, onAdd, onToggleWish, wished }) {
                 </span>
               ))}
             </div>
-            <div style={{ marginTop: 24, display: "flex", alignItems: "center", gap: 12 }}>
+            {/* On phones this column stacks above a long stack of detail
+                sections, so the buy row sticks to the bottom of the modal
+                (see .shop-buybar) and stays reachable while reading. */}
+            <div className="shop-buybar" style={{ marginTop: 24, display: "flex", alignItems: "center", gap: 12 }}>
               <Stepper value={qty} onChange={setQty} />
               <button onClick={() => { onAdd(product, qty, hasVar ? sel : null); onClose(); }} style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "13px 18px", borderRadius: "var(--radius-pill)", border: "none", background: "var(--primary)", color: "var(--primary-foreground)", fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: 15, cursor: "pointer" }}>
                 <I.bag s={19} /> Add {qty}{hasPrice(sel.price) ? ` · ${money(sel.price * qty)}` : ""}

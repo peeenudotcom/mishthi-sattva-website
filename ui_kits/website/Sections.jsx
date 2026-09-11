@@ -764,10 +764,7 @@ function ProductModal({ p, onClose }) {
           {showPicker && !added && (
             <div style={{ marginTop: 16 }}>
               <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--accent)" }}>Choose size</p>
-              <select value={vi} aria-label="Choose size" onChange={(e) => setVi(Number(e.target.value))}
-                className="ms-sizesel ms-sizesel--lg" style={{ width: "100%" }}>
-                {variants.map((v, i) => <option key={v.weight + i} value={i}>{v.weight}{v.price != null ? " · ₹" + Number(v.price).toLocaleString("en-IN") : ""}</option>)}
-              </select>
+              <SizeSelect variants={variants} index={vi} onPick={setVi} size="lg" />
             </div>
           )}
 
@@ -819,6 +816,12 @@ function ProductModal({ p, onClose }) {
 function ProductDetails(props) {
   const M = window.MSProductDetails;
   return M ? <M.ProductDetails {...props} /> : null;
+}
+
+/* The size picker, shared with the shop (ui_kits/shared/SizeSelect.jsx). */
+function SizeSelect(props) {
+  const S = window.MSSizeSelect;
+  return S ? <S.SizeSelect {...props} /> : null;
 }
 
 /* ---------- "Help Me Choose" product finder ---------- */
