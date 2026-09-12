@@ -324,8 +324,11 @@ function About() {
 
 /* ---------- why us ---------- */
 function WhyUs() {
+  /* Less air on top than the other sections: it follows the reassurance strip
+     directly, and 78px there left a dead ivory band under the hero. That height
+     has gone to the hero instead. */
   return (
-    <section id="why" style={{ background: "var(--background)", padding: "78px 0", scrollMarginTop: 84 }}>
+    <section id="why" style={{ background: "var(--background)", padding: "40px 0 78px", scrollMarginTop: 84 }}>
       <div className="ms-container">
         <div style={{ maxWidth: 760, margin: "0 auto", textAlign: "center" }}>
           <GoldDivider align="center">Why Choose Us</GoldDivider>
