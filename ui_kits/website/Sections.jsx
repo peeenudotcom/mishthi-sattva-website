@@ -229,7 +229,10 @@ function Hero() {
         <div style={{ position: "relative" }}>
           <div aria-hidden="true" style={{ position: "absolute", inset: -24, zIndex: -1, borderRadius: 32, background: "linear-gradient(135deg, color-mix(in oklab, var(--gold) 20%, transparent), color-mix(in oklab, var(--forest) 10%, transparent))", filter: "blur(40px)" }} />
           <div style={{ overflow: "hidden", borderRadius: 32, aspectRatio: "4 / 5", border: "1px solid var(--border)", boxShadow: "var(--shadow-xl)" }}>
-            <img src={`${ASSET}/hero-cherry-mortar.png`} alt="Cherry Bansal grinding Ayurvedic ingredients with a brass mortar and pestle, with laddu, amla, dates and spices, in her Kotkapura home kitchen" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 42%", display: "block" }} />
+            {/* Hands and ingredients rather than a portrait: the same kitchen, the
+                same mortar and pestle, without putting the founder's face on the
+                first thing every visitor sees. */}
+            <img src={`${ASSET}/hero-products.png`} alt="Hands grinding Ayurvedic ingredients with a brass mortar and pestle, beside laddu, amla, dates and a spice box, in a Kotkapura home kitchen" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 42%", display: "block" }} />
           </div>
           <div style={{ position: "absolute", bottom: -22, left: 28, width: 280, borderRadius: 18, border: "1px solid var(--border)", background: "color-mix(in oklab, var(--card) 95%, transparent)", padding: 16, boxShadow: "var(--shadow-lg)", backdropFilter: "blur(8px)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
