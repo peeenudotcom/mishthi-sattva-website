@@ -275,19 +275,26 @@ a.ms-marquee-item:focus-visible { outline: 2px solid var(--gold, #c9a227); outli
   /* The page's mobile stylesheet forces 56px onto every <section>; the hero is
      full-bleed and sets its own, so index.html excludes it there too. */
   padding: 0;
-  /* 56.25vw is exactly 16:9 at full width — the clip's own shape. Holding the
-     hero at or below that means `cover` has nothing to crop, so the plate, the
-     spoon and the jar all stay in frame instead of being zoomed into. On very
-     wide screens 90vh caps it so the hero can't push everything below the fold;
-     480px stops it collapsing in a short window. */
-  min-height: max(480px, min(90vh, 56.25vw));
+  /* A compact band. Sizing the hero to the clip's 16:9 made it enormous on a
+     wide screen — my emulated viewport had no browser chrome, so it looked
+     fine there and swallowed the real window. Height is capped instead, and
+     the media keeps its own shape (below) so nothing is cropped anyway. */
+  min-height: clamp(440px, 68vh, 660px);
   display: grid; align-items: center;
   background: var(--cream, #f4efe2);
 }
-/* Full width. The clip is 16:9 and composed with the plate right of centre and
-   clean table on the left — exactly where the words go — so it no longer has to
-   be anchored right to avoid a punishing crop. */
-.ms-hero-media { position: absolute; inset: 0; z-index: -2; }
+/* Full height, anchored right, and its width follows from its own 16:9 ratio —
+   so the clip is never cropped at any hero height. The cream to its left is the
+   page's own background, which is where the words sit and what the clip's table
+   surface fades into, so the two read as one scene. */
+.ms-hero-media {
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: auto; aspect-ratio: 16 / 9; z-index: -2;
+  /* Dissolve the clip's left edge into the page rather than ending it on a
+     hard vertical line where the footage stops and the cream begins. */
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 20%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 20%);
+}
 .ms-hero-media img, .ms-hero-media video {
   width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;
 }
@@ -359,7 +366,11 @@ a.ms-marquee-item:focus-visible { outline: 2px solid var(--gold, #c9a227); outli
      underneath the words rather than behind them. */
   .ms-hero { min-height: 0; display: flex; flex-direction: column; }
   .ms-hero-inner { order: 1; }
-  .ms-hero-media { order: 2; position: relative; top: auto; right: auto; bottom: auto; width: 100%; }
+  .ms-hero-media {
+    order: 2; position: relative; top: auto; right: auto; bottom: auto;
+    width: 100%; aspect-ratio: 16 / 11;
+    -webkit-mask-image: none; mask-image: none;
+  }
   .ms-hero-media { position: relative; inset: auto; z-index: 0; aspect-ratio: 16 / 11; }
   .ms-hero-media img, .ms-hero-media video { object-position: center 48%; }
   .ms-hero-wash { display: none; }
