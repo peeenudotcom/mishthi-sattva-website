@@ -233,6 +233,12 @@ function Hero() {
   return (
     <React.Fragment>
       <section id="top" className="ms-hero">
+        {/* Behind everything: the same frame, blown up and thrown out of focus,
+            filling the hero end to end. Without it the left 45% of a wide screen
+            is flat cream and the footage reads as pasted on. Blurred, it is the
+            scene's own table and light carrying on behind the words. */}
+        <div className="ms-hero-backdrop" style={{ backgroundImage: `url(${poster})` }} aria-hidden="true" />
+
         {/* The food fills the whole hero; the copy sits on it. */}
         <div className="ms-hero-media">
           {video && !failed ? (
