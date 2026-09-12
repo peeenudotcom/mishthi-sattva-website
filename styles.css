@@ -275,7 +275,12 @@ a.ms-marquee-item:focus-visible { outline: 2px solid var(--gold, #c9a227); outli
   /* The page's mobile stylesheet forces 56px onto every <section>; the hero is
      full-bleed and sets its own, so index.html excludes it there too. */
   padding: 0;
-  min-height: clamp(520px, 76vh, 760px);
+  /* 56.25vw is exactly 16:9 at full width — the clip's own shape. Holding the
+     hero at or below that means `cover` has nothing to crop, so the plate, the
+     spoon and the jar all stay in frame instead of being zoomed into. On very
+     wide screens 90vh caps it so the hero can't push everything below the fold;
+     480px stops it collapsing in a short window. */
+  min-height: max(480px, min(90vh, 56.25vw));
   display: grid; align-items: center;
   background: var(--cream, #f4efe2);
 }
@@ -284,7 +289,7 @@ a.ms-marquee-item:focus-visible { outline: 2px solid var(--gold, #c9a227); outli
    be anchored right to avoid a punishing crop. */
 .ms-hero-media { position: absolute; inset: 0; z-index: -2; }
 .ms-hero-media img, .ms-hero-media video {
-  width: 100%; height: 100%; object-fit: cover; object-position: 62% 50%; display: block;
+  width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;
 }
 /* Ivory wash, heaviest where the words are and gone by the middle, so the food
    is never dulled but the text always has something to sit on. */
