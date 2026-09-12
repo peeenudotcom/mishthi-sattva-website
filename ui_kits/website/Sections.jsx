@@ -247,9 +247,15 @@ function Hero() {
   );
 }
 
-/* ---------- marquee ---------- */
+/* ---------- reassurance strip, under the hero ----------
+   The scrolling bar at the top of every page (js/marquee.js) already carries
+   the offer, the registrations and the small-batch promise. This band used to
+   repeat them almost word for word, which weakened both. It now answers the
+   questions a first-time buyer actually has once they've decided they like the
+   look of the food: can I pay safely, when does it arrive, what if something
+   is wrong, and can I just ask a person. */
 function MarqueeStrip() {
-  const items = ["Homemade in Small Batches", "Natural Ingredients", "Made in Kotkapura", "Home Delivery Available"];
+  const items = ["Secure payments · UPI, cards & netbanking", "Delivered across India in 4–7 days", "Damaged or wrong? We replace it", "Or simply order on WhatsApp"];
   return (
     <div style={{ borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)", background: "var(--primary)", color: "var(--primary-foreground)" }}>
       <div className="ms-container" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: "8px 32px", padding: "12px 20px", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.22em" }}>
