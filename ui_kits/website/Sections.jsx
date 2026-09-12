@@ -203,7 +203,7 @@ function Hero() {
      photograph stands in as the poster, and the markup is already the one the
      video will use — so adding it is a config change, not a rebuild. */
   const video = (window.MS_HERO_VIDEO || "").trim();
-  const poster = `${ASSET}/sampooran-laddu.png`;
+  const poster = `${ASSET}/hero-laddu-table-v1.jpg`;
   const vref = React.useRef(null);
   const [failed, setFailed] = React.useState(false);
 
@@ -215,8 +215,19 @@ function Hero() {
     let reduce = false;
     try { reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
     if (reduce) { setFailed(true); return; }
-    const p = v.play();
-    if (p && p.catch) p.catch(() => setFailed(true));   // autoplay refused → poster
+
+    /* Wait until there are frames to show. Calling play() the instant the
+       element mounts rejects with AbortError — "interrupted by a new load
+       request" — which is just "not ready yet", NOT a refusal. Treating that as
+       failure left the poster up permanently and the video never played. Only a
+       genuine NotAllowedError (autoplay blocked) should fall back. */
+    const start = () => {
+      const p = v.play();
+      if (p && p.catch) p.catch((err) => { if (err && err.name === "NotAllowedError") setFailed(true); });
+    };
+    if (v.readyState >= 2) start();
+    else v.addEventListener("canplay", start, { once: true });
+    return () => v.removeEventListener("canplay", start);
   }, [video, failed]);
 
   return (
@@ -225,13 +236,13 @@ function Hero() {
         {/* The food fills the whole hero; the copy sits on it. */}
         <div className="ms-hero-media">
           {video && !failed ? (
-            <video ref={vref} poster={poster} muted playsInline preload="metadata"
+            <video ref={vref} poster={poster} muted playsInline autoPlay preload="auto"
               onError={() => setFailed(true)}
-              aria-label="A laddu being gently broken open by hand, showing its texture">
+              aria-label="A plate of freshly made laddu on a cream stone table, with a brass spoon and scattered pistachios">
               <source src={video} type="video/mp4" />
             </video>
           ) : (
-            <img src={poster} alt="A close-up of Mishthi Sattva laddu — nuts, seeds and dates pressed together — in a stone bowl, with almonds, cashews, walnuts and seeds beside it" />
+            <img src={poster} alt="A plate of Mishthi Sattva laddu on a cream stone table, with a brass spoon, a jar of nuts and scattered pistachios" />
           )}
         </div>
 
