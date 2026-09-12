@@ -160,7 +160,7 @@ function Header({ count, wishCount, onCart, onSearch, search, onWish, onHome, on
         </a>
         <nav className="shop-nav" style={{ display: "flex", alignItems: "center", gap: 30 }}>
           {/* No "Home" — the logo already goes there. */}
-          {[["Story", "../website/about.html"], ["Shop", "../shop/index.html"], ["Contact", "../website/contact.html"]].map(([t, h]) => {
+          {[["Bestsellers", "../shop/index.html?view=bestsellers"], ["Offer Zone", "../shop/index.html?view=offers"], ["Story", "../website/about.html"], ["Shop", "../shop/index.html"], ["Contact", "../website/contact.html"]].map(([t, h]) => {
             const on = t === "Shop";
             return <a key={t} href={h} style={{ fontSize: 15, fontWeight: on ? 700 : 600, color: on ? "var(--cream)" : "color-mix(in oklab, var(--cream) 78%, transparent)", borderBottom: on ? "2px solid var(--accent)" : "2px solid transparent", paddingBottom: 3 }}>{t}</a>;
           })}
@@ -801,6 +801,10 @@ function Shop() {
   const [wish, setWish] = React.useState(() => load(LS_WISH, []));
   const [search, setSearch] = React.useState("");
   const [cat, setCat] = React.useState("all");
+  /* "all" | "bestsellers" | "offers" — set from ?view= so the navbar can link
+     straight to a curated slice of the shop. Named `zone`, not `view`: `view`
+     is already the cart/checkout drawer state a few lines down. */
+  const [zone, setZone] = React.useState("all");
   const [sort, setSort] = React.useState("featured");
   const [quick, setQuick] = React.useState(null);
   const [view, setView] = React.useState(null); // null | 'cart' | 'checkout' | 'wishlist'
@@ -838,6 +842,8 @@ function Shop() {
     let params; try { params = new URLSearchParams(window.location.search); } catch (e) { return; }
     // ?cart=1 — the "View cart & checkout" links from product pages and popups.
     if (params.get("cart")) setView("cart");
+    const v = params.get("view");
+    if (v === "bestsellers" || v === "offers") setZone(v);
     const id = params.get("p");
     if (id) window.location.replace("/product/" + id);
   }, []);
@@ -882,10 +888,23 @@ function Shop() {
   const subtotal = cart.reduce((n, i) => n + (i.price || 0) * i.qty, 0);
   const count = cart.reduce((n, i) => n + i.qty, 0);
 
-  const goCategory = (c) => { setCat(c); setSearch(""); setTimeout(() => gridRef.current && window.scrollTo({ top: gridRef.current.offsetTop - 80, behavior: "smooth" }), 0); };
+  /* Choosing a category leaves whichever zone you were in — showing
+     "Bestsellers" while a category is selected reads as a bug. */
+  const goCategory = (c) => { setCat(c); setZone("all"); setSearch(""); setTimeout(() => gridRef.current && window.scrollTo({ top: gridRef.current.offsetTop - 80, behavior: "smooth" }), 0); };
   const shopAll = () => goCategory("all");
 
-  let list = catalogue.filter((p) => (cat === "all" || p.cat === cat) && (!search || (p.name + " " + p.desc + " " + catName(p.cat)).toLowerCase().includes(search.toLowerCase())));
+  /* Bestsellers are tagged or badged. The Offer Zone takes anything badged as
+     an offer plus anything discounted past the threshold — every product has an
+     MRP above its price, so a plain "is discounted" test would return the whole
+     shop and mean nothing. Both are set in js/config.js. */
+  const OFFER_MIN = window.MS_OFFER_MIN || 40;
+  const OFFER_BADGES = window.MS_OFFER_BADGES || [];
+  const isBestseller = (p) => (p.tags || []).includes("bestseller") || p.badge === "Bestseller";
+  const discountPct = (p) => (p.price != null && p.mrp != null && p.mrp > p.price) ? Math.round((1 - p.price / p.mrp) * 100) : 0;
+  const isOffer = (p) => OFFER_BADGES.indexOf(p.badge) !== -1 || discountPct(p) >= OFFER_MIN;
+  const inZone = (p) => zone === "bestsellers" ? isBestseller(p) : zone === "offers" ? isOffer(p) : true;
+
+  let list = catalogue.filter((p) => inZone(p) && (cat === "all" || p.cat === cat) && (!search || (p.name + " " + p.desc + " " + catName(p.cat)).toLowerCase().includes(search.toLowerCase())));
   const wishList = catalogue.filter((p) => wish.includes(p.id));
   list = [...list].sort((a, b) => {
     if (sort === "price-asc") return a.price - b.price;
@@ -895,7 +914,10 @@ function Shop() {
     return (b.tags.includes("bestseller") ? 1 : 0) - (a.tags.includes("bestseller") ? 1 : 0);
   });
 
-  const title = search ? `Results for "${search}"` : cat === "all" ? "All Products" : catName(cat);
+  const title = search ? `Results for "${search}"`
+    : zone === "bestsellers" ? "Bestsellers"
+    : zone === "offers" ? "Offer Zone"
+    : cat === "all" ? "All Products" : catName(cat);
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--background)", color: "var(--foreground)" }}>

@@ -36,6 +36,15 @@ window.MS_MARQUEE = [
    Use a versioned filename: /assets/* is cached for a year as immutable. */
 window.MS_HERO_VIDEO = "/assets/hero-laddu-table-v2.mp4";
 
+
+/* What lands in the shop's Offer Zone (/shop?view=offers).
+   Every product carries an MRP above its price, so "has a discount" would mean
+   the whole catalogue — hence a threshold. A product also joins the zone if it
+   is badged as an offer in /admin, so the owner can put anything there by hand
+   without touching a price. */
+window.MS_OFFER_MIN = 40;                 // % off, or more
+window.MS_OFFER_BADGES = ["Special Offer", "Combo Offer", "Festive Special", "Limited", "Party Pack"];
+
 /* Legal identity, shown on product pages and in the footer. The licence is
    issued to the proprietor, Kiran Bansal — "Cherry Bansal" is the founder's
    public name and must not replace it on anything legal. */

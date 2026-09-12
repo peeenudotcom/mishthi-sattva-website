@@ -158,7 +158,7 @@ function Header({ active = "home" }) {
   // button on the right (below) so it reads as the sign-in / account area.
   /* No "Home" link: the logo to its left already goes there, and two controls
      for one destination is clutter in a four-item nav. */
-  const nav = [{ label: "Story", href: "about.html", id: "about" }, { label: "Shop", href: "../shop/index.html", id: "products" }, { label: "Contact", href: "contact.html", id: "contact" }];
+  const nav = [{ label: "Bestsellers", href: "../shop/index.html?view=bestsellers", id: "best" }, { label: "Offer Zone", href: "../shop/index.html?view=offers", id: "offers" }, { label: "Story", href: "about.html", id: "about" }, { label: "Shop", href: "../shop/index.html", id: "products" }, { label: "Contact", href: "contact.html", id: "contact" }];
   return (
     <header style={{ position: "sticky", top: 0, zIndex: 40, borderBottom: "1px solid color-mix(in oklab, var(--cream) 12%, transparent)", background: "var(--primary)", boxShadow: "0 8px 24px -12px color-mix(in oklab, var(--forest-deep) 60%, transparent)" }}>
       <div className="ms-container" style={{ display: "flex", height: 88, alignItems: "center", justifyContent: "space-between", gap: 16 }}>
