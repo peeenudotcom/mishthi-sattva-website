@@ -159,7 +159,8 @@ function Header({ count, wishCount, onCart, onSearch, search, onWish, onHome, on
           </span>
         </a>
         <nav className="shop-nav" style={{ display: "flex", alignItems: "center", gap: 30 }}>
-          {[["Home", "../website/index.html"], ["Story", "../website/about.html"], ["Shop", "../shop/index.html"], ["Contact", "../website/contact.html"]].map(([t, h]) => {
+          {/* No "Home" — the logo already goes there. */}
+          {[["Story", "../website/about.html"], ["Shop", "../shop/index.html"], ["Contact", "../website/contact.html"]].map(([t, h]) => {
             const on = t === "Shop";
             return <a key={t} href={h} style={{ fontSize: 15, fontWeight: on ? 700 : 600, color: on ? "var(--cream)" : "color-mix(in oklab, var(--cream) 78%, transparent)", borderBottom: on ? "2px solid var(--accent)" : "2px solid transparent", paddingBottom: 3 }}>{t}</a>;
           })}

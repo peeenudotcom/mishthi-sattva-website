@@ -156,7 +156,9 @@ function Header({ active = "home" }) {
   }, []);
   // Account is intentionally NOT in this content nav — it's a separate, demarcated
   // button on the right (below) so it reads as the sign-in / account area.
-  const nav = [{ label: "Home", href: "index.html", id: "home" }, { label: "Story", href: "about.html", id: "about" }, { label: "Shop", href: "../shop/index.html", id: "products" }, { label: "Contact", href: "contact.html", id: "contact" }];
+  /* No "Home" link: the logo to its left already goes there, and two controls
+     for one destination is clutter in a four-item nav. */
+  const nav = [{ label: "Story", href: "about.html", id: "about" }, { label: "Shop", href: "../shop/index.html", id: "products" }, { label: "Contact", href: "contact.html", id: "contact" }];
   return (
     <header style={{ position: "sticky", top: 0, zIndex: 40, borderBottom: "1px solid color-mix(in oklab, var(--cream) 12%, transparent)", background: "var(--primary)", boxShadow: "0 8px 24px -12px color-mix(in oklab, var(--forest-deep) 60%, transparent)" }}>
       <div className="ms-container" style={{ display: "flex", height: 88, alignItems: "center", justifyContent: "space-between", gap: 16 }}>
@@ -231,14 +233,7 @@ function Hero() {
   }, [video, failed]);
 
   return (
-    <React.Fragment>
-      <section id="top" className="ms-hero">
-        {/* Behind everything: the same frame, blown up and thrown out of focus,
-            filling the hero end to end. Without it the left 45% of a wide screen
-            is flat cream and the footage reads as pasted on. Blurred, it is the
-            scene's own table and light carrying on behind the words. */}
-        <div className="ms-hero-backdrop" style={{ backgroundImage: `url(${poster})` }} aria-hidden="true" />
-
+    <section id="top" className="ms-hero">
         {/* The food fills the whole hero; the copy sits on it. */}
         <div className="ms-hero-media">
           {video && !failed ? (
@@ -273,16 +268,7 @@ function Hero() {
             {finder && <ProductFinder onClose={() => setFinder(false)} />}
           </div>
         </div>
-      </section>
-
-      {/* Caption rail under the hero — and where the gift note now lives, so it
-          no longer covers the food. */}
-      <div className="ms-hero-rail">
-        <span className="ms-hero-rule" aria-hidden="true" />
-        <p><b>{GIFT_BADGE.title}</b> — {GIFT_BADGE.sub}</p>
-        <span className="ms-hero-rule" aria-hidden="true" />
-      </div>
-    </React.Fragment>
+    </section>
   );
 }
 
