@@ -20,6 +20,15 @@ const catName = (id) => (cats().find((c) => c.id === id) || {}).name || "";
 
 function slugFromUrl() {
   if (window.MS_PRODUCT_SLUG) return window.MS_PRODUCT_SLUG;            // baked in per page at build time
+  /* Fall back to the path. A product added in /admin has no generated page
+     until the next `npm run sync` + deploy, so vercel.json rewrites any
+     unmatched /product/<slug> to the generic shell — which lands here and
+     reads the slug straight off the URL. Without this, every newly added
+     product 404s until someone remembers to rebuild. */
+  try {
+    var m = location.pathname.match(/\/product\/([^/?#]+)/);
+    if (m && m[1]) return decodeURIComponent(m[1]).replace(/\.html$/, "");
+  } catch (e) {}
   try { return new URLSearchParams(location.search).get("p") || ""; } catch (e) { return ""; }
 }
 

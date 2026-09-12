@@ -71,6 +71,14 @@ const SEO = {
   "terms.html": { path: "/terms", title: "Terms & Conditions — Mishthi Sattva", desc: "Terms for ordering Mishthi Sattva's homemade food, spice and personal-care products.", noindexSoft: true },
   "shipping.html": { path: "/shipping", title: "Shipping & Returns — Mishthi Sattva", desc: "Delivery areas, timing and returns for Mishthi Sattva orders in Kotkapura and across India.", noindexSoft: true },
   "account.html": { path: "/account", title: "My Account — Mishthi Sattva", desc: "Sign in to Mishthi Sattva to see your order history and track deliveries.", noindex: true },
+  "product-view.html": {
+    path: "/product-view",
+    title: "Product — Mishthi Sattva",
+    desc: "Homemade Ayurvedic foods, spices and wellness products from Mishthi Sattva, Kotkapura.",
+    // Not indexed itself: it's the shell behind /product/<slug>. The generated
+    // per-product pages carry the real titles and structured data.
+    noindex: true,
+  },
   "admin/index.html": { path: "/admin", noindex: true },
 };
 
@@ -79,10 +87,15 @@ function loadCatalogue() {
   const ctx = { window: {} };
   vm.createContext(ctx);
   vm.runInContext(code, ctx);
+  CAT_NAME = Object.fromEntries((ctx.window.MSShopData.MS_CATEGORIES || []).map((c) => [c.id, c.name]));
   return ctx.window.MSShopData.MS_PRODUCTS;
 }
 
-const CAT_NAME = { sweetness: "Wellness with Sweetness", sip: "Sattvic Sip", immunity: "Immunity Booster", bodycare: "Sattvic Body Care" };
+/* Category names come from the synced catalogue, not a list kept here. The
+   hardcoded four went stale the moment the owner added Handcrafted Pickles,
+   Masala & Premix, Munching and MS Special — every product in them was titled
+   "<name> — Homemade" instead of its real category. */
+let CAT_NAME = {};
 
 function ld(obj) {
   return `<script type="application/ld+json">${JSON.stringify(obj)}</script>`;
@@ -246,6 +259,10 @@ const PAGES = [
   { src: "ui_kits/website/privacy.html",  out: "privacy.html" },
   { src: "ui_kits/website/terms.html",    out: "terms.html" },
   { src: "ui_kits/website/shipping.html", out: "shipping.html" },
+  /* Generic product shell. vercel.json points any /product/<slug> with no
+     generated page at this, so a product added in /admin works immediately
+     instead of 404ing until the next sync. */
+  { src: "ui_kits/website/product.html",  out: "product-view.html" },
   { src: "ui_kits/shop/index.html",       out: "shop/index.html" },
   { src: "admin/index.html",              out: "admin/index.html" },
 ];

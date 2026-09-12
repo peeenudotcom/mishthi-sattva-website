@@ -57,5 +57,11 @@
         }
       ]
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/product/:slug",
+      "destination": "/product-view"
+    }
   ]
 }
