@@ -314,14 +314,15 @@ a.ms-marquee-item:focus-visible { outline: 2px solid var(--forest, #1f3d31); out
    is never dulled but the text always has something to sit on. */
 .ms-hero-wash {
   position: absolute; inset: 0; z-index: -1;
-  /* Just enough lift under the words to hold contrast over whatever frame the
-     video is on, gone well before the plate. */
+  /* Barely there. Measured against the actual frame, forest-green text on the
+     bare footage is 5.82:1 — already past the 4.5 minimum — so the old wash was
+     buying nothing and flattening the left third into a pale band that read as
+     "the image doesn't reach". This is just insurance for darker frames. */
   background:
     linear-gradient(100deg,
-      color-mix(in oklab, var(--cream, #f4efe2) 72%, transparent) 0%,
-      color-mix(in oklab, var(--cream, #f4efe2) 52%, transparent) 24%,
-      color-mix(in oklab, var(--cream, #f4efe2) 18%, transparent) 40%,
-      transparent 54%);
+      color-mix(in oklab, var(--cream, #f4efe2) 30%, transparent) 0%,
+      color-mix(in oklab, var(--cream, #f4efe2) 16%, transparent) 20%,
+      transparent 38%);
 }
 
 .ms-hero-inner { width: 100%; max-width: 1280px; margin-inline: auto; padding: 0 clamp(20px, 4vw, 40px); box-sizing: border-box; }
