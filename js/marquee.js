@@ -32,9 +32,16 @@
       g.className = "ms-marquee-group";
       g.setAttribute("aria-hidden", "false");
       msgs.forEach(function (m) {
-        var item = document.createElement("span");
+        /* Each message may carry an href. A claim the visitor can act on —
+           "free delivery above ₹999", "FSSAI registered" — should take them to
+           the page that backs it up, rather than being a line of text that
+           scrolls by and can't be checked. */
+        var text = typeof m === "string" ? m : m.text;
+        var href = typeof m === "string" ? null : m.href;
+        var item = document.createElement(href ? "a" : "span");
         item.className = "ms-marquee-item";
-        item.textContent = m;
+        if (href) item.href = href;
+        item.textContent = text;
         g.appendChild(item);
         var dot = document.createElement("span");
         dot.className = "ms-marquee-dot";
@@ -47,6 +54,8 @@
     track.appendChild(strip());
     var copy = strip();
     copy.setAttribute("aria-hidden", "true");   // a screen reader should hear it once
+    // ...and tabbing must not land on the duplicate's links either.
+    Array.prototype.forEach.call(copy.querySelectorAll("a"), function (a) { a.tabIndex = -1; });
     track.appendChild(copy);
 
     bar.appendChild(track);

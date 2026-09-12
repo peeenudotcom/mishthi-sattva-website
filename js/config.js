@@ -12,13 +12,16 @@ window.MS_CONFIG = {
 /* The scrolling announcement bar at the top of every page (js/marquee.js).
    Edit these lines to change what it says; an empty list hides the bar.
    Keep them short — they scroll past, so anything long doesn't get read.
+   Each is { text, href }; href is optional, and a plain string still works.
    ⚠️ If you change the WELCOME10 offer, change the coupon in /admin → Coupons
    too, or the bar will promise something checkout refuses. */
 window.MS_MARQUEE = [
-  "Extra 10% off your first order — use code WELCOME10",
-  "Free delivery on orders above ₹999",
-  "Handmade fresh in small batches in Kotkapura",
-  "No refined sugar · No preservatives",
+  { text: "Extra 10% off your first order — use code WELCOME10", href: "/shop" },
+  { text: "Free delivery on orders above ₹999", href: "/shipping" },
+  { text: "FSSAI registered · Lic. 22126010000026", href: "/terms" },
+  { text: "GST registered · 03GSUPD3375M1Z6", href: "/terms" },
+  { text: "Handmade fresh in small batches in Kotkapura", href: "/story" },
+  { text: "No refined sugar · No preservatives", href: "/shop" },
 ];
 
 /* Legal identity, shown on product pages and in the footer. The licence is

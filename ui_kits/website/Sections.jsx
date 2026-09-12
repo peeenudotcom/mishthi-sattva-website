@@ -629,7 +629,7 @@ function Footer() {
       <div style={{ borderTop: "1px solid color-mix(in oklab, var(--cream) 12%, transparent)" }}>
         <div className="ms-container" style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 12, padding: "18px 20px", fontSize: 12, color: "color-mix(in oklab, var(--cream) 60%, transparent)" }}>
           {/* FSSAI registration 22126010000026 — valid to 16-01-2027, renew from ~20-07-2026 */}
-          <p>© {new Date().getFullYear()} Mishthi Sattva. All rights reserved. · FSSAI Reg. No. 22126010000026</p>
+          <p>© {new Date().getFullYear()} Mishthi Sattva. All rights reserved. · FSSAI Reg. No. {BUSINESS.fssai} · GSTIN {BUSINESS.gstin}</p>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
             <p style={{ display: "flex", gap: 16 }}>
               <a href="privacy.html" style={{ color: "inherit" }}>Privacy</a>
