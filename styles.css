@@ -381,3 +381,23 @@ a.ms-marquee-item:focus-visible { outline: 2px solid var(--gold, #c9a227); outli
   .ms-hero-rail { gap: 12px; padding: 16px 20px; }
   .ms-hero-rail p { font-size: 13.5px; }
 }
+
+/* ---- reassurance strip under the hero ---- */
+.ms-reassure {
+  display: flex; flex-wrap: nowrap; align-items: center; justify-content: center;
+  gap: 8px 18px; padding: 13px 20px;
+  /* Tracking dialled back from 0.22em: at that spacing the four lines needed
+     more than 1440px and wrapped to a second row, leaving a diamond dangling
+     at the end of the first. Either they all fit on one row or they stack. */
+  font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+}
+.ms-reassure-item { white-space: nowrap; }
+.ms-reassure-dot { color: var(--accent); }
+
+@media (max-width: 1200px) {
+  /* Below this the four lines can't share a row without breaking mid-phrase. */
+  .ms-reassure { flex-direction: column; flex-wrap: wrap; gap: 9px; letter-spacing: 0.16em; font-size: 12px; }
+  .ms-reassure-item { white-space: normal; text-align: center; }
+  .ms-reassure-dot { display: none; }
+}
+@media (max-width: 480px) { .ms-reassure { font-size: 11px; letter-spacing: 0.12em; padding: 14px 18px; } }

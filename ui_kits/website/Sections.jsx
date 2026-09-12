@@ -291,9 +291,16 @@ function MarqueeStrip() {
   const items = ["Secure payments · UPI, cards & netbanking", "Delivered across India in 4–7 days", "Damaged or wrong? We replace it", "Or simply order on WhatsApp"];
   return (
     <div style={{ borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)", background: "var(--primary)", color: "var(--primary-foreground)" }}>
-      <div className="ms-container" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: "8px 32px", padding: "12px 20px", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.22em" }}>
+      {/* Each line is its own element with the separator as a sibling, not tucked
+          inside it — nested in the item, a long line wrapped and left its diamond
+          stranded at the end of the wrap. On phones they stack and the diamonds
+          go away entirely. */}
+      <div className="ms-container ms-reassure">
         {items.map((t, i) => (
-          <span key={i} style={{ display: "flex", alignItems: "center", gap: 12 }}>{t}{i < items.length - 1 && <span style={{ color: "var(--accent)" }}>◆</span>}</span>
+          <React.Fragment key={t}>
+            <span className="ms-reassure-item">{t}</span>
+            {i < items.length - 1 && <span className="ms-reassure-dot" aria-hidden="true">◆</span>}
+          </React.Fragment>
         ))}
       </div>
     </div>
