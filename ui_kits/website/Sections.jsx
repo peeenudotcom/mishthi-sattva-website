@@ -220,46 +220,52 @@ function Hero() {
   }, [video, failed]);
 
   return (
-    <section id="top" className="ms-hero">
-      <div className="ms-hero-copy">
-        <GoldDivider>Ayurvedic · Satvic · Homemade</GoldDivider>
-        <h1 className="ms-hero-h1">
-          Pure ingredients.<br />
-          <span>Pure intentions.</span>
-        </h1>
-        <p className="ms-hero-sub">Traditional favourites, thoughtfully made in small batches.</p>
-        <p className="ms-hindi ms-hero-hindi">घर की रसोई से… आपके परिवार की सेहत तक।</p>
-        <div className="ms-hero-cta">
-          <Button variant="forest" as="a" href="../shop/index.html">Explore Our Bestsellers →</Button>
-          <Button variant="outline" onClick={() => setFinder(true)}>Help Me Choose</Button>
+    <React.Fragment>
+      <section id="top" className="ms-hero">
+        {/* The food fills the whole hero; the copy sits on it. */}
+        <div className="ms-hero-media">
+          {video && !failed ? (
+            <video ref={vref} poster={poster} muted playsInline preload="metadata"
+              onError={() => setFailed(true)}
+              aria-label="A laddu being gently broken open by hand, showing its texture">
+              <source src={video} type="video/mp4" />
+            </video>
+          ) : (
+            <img src={poster} alt="A close-up of Mishthi Sattva laddu — nuts, seeds and dates pressed together — in a stone bowl, with almonds, cashews, walnuts and seeds beside it" />
+          )}
         </div>
-        {finder && <ProductFinder onClose={() => setFinder(false)} />}
-      </div>
 
-      {/* Edge-to-edge food visual. The container holds its aspect ratio whether
-          a video or the poster is inside it, so nothing shifts as media loads. */}
-      <div className="ms-hero-media">
-        {video && !failed ? (
-          <video ref={vref} className="ms-hero-vid" poster={poster}
-            muted playsInline preload="metadata"
-            onError={() => setFailed(true)}
-            aria-label="A laddu being gently broken open by hand, showing its texture">
-            <source src={video} type="video/mp4" />
-          </video>
-        ) : (
-          <img src={poster} alt="A close-up of Mishthi Sattva laddu — nuts, seeds and dates pressed together — in a stone bowl, with almonds, cashews, walnuts and seeds beside it" />
-        )}
-      </div>
+        {/* A wash of the page's own ivory, fading out across the image. It keeps
+            the words readable whatever photo or video sits behind them — which
+            matters because this one is meant to be swapped. */}
+        <div className="ms-hero-wash" aria-hidden="true" />
 
-      {/* The gift note sits under the hero rather than over the food. */}
-      <div className="ms-hero-gift">
-        <span className="ms-hero-giftico"><Leaf size={20} /></span>
-        <span>
-          <b>{GIFT_BADGE.title}</b>
-          <em>{GIFT_BADGE.sub}</em>
-        </span>
+        <div className="ms-hero-inner">
+          <div className="ms-hero-copy">
+            <p className="ms-hero-eyebrow"><span>01</span> / The Mishthi Table</p>
+            <h1 className="ms-hero-h1">
+              Pure ingredients.<br />
+              <span>Pure intentions.</span>
+            </h1>
+            <p className="ms-hero-sub">Traditional favourites, thoughtfully made in small batches.</p>
+            <p className="ms-hindi ms-hero-hindi">घर की रसोई से… आपके परिवार की सेहत तक।</p>
+            <div className="ms-hero-cta">
+              <a className="ms-hero-btn" href="../shop/index.html">Explore Our Bestsellers <span aria-hidden="true">→</span></a>
+              <button type="button" className="ms-hero-link" onClick={() => setFinder(true)}>Help Me Choose</button>
+            </div>
+            {finder && <ProductFinder onClose={() => setFinder(false)} />}
+          </div>
+        </div>
+      </section>
+
+      {/* Caption rail under the hero — and where the gift note now lives, so it
+          no longer covers the food. */}
+      <div className="ms-hero-rail">
+        <span className="ms-hero-rule" aria-hidden="true" />
+        <p><b>{GIFT_BADGE.title}</b> — {GIFT_BADGE.sub}</p>
+        <span className="ms-hero-rule" aria-hidden="true" />
       </div>
-    </section>
+    </React.Fragment>
   );
 }
 
