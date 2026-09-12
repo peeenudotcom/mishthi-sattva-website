@@ -307,7 +307,15 @@ a.ms-marquee-item:focus-visible { outline: 2px solid var(--forest, #1f3d31); out
 
 .ms-hero-media {
   position: absolute; top: 0; right: 0; bottom: 0;
-  width: auto; aspect-ratio: 16 / 9; z-index: -2;
+  /* Width stated outright rather than left to `width: auto` + aspect-ratio.
+     On an absolutely positioned box with left:auto that combination resolves
+     from the height only in some engines; in others it shrink-to-fits to ZERO
+     and the clip vanishes, leaving just the blurred backdrop. This is the same
+     arithmetic — the hero's clamp(440px, 68vh, 660px) height times 16/9 — so
+     the footage keeps its shape without depending on that behaviour. */
+  width: clamp(782px, 120.89vh, 1173px);
+  aspect-ratio: 16 / 9;   /* honoured where supported; the width above is what matters */
+  z-index: -2;
   /* Dissolve the clip's left edge into the page rather than ending it on a
      hard vertical line where the footage stops and the cream begins. */
   -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 32%);
@@ -385,11 +393,10 @@ a.ms-marquee-item:focus-visible { outline: 2px solid var(--forest, #1f3d31); out
   .ms-hero { min-height: 0; display: flex; flex-direction: column; }
   .ms-hero-inner { order: 1; }
   .ms-hero-media {
-    order: 2; position: relative; top: auto; right: auto; bottom: auto;
+    order: 2; position: relative; inset: auto; z-index: 0;
     width: 100%; aspect-ratio: 16 / 11;
     -webkit-mask-image: none; mask-image: none;
   }
-  .ms-hero-media { position: relative; inset: auto; z-index: 0; aspect-ratio: 16 / 11; }
   .ms-hero-media img, .ms-hero-media video { object-position: center 48%; }
   .ms-hero-wash, .ms-hero-backdrop { display: none; }
   .ms-hero-inner { padding: 36px 20px 28px; }
