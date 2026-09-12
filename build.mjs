@@ -421,6 +421,9 @@ async function buildPage({ src, out }) {
     html = html.replace("</head>", `  <script>window.MS_PRODUCT_SLUG=${JSON.stringify(seo.productSlug)};</script>\n</head>`);
   }
 
+  // Scrolling announcement bar. Not on the admin panel.
+  if (out !== "admin/index.html") html = html.replace("</head>", '  <script src="/js/marquee.js" defer></script>\n</head>');
+
   // Global brand cursor (desktop only; the script self-disables on touch / reduced-motion). Not on the admin panel.
   if (out !== "admin/index.html") html = html.replace("</head>", '  <script src="/js/cursor.js" defer></script>\n</head>');
 

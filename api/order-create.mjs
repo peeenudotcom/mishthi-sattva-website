@@ -7,7 +7,7 @@
  * returns what the checkout widget needs. The order is only marked paid later,
  * by /api/order-verify, after the signature checks out.
  */
-import { json, readBody, config, db, priceCart, cleanCustomer, deliveryFee, createRazorpayOrder, decrementStock } from "./_lib.mjs";
+import { json, readBody, config, db, priceCart, cleanCustomer, deliveryFee, createRazorpayOrder, decrementStock, applyCoupon } from "./_lib.mjs";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return json(res, 405, { error: "Method not allowed" });
@@ -29,8 +29,16 @@ export default async function handler(req, res) {
 
     const customer = cleanCustomer(body.customer);
     const { items, subtotal } = await priceCart(body.items, { allowAskPrice: method === "whatsapp" });
+
+    /* The browser sends a CODE, never an amount. Every rule — validity, dates,
+       minimum, usage cap, first-order-only — is decided here. */
+    const coupon = body.coupon ? await applyCoupon({
+      code: body.coupon, subtotal, phone: customer.phone, email: customer.email,
+    }) : null;
+    const discount = coupon ? coupon.discount : 0;
+
     const delivery = deliveryFee(subtotal, customer.pincode);
-    const total = subtotal + delivery;
+    const total = subtotal + delivery - discount;
     if (method !== "whatsapp" && total < 1) return json(res, 400, { error: "That order total doesn't look right." });
 
     const row = {
@@ -39,6 +47,8 @@ export default async function handler(req, res) {
       items,
       subtotal,
       delivery_fee: delivery,
+      discount,
+      coupon_code: coupon ? coupon.code : null,
       total,
       status: "new",
       source: method === "whatsapp" ? "whatsapp" : "website",
@@ -65,12 +75,20 @@ export default async function handler(req, res) {
     // money actually arrives.
     if (method !== "online") await decrementStock(items);
 
+    // Count the code as used once the order is committed. A failure here must
+    // never lose an order that is already recorded, so it only warns.
+    if (coupon && method !== "online") {
+      db.bumpCouponUse(coupon.id, coupon.used_count + 1).catch((e) => console.error("[coupon]", e.message));
+    }
+
     return json(res, 200, {
       ok: true,
       orderId: saved.id,
       orderNo: saved.order_no,
       subtotal,
       delivery,
+      discount,
+      coupon: coupon ? { code: coupon.code, label: coupon.label } : null,
       total,
       payment_method: method,
       ...(rzp ? { razorpay: { orderId: rzp.id, amount: rzp.amount, currency: rzp.currency, keyId: config.rzpKeyId } } : {}),

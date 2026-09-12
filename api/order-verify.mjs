@@ -6,7 +6,7 @@
  * knows that secret, so recomputing the HMAC here is what actually proves the
  * money arrived — the browser saying "payment succeeded" proves nothing.
  */
-import { json, readBody, config, db, verifySignature, decrementStock } from "./_lib.mjs";
+import { json, readBody, config, db, verifySignature, decrementStock, applyCouponUse } from "./_lib.mjs";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return json(res, 405, { error: "Method not allowed" });
@@ -42,8 +42,11 @@ export default async function handler(req, res) {
       status: "confirmed",
     }))?.[0] || order;
 
-    // Payment confirmed — now the stock is genuinely spoken for.
+    // Payment confirmed — now the stock and the discount code are genuinely
+    // spoken for. Neither may lose an order that is already paid, so both warn.
     await decrementStock(order.items || updated.items || []);
+    const usedCode = updated.coupon_code || order.coupon_code;
+    if (usedCode) applyCouponUse(usedCode).catch((e) => console.error("[coupon]", e.message));
 
     return json(res, 200, { ok: true, orderNo: updated.order_no, total: updated.total });
   } catch (err) {

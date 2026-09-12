@@ -420,8 +420,36 @@ function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
   const [err, setErr] = React.useState("");
   const [placed, setPlaced] = React.useState(null);      // {orderNo, total, paid}
 
+  // Discount code. The browser holds only the code and the amount the SERVER
+  // came back with — it never computes a discount of its own.
+  const [code, setCode] = React.useState("");
+  const [coupon, setCoupon] = React.useState(null);   // {code, label, discount}
+  const [codeMsg, setCodeMsg] = React.useState("");
+  const [codeBusy, setCodeBusy] = React.useState(false);
+
+  const applyCode = () => {
+    if (!code.trim()) return;
+    setCodeBusy(true); setCodeMsg("");
+    fetch("/api/coupon-check", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code: code.trim(),
+        items: items.map((it) => ({ id: it.id, weight: it.weight, qty: it.qty })),
+        phone: form.phone, email: form.email,
+      }),
+    })
+      .then((r) => r.json().then((d) => (r.ok ? d : Promise.reject(new Error(d.error || "That code couldn't be applied.")))))
+      .then((d) => { setCodeBusy(false); setCoupon({ code: d.code, label: d.label, discount: d.discount }); setCodeMsg(""); })
+      .catch((e) => { setCodeBusy(false); setCoupon(null); setCodeMsg(e.message); });
+  };
+  const clearCode = () => { setCoupon(null); setCode(""); setCodeMsg(""); };
+
+  // A changed cart or phone invalidates a discount the server worked out earlier.
+  React.useEffect(() => { if (coupon) { setCoupon(null); setCodeMsg("Cart changed — apply your code again."); } }, [subtotal, form.phone]);
+
   const ship = estimateShipping(subtotal, form.pincode, cfg.shipping);
-  const total = subtotal + ship;
+  const discount = coupon ? coupon.discount : 0;
+  const total = Math.max(0, subtotal + ship - discount);
   const valid = form.name.trim() && form.phone.replace(/\D/g, "").length >= 10 && form.address.trim().length >= 8 && /^[1-9][0-9]{5}$/.test(form.pincode.trim());
 
   // Default to the best option available once we know what the server allows.
@@ -435,6 +463,7 @@ function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
   };
 
   const payload = () => ({
+    coupon: coupon ? coupon.code : null,
     items: items.map((it) => ({ id: it.id, weight: it.weight, qty: it.qty })),
     customer: { name: form.name, phone: form.phone, email: form.email, address: form.address, city: form.city, pincode: form.pincode, note: form.note },
   });
@@ -494,7 +523,7 @@ function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
   // it here would create "ghost" orders the customer never sent (shown as Placed).
   const openWhatsApp = () => {
     const lines = items.map((it) => `• ${it.name} (${it.weight}) × ${it.qty} — ${it.price == null ? "Ask for price" : money(it.price * it.qty)}`).join("\n");
-    const msg = `Namaste Mishthi Sattva! 🌿 I'd like to place an order:\n\n${lines}\n\nSubtotal: ${money(subtotal)}\nDelivery: ${ship === 0 ? "Free" : money(ship)}\nTotal: ${money(total)}\n\nName: ${form.name}\nPhone: ${form.phone}\nAddress: ${form.address}, ${form.city} ${form.pincode}${form.note ? `\nNote: ${form.note}` : ""}`;
+    const msg = `Namaste Mishthi Sattva! 🌿 I'd like to place an order:\n\n${lines}\n\nSubtotal: ${money(subtotal)}${coupon ? `\nDiscount (${coupon.code}): -${money(coupon.discount)}` : ""}\nDelivery: ${ship === 0 ? "Free" : money(ship)}\nTotal: ${money(total)}\n\nName: ${form.name}\nPhone: ${form.phone}\nAddress: ${form.address}, ${form.city} ${form.pincode}${form.note ? `\nNote: ${form.note}` : ""}`;
     const href = `https://wa.me/${PHONE}?text=${encodeURIComponent(msg)}`;
     remember(); // pre-fill the next checkout on this device
     setWaHref(href);
@@ -588,6 +617,7 @@ function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
               <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 7, fontSize: 14 }}>
                 <Row k="Subtotal" v={money(subtotal)} />
                 <Row k="Delivery" v={ship === 0 ? "Free" : money(ship)} accent={ship === 0} />
+                {coupon && <Row k={`Discount (${coupon.code})`} v={"− " + money(coupon.discount)} accent />}
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6, paddingTop: 10, borderTop: "1px dashed var(--border)" }}>
                   <span style={{ fontWeight: 700, color: "var(--primary)" }}>Total</span>
                   <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 26, color: "var(--primary)" }}>{money(total)}</span>
@@ -598,6 +628,32 @@ function Checkout({ items, subtotal, onClose, onBack, onPlaced }) {
                   </p>
                 )}
               </div>
+              {/* ---- discount code ---- */}
+              <div style={{ marginTop: 16 }}>
+                {coupon ? (
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "11px 13px", borderRadius: "var(--radius-md)", background: "color-mix(in oklab, var(--success, #2e7d32) 10%, transparent)", border: "1px dashed color-mix(in oklab, var(--success, #2e7d32) 45%, transparent)" }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "var(--success, #2e7d32)" }}>
+                      ✓ {coupon.code} applied — {coupon.label}
+                    </span>
+                    <button type="button" onClick={clearCode} style={{ border: "none", background: "transparent", color: "var(--muted-foreground)", fontSize: 12, cursor: "pointer", textDecoration: "underline" }}>Remove</button>
+                  </div>
+                ) : (
+                  <React.Fragment>
+                    <p style={{ margin: "0 0 7px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--accent)" }}>Have a discount code?</p>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="WELCOME10"
+                        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyCode(); } }}
+                        style={{ flex: 1, minWidth: 0, padding: "11px 13px", fontFamily: "var(--font-sans)", fontSize: 14, fontWeight: 600, letterSpacing: "0.04em", color: "var(--primary)", background: "var(--card)", border: "1.5px solid var(--border)", borderRadius: "var(--radius-md)" }} />
+                      <button type="button" onClick={applyCode} disabled={codeBusy || !code.trim()}
+                        style={{ flexShrink: 0, padding: "11px 18px", border: "none", borderRadius: "var(--radius-md)", background: "var(--secondary)", color: "var(--primary)", fontFamily: "var(--font-sans)", fontWeight: 700, fontSize: 14, cursor: codeBusy ? "wait" : "pointer" }}>
+                        {codeBusy ? "…" : "Apply"}
+                      </button>
+                    </div>
+                  </React.Fragment>
+                )}
+                {codeMsg && <p style={{ margin: "7px 0 0", fontSize: 12.5, color: "var(--destructive)" }}>{codeMsg}</p>}
+              </div>
+
               {/* ---- how would you like to pay? ---- */}
               <div style={{ marginTop: 18, display: "grid", gap: 8 }}>
                 <p style={{ margin: 0, fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--accent)" }}>Payment</p>

@@ -8,6 +8,19 @@ window.MS_CONFIG = {
   WHATSAPP: "918557942246",
 };
 
+
+/* The scrolling announcement bar at the top of every page (js/marquee.js).
+   Edit these lines to change what it says; an empty list hides the bar.
+   Keep them short — they scroll past, so anything long doesn't get read.
+   ⚠️ If you change the WELCOME10 offer, change the coupon in /admin → Coupons
+   too, or the bar will promise something checkout refuses. */
+window.MS_MARQUEE = [
+  "Extra 10% off your first order — use code WELCOME10",
+  "Free delivery on orders above ₹999",
+  "Handmade fresh in small batches in Kotkapura",
+  "No refined sugar · No preservatives",
+];
+
 /* Legal identity, shown on product pages and in the footer. The licence is
    issued to the proprietor, Kiran Bansal — "Cherry Bansal" is the founder's
    public name and must not replace it on anything legal. */

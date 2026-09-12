@@ -508,6 +508,111 @@ function Products({ cats }) {
   );
 }
 
+/* ---------------- discount codes ----------------
+   The rules live in the database and are enforced by the server, so anything
+   changed here takes effect on the next checkout — no deploy needed. */
+function Coupons() {
+  const [rows, setRows] = React.useState(null);
+  const [err, setErr] = React.useState("");
+  const [draft, setDraft] = React.useState({ code: "", kind: "percent", value: "10", max_discount: "200", min_order: "0", first_order_only: true, usage_limit: "", note: "" });
+  const [busy, setBusy] = React.useState(false);
+
+  const load = () => D.adminCoupons().then(setRows).catch((e) => setErr(e.message));
+  React.useEffect(() => { load(); }, []);
+
+  const num = (v) => (v === "" || v == null ? null : Number(v));
+
+  const add = () => {
+    const code = draft.code.trim().toUpperCase();
+    if (!code) { setErr("Give the code a name, e.g. WELCOME10"); return; }
+    if (!draft.value || Number(draft.value) <= 0) { setErr("Enter how much it takes off."); return; }
+    setBusy(true); setErr("");
+    D.createCoupon({
+      code, kind: draft.kind, value: Number(draft.value),
+      max_discount: draft.kind === "percent" ? num(draft.max_discount) : null,
+      min_order: Number(draft.min_order || 0),
+      first_order_only: !!draft.first_order_only,
+      usage_limit: num(draft.usage_limit),
+      note: draft.note.trim() || null,
+    }).then(() => { setBusy(false); setDraft({ ...draft, code: "", note: "" }); load(); })
+      .catch((e) => { setBusy(false); setErr(e.message); });
+  };
+
+  const toggle = (r) => {
+    setRows((rs) => rs.map((x) => (x.id === r.id ? { ...x, active: !x.active } : x)));
+    D.updateCoupon(r.id, { active: !r.active }).catch((e) => setErr(e.message));
+  };
+  const del = (r) => {
+    if (!window.confirm(`Delete ${r.code}? Orders that already used it keep their discount.`)) return;
+    D.deleteCoupon(r.id).then(load).catch((e) => setErr(e.message));
+  };
+
+  const off = (r) => (r.kind === "flat" ? money(r.value) + " off" : r.value + "% off" + (r.max_discount ? " (max " + money(r.max_discount) + ")" : ""));
+
+  return (
+    <div style={{ display: "grid", gap: 18 }}>
+      <div className="card">
+        <b style={{ color: "var(--primary)", fontSize: 16 }}>New discount code</b>
+        <p className="muted" style={{ fontSize: 12, marginTop: 6 }}>
+          Codes are checked on the server, so a customer can't edit the discount in their browser.
+          “First order only” is matched on the mobile number they check out with.
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "1.1fr .9fr .7fr .9fr .9fr .8fr auto", gap: 8, alignItems: "end", marginTop: 12 }}>
+          <label style={{ fontSize: 11, fontWeight: 700, color: "var(--muted-foreground)" }}>CODE
+            <input value={draft.code} onChange={(e) => setDraft({ ...draft, code: e.target.value.toUpperCase() })} placeholder="WELCOME10" /></label>
+          <label style={{ fontSize: 11, fontWeight: 700, color: "var(--muted-foreground)" }}>TYPE
+            <select value={draft.kind} onChange={(e) => setDraft({ ...draft, kind: e.target.value })}>
+              <option value="percent">% off</option><option value="flat">₹ off</option>
+            </select></label>
+          <label style={{ fontSize: 11, fontWeight: 700, color: "var(--muted-foreground)" }}>AMOUNT
+            <input type="number" value={draft.value} onChange={(e) => setDraft({ ...draft, value: e.target.value })} /></label>
+          <label style={{ fontSize: 11, fontWeight: 700, color: "var(--muted-foreground)" }}>MAX ₹ OFF
+            <input type="number" value={draft.max_discount} disabled={draft.kind === "flat"} placeholder="none"
+              onChange={(e) => setDraft({ ...draft, max_discount: e.target.value })} /></label>
+          <label style={{ fontSize: 11, fontWeight: 700, color: "var(--muted-foreground)" }}>MIN ORDER ₹
+            <input type="number" value={draft.min_order} onChange={(e) => setDraft({ ...draft, min_order: e.target.value })} /></label>
+          <label style={{ fontSize: 11, fontWeight: 700, color: "var(--muted-foreground)" }}>USES
+            <input type="number" value={draft.usage_limit} placeholder="∞" onChange={(e) => setDraft({ ...draft, usage_limit: e.target.value })} /></label>
+          <button className="btn" onClick={add} disabled={busy}>{busy ? "Adding…" : "Add code"}</button>
+        </div>
+        <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12, fontSize: 13, color: "var(--primary)" }}>
+          <input type="checkbox" style={{ width: 17, height: 17 }} checked={draft.first_order_only}
+            onChange={(e) => setDraft({ ...draft, first_order_only: e.target.checked })} />
+          First order only — refuse it for anyone who has ordered before
+        </label>
+        {err && <p style={{ color: "var(--destructive)", fontSize: 13 }}>{err}</p>}
+      </div>
+
+      <div className="card" style={{ overflowX: "auto" }}>
+        {!rows && <p className="muted">Loading codes…</p>}
+        {rows && !rows.length && <p className="muted">No discount codes yet.</p>}
+        {rows && rows.length > 0 && (
+          <table>
+            <thead><tr><th>Code</th><th>Discount</th><th>Conditions</th><th>Used</th><th>Live</th><th></th></tr></thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.id}>
+                  <td><b style={{ color: "var(--primary)", letterSpacing: ".05em" }}>{r.code}</b>
+                    {r.note && <div className="muted" style={{ fontSize: 11.5 }}>{r.note}</div>}</td>
+                  <td>{off(r)}</td>
+                  <td className="muted" style={{ fontSize: 12.5 }}>
+                    {r.first_order_only ? "First order only" : "Anyone"}
+                    {Number(r.min_order) > 0 ? " · min " + money(r.min_order) : ""}
+                    {r.usage_limit != null ? " · limit " + r.usage_limit : ""}
+                  </td>
+                  <td>{r.used_count}{r.usage_limit != null ? " / " + r.usage_limit : ""}</td>
+                  <td><input type="checkbox" style={{ width: 18, height: 18 }} checked={!!r.active} onChange={() => toggle(r)} /></td>
+                  <td><button className="btn ghost" style={{ padding: "4px 10px", fontSize: 12 }} onClick={() => del(r)}>Delete</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ---------------- orders ---------------- */
 const ORDER_STATUS = ["new", "confirmed", "packed", "delivered", "cancelled"];
 
@@ -839,6 +944,7 @@ function MSAdminApp() {
     ["products", "Products"],
     ["categories", "Categories"],
     ["orders", "Orders"],
+    ["coupons", "Coupons"],
     ["enquiries", "Enquiries"],
     ["reviews", "Reviews"],
   ];
@@ -868,6 +974,7 @@ function MSAdminApp() {
       {tab === "products" && <Products cats={cats} />}
       {tab === "categories" && <Categories cats={cats} onChange={loadCats} />}
       {tab === "orders" && <Orders />}
+      {tab === "coupons" && <Coupons />}
       {tab === "enquiries" && <Enquiries />}
       {tab === "reviews" && <Reviews />}
     </div>

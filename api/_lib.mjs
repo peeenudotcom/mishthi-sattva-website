@@ -61,7 +61,17 @@ async function sb(path, opts = {}) {
 export const db = {
   products: () => sb("products?select=slug,name,price,mrp,weight,variants,in_stock,stock"),
   insertOrder: (row) => sb("orders", { method: "POST", body: row, headers: { Prefer: "return=representation" } }),
-  findOrderByRzp: (id) => sb(`orders?razorpay_order_id=eq.${encodeURIComponent(id)}&select=id,order_no,total,payment_status,items`),
+  coupon: (code) => sb(`coupons?code=eq.${encodeURIComponent(String(code).toUpperCase())}&select=*`),
+  bumpCouponUse: (id, used) => sb(`coupons?id=eq.${encodeURIComponent(id)}`, { method: "PATCH", body: { used_count: used } }),
+  /* Has this person ordered before? Matched on phone (everyone gives one) and
+     on email when there is one. Only paid/confirmed history counts — an
+     abandoned pending order shouldn't burn someone's welcome offer. */
+  priorOrders: (phone, email) => {
+    const ors = [`phone.eq.${phone}`];
+    if (email) ors.push(`user_email.eq.${email}`);
+    return sb(`orders?or=(${ors.join(",")})&payment_status=neq.pending&select=id&limit=1`);
+  },
+  findOrderByRzp: (id) => sb(`orders?razorpay_order_id=eq.${encodeURIComponent(id)}&select=id,order_no,total,payment_status,items,coupon_code`),
   markPaid: (id, patch) => sb(`orders?id=eq.${encodeURIComponent(id)}`, { method: "PATCH", body: patch, headers: { Prefer: "return=representation" } }),
 };
 
@@ -183,6 +193,55 @@ export function cleanCustomer(c = {}) {
   if (!/^[1-9][0-9]{5}$/.test(out.pincode)) throw new Error("Please enter a valid 6-digit PIN code.");
   if (out.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(out.email)) throw new Error("Please check your email address.");
   return out;
+}
+
+/* ---------- discount codes ----------
+   A discount is money, so every rule is checked here and the browser is only
+   ever told the resulting amount. It sends a code; it cannot send a discount.
+   Returns { code, discount, label } or throws a message written for the
+   customer. An unusable code is a refusal, never a silent zero. */
+export async function applyCoupon({ code, subtotal, phone, email }) {
+  const wanted = String(code || "").trim().toUpperCase();
+  if (!wanted) return null;
+  if (wanted.length > 32) throw new Error("That code doesn't look right.");
+
+  const rows = await db.coupon(wanted);
+  const c = rows && rows[0];
+  if (!c) throw new Error("We don't recognise that code.");
+  if (!c.active) throw new Error("That code is no longer active.");
+
+  const now = Date.now();
+  if (c.starts_at && now < Date.parse(c.starts_at)) throw new Error("That code isn't active yet.");
+  if (c.expires_at && now > Date.parse(c.expires_at)) throw new Error("That code has expired.");
+  if (c.usage_limit != null && Number(c.used_count) >= Number(c.usage_limit)) {
+    throw new Error("That code has been fully claimed.");
+  }
+  if (Number(c.min_order) > 0 && subtotal < Number(c.min_order)) {
+    throw new Error(`Add ₹${Math.ceil(Number(c.min_order) - subtotal)} more to use that code.`);
+  }
+  if (c.first_order_only) {
+    const prior = await db.priorOrders(phone, email);
+    if (prior && prior.length) throw new Error("That code is for a first order only — and it looks like we've met before! 🌿");
+  }
+
+  let discount = c.kind === "flat"
+    ? Number(c.value)
+    : Math.round(subtotal * Number(c.value) / 100);
+  if (c.max_discount != null) discount = Math.min(discount, Number(c.max_discount));
+  discount = Math.max(0, Math.min(Math.round(discount), subtotal));   // never below zero, never more than the goods
+  if (discount <= 0) throw new Error("That code doesn't apply to this order.");
+
+  const label = c.kind === "flat" ? `₹${Number(c.value)} off` : `${Number(c.value)}% off`;
+  return { id: c.id, code: c.code, discount, label, used_count: Number(c.used_count) };
+}
+
+/* Count a code as used. Separate from applyCoupon because an online order only
+   commits once the payment is verified, which happens in a different request. */
+export async function applyCouponUse(code) {
+  const rows = await db.coupon(code);
+  const c = rows && rows[0];
+  if (!c) return;
+  await db.bumpCouponUse(c.id, Number(c.used_count) + 1);
 }
 
 /* ---------- razorpay (REST — no SDK dependency) ---------- */

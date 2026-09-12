@@ -282,6 +282,20 @@
       // (writes below still require the logged-in token / admin role).
       return rest("products?select=*&order=sort_order.asc,name.asc", { anon: true });
     },
+    /* ---- discount codes (admin only; RLS gives the public no access) ---- */
+    adminCoupons: function () {
+      return rest("coupons?select=*&order=created_at.desc");
+    },
+    createCoupon: function (row) {
+      return rest("coupons", { method: "POST", body: row });
+    },
+    updateCoupon: function (id, patch) {
+      return adminPatch("coupons", id, patch);
+    },
+    deleteCoupon: function (id) {
+      return rest("coupons?id=eq." + encodeURIComponent(id), { method: "DELETE" });
+    },
+
     adminOrders: function () {
       return rest("orders?select=*&order=created_at.desc&limit=200");
     },

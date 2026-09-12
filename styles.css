@@ -223,3 +223,41 @@
 .ms-pp-btn { display: inline-block; margin-top: 18px; padding: 13px 24px; border-radius: var(--radius-pill); background: var(--primary); color: var(--primary-foreground); font-weight: 700; text-decoration: none; }
 
 @media (prefers-reduced-motion: reduce) { .ms-pp-mini { transition: none; } }
+
+/* ============================================================
+   ANNOUNCEMENT MARQUEE (js/marquee.js)
+   Content comes from MS_MARQUEE in js/config.js.
+   ============================================================ */
+#ms-marquee {
+  position: relative; z-index: 60; overflow: hidden;
+  background: var(--forest-deep, #16332a); color: var(--cream, #f8f5ee);
+  border-bottom: 1px solid color-mix(in oklab, var(--gold, #c9a227) 40%, transparent);
+}
+.ms-marquee-track {
+  display: flex; width: max-content;
+  animation: msMarquee 30s linear infinite;
+  will-change: transform;
+}
+.ms-marquee-group { display: flex; align-items: center; }
+.ms-marquee-item {
+  padding: 8px 0; font-family: var(--font-sans); font-size: 12.5px; font-weight: 600;
+  letter-spacing: 0.06em; white-space: nowrap;
+}
+.ms-marquee-dot { padding: 0 22px; color: var(--gold, #c9a227); font-size: 10px; }
+
+/* Moving exactly half the track puts the duplicate strip where the first
+   started, so the loop has no visible seam. */
+@keyframes msMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* Let people stop it to read — a moving line is hard work for some readers. */
+#ms-marquee:hover .ms-marquee-track,
+#ms-marquee:focus-within .ms-marquee-track { animation-play-state: paused; }
+
+@media (max-width: 600px) { .ms-marquee-item { font-size: 11.5px; } .ms-marquee-dot { padding: 0 16px; } }
+
+/* Motion sensitivity: show the messages, still, rather than scrolling them. */
+@media (prefers-reduced-motion: reduce) {
+  .ms-marquee-track { animation: none; width: 100%; justify-content: center; }
+  .ms-marquee-track .ms-marquee-group:nth-child(2) { display: none; }
+  .ms-marquee-group { flex-wrap: wrap; justify-content: center; }
+}
