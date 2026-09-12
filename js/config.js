@@ -29,10 +29,12 @@ window.MS_MARQUEE = [
    Leave "" and the hero shows the approved food photograph instead; set it to
    the video's path (e.g. "/assets/hero-laddu-break-v1.mp4") once the file is
    in assets/ and the hero switches over with no code change.
-   The clip plays muted, inline, ONCE, and holds its last frame. Anyone who has
-   asked for reduced motion, or whose browser blocks autoplay, sees the poster.
+   The clip plays muted, inline, and LOOPS. Its tail is crossfaded into its head
+   so the join doesn't jump — if you replace it, do the same or the loop will
+   visibly snap. Anyone who has asked for reduced motion, or whose browser
+   blocks autoplay, sees the poster.
    Use a versioned filename: /assets/* is cached for a year as immutable. */
-window.MS_HERO_VIDEO = "/assets/hero-laddu-table-v1.mp4";
+window.MS_HERO_VIDEO = "/assets/hero-laddu-table-v2.mp4";
 
 /* Legal identity, shown on product pages and in the footer. The licence is
    issued to the proprietor, Kiran Bansal — "Cherry Bansal" is the founder's

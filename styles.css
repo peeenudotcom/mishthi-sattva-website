@@ -340,7 +340,7 @@ a.ms-marquee-item:focus-visible { outline: 2px solid var(--forest, #1f3d31); out
   margin: 0;
   font-family: var(--font-display);
   /* Sized so the description and BOTH calls to action stay above the fold. */
-  font-size: clamp(40px, 5vw, 72px);
+  font-size: clamp(44px, 5.6vw, 84px);
   font-weight: 600; line-height: 1.02; letter-spacing: -0.022em;
   color: var(--primary);
 }

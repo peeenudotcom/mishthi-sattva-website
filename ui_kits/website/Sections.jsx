@@ -205,7 +205,7 @@ function Hero() {
      photograph stands in as the poster, and the markup is already the one the
      video will use — so adding it is a config change, not a rebuild. */
   const video = (window.MS_HERO_VIDEO || "").trim();
-  const poster = `${ASSET}/hero-laddu-table-v1.jpg`;
+  const poster = `${ASSET}/hero-laddu-table-v2.jpg`;
   const vref = React.useRef(null);
   const [failed, setFailed] = React.useState(false);
 
@@ -237,7 +237,7 @@ function Hero() {
         {/* The food fills the whole hero; the copy sits on it. */}
         <div className="ms-hero-media">
           {video && !failed ? (
-            <video ref={vref} poster={poster} muted playsInline autoPlay preload="auto"
+            <video ref={vref} poster={poster} muted playsInline autoPlay loop preload="auto"
               onError={() => setFailed(true)}
               aria-label="A plate of freshly made laddu on a cream stone table, with a brass spoon and scattered pistachios">
               <source src={video} type="video/mp4" />
