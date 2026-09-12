@@ -199,52 +199,65 @@ function Header({ active = "home" }) {
 /* ---------- hero ---------- */
 function Hero() {
   const [finder, setFinder] = React.useState(false);
+  /* The laddu-breaking clip is supplied later. Until then the approved food
+     photograph stands in as the poster, and the markup is already the one the
+     video will use — so adding it is a config change, not a rebuild. */
+  const video = (window.MS_HERO_VIDEO || "").trim();
+  const poster = `${ASSET}/sampooran-laddu.png`;
+  const vref = React.useRef(null);
+  const [failed, setFailed] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!video || failed) return;
+    const v = vref.current;
+    if (!v) return;
+    // Respect a reduced-motion preference: hold the poster instead of playing.
+    let reduce = false;
+    try { reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+    if (reduce) { setFailed(true); return; }
+    const p = v.play();
+    if (p && p.catch) p.catch(() => setFailed(true));   // autoplay refused → poster
+  }, [video, failed]);
+
   return (
-    <section id="top" style={{ position: "relative", overflow: "hidden" }}>
-      <div aria-hidden="true" style={{ position: "absolute", inset: 0, zIndex: -1, background: "radial-gradient(60% 60% at 80% 10%, color-mix(in oklab, var(--gold) 18%, transparent), transparent), radial-gradient(50% 50% at 0% 100%, color-mix(in oklab, var(--forest) 12%, transparent), transparent)" }} />
-      <div className="ms-container ms-stack" style={{ display: "grid", gridTemplateColumns: "1.18fr 0.82fr", gap: 48, alignItems: "center", padding: "72px 20px" }}>
-        <div>
-          <GoldDivider>Ayurvedic · Satvic · Homemade</GoldDivider>
-          <h1 style={{ marginTop: 24, fontSize: "clamp(66px, 9vw, 116px)", fontWeight: 600, lineHeight: 0.94, letterSpacing: "-0.025em", color: "var(--primary)" }}>
-            Pure Ingredients.<br />
-            <span style={{ fontStyle: "italic", color: "var(--accent)" }}>Pure Intentions.</span>
-          </h1>
-          <p style={{ marginTop: 22, maxWidth: 552, fontSize: 18, lineHeight: 1.6, color: "var(--muted-foreground)" }}>
-            Homemade Ayurvedic laddu, wellness blends, traditional spices and handcrafted foods — prepared in small batches in Cherry Bansal's home kitchen in Kotkapura.
-          </p>
-          <p className="ms-hindi" style={{ marginTop: 12, fontSize: 19, color: "color-mix(in oklab, var(--primary) 90%, transparent)" }}>घर की रसोई से… आपके परिवार की सेहत तक।</p>
-          <div style={{ marginTop: 30, display: "flex", flexWrap: "wrap", gap: 12 }}>
-            <Button variant="forest" as="a" href="../shop/index.html">Explore Our Bestsellers →</Button>
-            <Button variant="outline" onClick={() => setFinder(true)}>Help Me Choose</Button>
-          </div>
-          {finder && <ProductFinder onClose={() => setFinder(false)} />}
-          <div style={{ marginTop: 38, display: "flex", flexWrap: "wrap", gap: "12px 24px", maxWidth: 520 }}>
-            {["Homemade", "Sugar-Free", "Preservative Free", "Sattvic"].map((t) => (
-              <div key={t} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--primary)" }}>
-                <span style={{ color: "var(--accent)" }}><Leaf size={16} /></span> {t}
-              </div>
-            ))}
-          </div>
+    <section id="top" className="ms-hero">
+      <div className="ms-hero-copy">
+        <GoldDivider>Ayurvedic · Satvic · Homemade</GoldDivider>
+        <h1 className="ms-hero-h1">
+          Pure ingredients.<br />
+          <span>Pure intentions.</span>
+        </h1>
+        <p className="ms-hero-sub">Traditional favourites, thoughtfully made in small batches.</p>
+        <p className="ms-hindi ms-hero-hindi">घर की रसोई से… आपके परिवार की सेहत तक।</p>
+        <div className="ms-hero-cta">
+          <Button variant="forest" as="a" href="../shop/index.html">Explore Our Bestsellers →</Button>
+          <Button variant="outline" onClick={() => setFinder(true)}>Help Me Choose</Button>
         </div>
-        <div style={{ position: "relative" }}>
-          <div aria-hidden="true" style={{ position: "absolute", inset: -24, zIndex: -1, borderRadius: 32, background: "linear-gradient(135deg, color-mix(in oklab, var(--gold) 20%, transparent), color-mix(in oklab, var(--forest) 10%, transparent))", filter: "blur(40px)" }} />
-          <div style={{ overflow: "hidden", borderRadius: 32, aspectRatio: "4 / 5", border: "1px solid var(--border)", boxShadow: "var(--shadow-xl)" }}>
-            {/* Hands and ingredients rather than a portrait: the same kitchen, the
-                same mortar and pestle, without putting the founder's face on the
-                first thing every visitor sees. */}
-            <img src={`${ASSET}/hero-products.png`} alt="Hands grinding Ayurvedic ingredients with a brass mortar and pestle, beside laddu, amla, dates and a spice box, in a Kotkapura home kitchen" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 42%", display: "block" }} />
-          </div>
-          <div style={{ position: "absolute", bottom: -22, left: 28, width: 280, borderRadius: 18, border: "1px solid var(--border)", background: "color-mix(in oklab, var(--card) 95%, transparent)", padding: 16, boxShadow: "var(--shadow-lg)", backdropFilter: "blur(8px)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ display: "grid", placeItems: "center", height: 44, width: 44, borderRadius: "var(--radius-pill)", background: "color-mix(in oklab, var(--gold) 15%, transparent)", color: "var(--accent)" }}><Leaf size={22} /></div>
-              <div>
-                {/* TODO: confirm the gift + minimum order value, or remove this badge. Edit GIFT_BADGE at top of file. */}
-                <p style={{ fontSize: 14, fontWeight: 600, color: "var(--primary)" }}>{GIFT_BADGE.title}</p>
-                <p style={{ fontSize: 12, color: "var(--muted-foreground)" }}>{GIFT_BADGE.sub}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        {finder && <ProductFinder onClose={() => setFinder(false)} />}
+      </div>
+
+      {/* Edge-to-edge food visual. The container holds its aspect ratio whether
+          a video or the poster is inside it, so nothing shifts as media loads. */}
+      <div className="ms-hero-media">
+        {video && !failed ? (
+          <video ref={vref} className="ms-hero-vid" poster={poster}
+            muted playsInline preload="metadata"
+            onError={() => setFailed(true)}
+            aria-label="A laddu being gently broken open by hand, showing its texture">
+            <source src={video} type="video/mp4" />
+          </video>
+        ) : (
+          <img src={poster} alt="A close-up of Mishthi Sattva laddu — nuts, seeds and dates pressed together — in a stone bowl, with almonds, cashews, walnuts and seeds beside it" />
+        )}
+      </div>
+
+      {/* The gift note sits under the hero rather than over the food. */}
+      <div className="ms-hero-gift">
+        <span className="ms-hero-giftico"><Leaf size={20} /></span>
+        <span>
+          <b>{GIFT_BADGE.title}</b>
+          <em>{GIFT_BADGE.sub}</em>
+        </span>
       </div>
     </section>
   );

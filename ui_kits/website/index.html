@@ -31,7 +31,11 @@
   @media (max-width: 680px) {
     h1 { font-size: 42px !important; }
     h2 { font-size: 32px !important; }
-    section { padding-top: 56px !important; padding-bottom: 56px !important; }
+    /* The hero is a full-bleed split panel, not a normal padded section — its
+       copy column and media supply their own spacing, and this rule would both
+       double the gap above the headline and stop the food reaching the edge. */
+    section:not(.ms-hero) { padding-top: 56px !important; padding-bottom: 56px !important; }
+    h1.ms-hero-h1 { font-size: clamp(34px, 9vw, 48px) !important; }
   }
 </style>
 </head>

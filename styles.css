@@ -266,3 +266,66 @@ a.ms-marquee-item:focus-visible { outline: 2px solid var(--gold, #c9a227); outli
   .ms-marquee-track .ms-marquee-group:nth-child(2) { display: none; }
   .ms-marquee-group { flex-wrap: wrap; justify-content: center; }
 }
+
+/* ============================================================
+   HOME HERO — split: ivory copy panel left, food visual right
+   ============================================================ */
+.ms-hero {
+  display: grid; grid-template-columns: 48% 52%; align-items: center;
+  background: var(--cream, #f4efe2);
+  position: relative;
+  /* The global `section` rule adds 56px top and bottom. Here that stacked on
+     top of the copy panel's own padding and stopped the food reaching the
+     edge, so the section carries none and each panel sets its own. */
+  padding: 0;
+}
+/* The copy panel keeps the page's normal left margin; the media runs to the
+   edge of the screen, which is what makes the food feel close. */
+.ms-hero-copy {
+  padding: 72px clamp(28px, 5vw, 72px) 72px max(20px, calc((100vw - 1280px) / 2 + 20px));
+  box-sizing: border-box;
+}
+.ms-hero-h1 {
+  margin: 22px 0 0;
+  font-family: var(--font-display);
+  /* Deliberately smaller than the old 116px: the description and both buttons
+     have to sit above the fold with it. */
+  font-size: clamp(38px, 4.6vw, 62px);
+  font-weight: 600; line-height: 1.02; letter-spacing: -0.02em;
+  color: var(--primary);
+}
+.ms-hero-h1 span { font-style: italic; color: var(--accent); }
+.ms-hero-sub { margin: 20px 0 0; max-width: 30ch; font-size: clamp(16px, 1.3vw, 19px); line-height: 1.6; color: var(--muted-foreground); }
+.ms-hero-hindi { margin: 12px 0 0; font-size: 18px; color: color-mix(in oklab, var(--primary) 90%, transparent); }
+.ms-hero-cta { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 12px; }
+
+.ms-hero-media { position: relative; aspect-ratio: 1 / 1; overflow: hidden; background: var(--cream, #f4efe2); }
+.ms-hero-media img, .ms-hero-vid {
+  width: 100%; height: 100%; object-fit: cover; object-position: center 45%; display: block;
+}
+
+/* The gift note, under the hero instead of over the food. */
+.ms-hero-gift {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; gap: 12px;
+  margin: 0 auto; padding: 14px 20px 26px;
+  max-width: 1280px; width: 100%; box-sizing: border-box;
+}
+.ms-hero-giftico {
+  display: grid; place-items: center; height: 40px; width: 40px; flex-shrink: 0;
+  border-radius: var(--radius-pill); background: color-mix(in oklab, var(--gold) 15%, transparent); color: var(--accent);
+}
+.ms-hero-gift b { display: block; font-size: 14px; font-weight: 600; color: var(--primary); }
+.ms-hero-gift em { display: block; font-style: normal; font-size: 12.5px; color: var(--muted-foreground); }
+
+@media (max-width: 900px) {
+  /* Stacked: the words and both buttons come first, then the food. The visual
+     is kept short so the hero doesn't eat a whole phone screen on its own. */
+  .ms-hero { grid-template-columns: 1fr; }
+  .ms-hero-copy { padding: 40px 20px 28px; }
+  .ms-hero-h1 { font-size: clamp(34px, 9vw, 48px); }
+  .ms-hero-sub { max-width: none; }
+  .ms-hero-media { aspect-ratio: 16 / 11; }
+  .ms-hero-media img, .ms-hero-vid { object-position: center 48%; }
+  .ms-hero-gift { padding: 16px 20px 22px; }
+}

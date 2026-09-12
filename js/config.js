@@ -24,6 +24,16 @@ window.MS_MARQUEE = [
   { text: "No refined sugar · No preservatives", href: "/shop" },
 ];
 
+
+/* The home hero's food clip — a laddu being broken open by hand.
+   Leave "" and the hero shows the approved food photograph instead; set it to
+   the video's path (e.g. "/assets/hero-laddu-break-v1.mp4") once the file is
+   in assets/ and the hero switches over with no code change.
+   The clip plays muted, inline, ONCE, and holds its last frame. Anyone who has
+   asked for reduced motion, or whose browser blocks autoplay, sees the poster.
+   Use a versioned filename: /assets/* is cached for a year as immutable. */
+window.MS_HERO_VIDEO = "";
+
 /* Legal identity, shown on product pages and in the footer. The licence is
    issued to the proprietor, Kiran Bansal — "Cherry Bansal" is the founder's
    public name and must not replace it on anything legal. */
